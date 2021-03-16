@@ -6,7 +6,7 @@ This project models a game similar to "Activity" with a webinterface and an IoT 
 ## Team members
 - Diana Gründlinger
 - Marcel Alexander Huber
-- Thomas Klotz - Project leader
+- Thomas Klotz - *Project leader*
 - Aaron Targa
 - Matthias Thalmann
 
@@ -50,7 +50,7 @@ When commiting to this repository please use the following naming schema:
 This defines the changed component/part of the project. E.g. `userManagement`
 
 ### Short summary
-Shortly describe the changes and **reference related issues**. E.g. `added possibility to remove users #2` where `#2` references the commit with the id 2
+Shortly describe the changes and **reference related issues**. E.g. `added possibility to remove users (#2)` where `#2` references the commit with the id 2
 
 ## Issues
 When creating issues please use the following naming schema:
