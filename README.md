@@ -16,7 +16,9 @@ This project models a game similar to "Activity" with a webinterface and an IoT 
 │
 └─ client - Contains the Angular frontend project
 │
-└─ server - Contains the Spring backend with REST Api and Websocket server
+└─ backend - Contains the Spring backend with REST Api and Websocket server
+|
+└─ raspberry - Contains the Raspberry communication server
 │
 └─ docs   - Contains documents and documentation for the project
    │
