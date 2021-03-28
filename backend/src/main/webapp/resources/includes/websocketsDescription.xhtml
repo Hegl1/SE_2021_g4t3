@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ng="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	xmlns:cc="http://java.sun.com/jsf/composite">
+
+	<h3>Websockets</h3>
+
+	<p>
+		Sehr vereinfacht gesagt, dienen websockets zur asynchronen
+		Kommunikation zwischen client und server. Im Unterschied zu "normalen"
+		HTTP-Verbindungen können websockets eine bereits besetehende
+		Verbindung wiederverwenden, anstatt immer wieder eine neue aufbauen zu
+		müssen. Über diese verbindung können - wie schon erwähnt - zwischen
+		client und server asynchron Nachrichten ausgetauscht werden. Schön und
+		gut, aber wofür das Ganze? Neben dem naheliegenden Grund, es ganz
+		einfach zu vermeiden, ständig neue, kostspielige TCP-Verbindungen
+		aufzubauen werden websockets vor allem dazu genutzt, etwaige
+		Änderungen am Datenbestand eines Servers unmittelbar an registrierte
+		clients weiterzuleiten, damit diese ihre Darstellung der Daten
+		automatisch aktualisieren können. Wenn also z.B.: ein neuer user in
+		die Datenbank gespeichert wird, dann soll die Seite, die eine Tabelle
+		mit allen usern darstellt, automatisch aktualisiert werden, ohne dass
+		beim client die Seite manuell refreshed werden muss.
+		<a href="https://en.wikipedia.org/wiki/WebSocket">[1]</a>
+	</p>
+
+	<p>
+		Salopp gesagt realisieren websockets das observer-pattern im web:
+		Clients registrieren sich zunächst bei bestimmten "channels", von
+		welchen sie über updates informiert werden wollen. Der server kann
+		dann über diese channels alle registrierten clients über ein
+		bestimmtes event (z.B.: neuer user hinzugefügt) informieren. Die
+		clients können dann basierend auf dieser Information entsprechende
+		Schritte einleiten, wie z.B.: das Aktualisieren der aktuellen Ansicht.
+		<a href="https://en.wikipedia.org/wiki/WebSocket">[1]</a>
+	</p>
+
+	<p>Wer sich schon die Anforderungen and das in diesem Kurs
+		umzusetzende Projekt gelesen hat, wird erkennen, dass bestimmte
+		Anforderungen geradezu danach schreien, websockets zu verwenden. Man
+		denke da an die immer wiederkehrende Anforderung, eine bestimmte
+		Ansicht aktuell zu halten (den aktuellen Punktestand anzuzeigen,
+		Benachrichtigungen über Sieg oder Niederlage,...). Seit JSF 2.3 werden
+		websockets nun auch nativ unterstützt (Vielleicht kennt jemand noch
+		PrimeFaces-Push. Ist mittlerweile deprecated). Damit die Umsetzung des
+		Projekts nicht noch zusätzlich erschwert wird durch neue Technologien
+		(sind auch ohne websockets schon viele), wollen wir anhand des
+		nebenstehenden chat-Programms den Umgang mit websockets angenehmer
+		machen. Was das Programm macht bzw. wie es zu bedienen ist, sollte
+		selbsterklärend sein. Am besten mal ausprobieren und sich den
+		dazugehörigen Quellcode anschauen. Viel Spaß :)</p>
+
+	<p style="font-weight: bold;">Implementierungshinweise</p>
+
+	<p>In den nächsten Absätzen folgen noch ein paar sachdienliche
+		Hinweise, die beim Implementiern der websockets von Nutzen sein
+		können. Vielleicht sind sie jetzt am Anfang noch unverständlich, aber
+		sobald JSF für Sie ein wenig vertrauter ist, werden Sie sie im Detail
+		verstehen.</p>
+
+	<p>
+		<span style="font-weight: bold;">o:sockets: </span>
+		Die JSF-native websocket-implementierung (f:websocket) funktioniert in
+		unserem Technologiestack wegen einem noch offenen
+		<a href="https://github.com/eclipse-ee4j/mojarra/issues/4572">bug</a>
+		nicht. Deshalb greifen wir auf die funktional equivalente, aber nicht
+		von diesem bug betroffene Umsetzung von
+		<a href="https://showcase.omnifaces.org/">Omnifaces</a>
+		zurück. Für weiterführende Informationen zu dem tag
+		<a href="https://showcase.omnifaces.org/push/socket">siehe hier</a>
+		.
+	</p>
+
+	<p>
+		<span style="font-weight: bold;">Rendern via f:ajax: </span>
+		o:socket-tags sollten nicht Teil von components sein, die über einen
+		f:ajax-tag erneut gerendert werden. Mit dem erneuten Rendern scheinen
+		die websockets nicht klar zu kommen. Überlegen Sie es sich daher
+		lieber zweimal, ob Sie auf einer Seite mit websockets beim f:ajax-tag
+		den "render"-Wert auf "@form" bzw. "@all" setzen wollen.
+	</p>
+
+	<p>
+		<span style="font-weight: bold;">Dependency injection der
+			websocket-Infrastruktur:</span>
+		Spring kann die notwendigen dependencies für die websockets nicht
+		injecten (server). Einen pushContext mit @Autowire zu versehen, bring
+		also leider nichts. Sehen Sie sich dafür die Kommentare in
+		WebSocketManager.java an und erfahren Sie so, wie Sie die notwendigen
+		dependencies in Spring-verwaltete beans injecten können.
+	</p>
+
+	<p>
+		<span style="font-weight: bold;">Channel-names:</span>
+		Channels werden über ihren Namen eindeutig identifiziert. Dieser wird entweder
+		im serverseitigen code entweder über eine Annotation bestimmt oder
+		lautet wie die gewählte Variable für den pushContext, falls die
+		Annotation nicht gesetzt wurde. Die Verbindung zwischen dem
+		serverseitigen pushContext und einem websocket in der view kommt also
+		über diesen Namen zustande. Beachten Sie dies, wenn Sie channels
+		umbenennen wollen bzw. dass wenn Sie neue hinzufügen, Sie sich über
+		die Konsequenzen der Verwendung eines bereits existierenden
+		channel-Namen im Klaren sind.
+	</p>
+
+</ui:composition>

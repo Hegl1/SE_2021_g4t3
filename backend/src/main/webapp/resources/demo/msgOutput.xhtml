@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ng="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	xmlns:cc="http://java.sun.com/jsf/composite">
+
+	<cc:interface>
+		<cc:attribute name="message"
+                      type="at.qe.timeguess.model.demo.Message" required="true" />
+	</cc:interface>
+	<cc:implementation>
+
+		<h:panelGrid columns="3" columnClasses="msgOutputTag,msgOutputTag,msgOutputTag">
+			<h:outputText value="#{cc.attrs.message.timestamp}" style="font-weight: bold;">
+				<f:convertDateTime pattern="[HH:mm:ss]" timeZone="MET" />
+			</h:outputText>
+			<h:outputText value="#{cc.attrs.message.from.username}:"
+				style="font-weight: bold;" />
+			<h:outputText value="#{cc.attrs.message.text}" />
+		</h:panelGrid>
+
+	</cc:implementation>
+</ui:composition>

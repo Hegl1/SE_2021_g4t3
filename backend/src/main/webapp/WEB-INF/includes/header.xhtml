@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <body>
+        <ui:composition>
+            <h:form>
+                <p:menubar>
+                    <p:submenu label="Employee Submenu 1" rendered="#{sessionInfoBean.hasRole('EMPLOYEE')}">
+                        <p:menuitem value="Employee Action 1 - 1"/>
+                        <p:menuitem value="Employee Action 1 - 2"/>
+                    </p:submenu>
+                    <p:submenu label="Employee Submenu 2" rendered="#{sessionInfoBean.hasRole('EMPLOYEE')}">
+                        <p:menuitem value="Employee Action 2 - 1"/>
+                        <p:menuitem value="Employee Action 2 - 2"/>
+                    </p:submenu>
+                    <p:submenu label="Manager Submenu" rendered="#{sessionInfoBean.hasRole('MANAGER')}">
+                        <p:menuitem value="Manager Action 1"/>
+                        <p:menuitem value="Manager Action 2"/>
+                    </p:submenu>
+                    <p:submenu label="Admin Submenu" rendered="#{sessionInfoBean.hasRole('ADMIN')}">
+                        <p:menuitem value="Manage Users" url="/admin/users.xhtml"/>
+                    </p:submenu>
+                    <p:submenu label="Test Submenu" rendered="#{sessionInfoBean.loggedIn}">
+                        <p:menuitem value="Security Test" url="/secured/test.xhtml"/>
+                    </p:submenu>                    
+                    <p:submenu label="Demos" rendered="#{sessionInfoBean.loggedIn}">                    
+						<p:menuitem value="Websockets" url="/secured/demos/chatRoom.xhtml"/>                    
+                    </p:submenu>
+                    
+                    <p:menuitem value="Login" url="/login.xhtml" rendered="#{!sessionInfoBean.loggedIn}"/>
+                    <p:menuitem value="Logout" url="/logout" rendered="#{sessionInfoBean.loggedIn}"/>                    
+                    
+                </p:menubar>
+            </h:form>
+        </ui:composition>
+    </body>
+</html>
+
