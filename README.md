@@ -16,7 +16,9 @@ This project models a game similar to "Activity" with a webinterface and an IoT 
 │
 └─ client - Contains the Angular frontend project
 │
-└─ server - Contains the Spring backend with REST Api and Websocket server
+└─ backend - Contains the Spring backend with REST Api and Websocket server
+|
+└─ raspberry - Contains the Raspberry communication server
 │
 └─ docs   - Contains documents and documentation for the project
    │
@@ -32,6 +34,9 @@ Source files of the documentation can be opened with:
 - `.graphml`: [yEd](https://www.yworks.com/products/yed#yed-support-resources)
 - `.uxf`: [www.umlet.com](http://www.umlet.com/umletino/umletino.html) or an UMLet extension for VS Code
 - `.xd`: [Adobe XD](https://www.adobe.com/de/products/xd.html)
+- `TimeGuess.v1.yaml`:
+  - Viewing: [Swagger](https://swagger.io/), [VS Code Plugin](https://marketplace.visualstudio.com/items?itemName=42Crunch.vscode-openapi)
+  - Mocking: [Prism](https://stoplight.io/open-source/prism/)
 
 ## Commiting
 When commiting to this repository please use the following naming schema:
@@ -51,12 +56,3 @@ This defines the changed component/part of the project. E.g. `userManagement`
 
 ### Short summary
 Shortly describe the changes and **reference related issues**. E.g. `added possibility to remove users (#2)` where `#2` references the commit with the id 2
-
-## Issues
-When creating issues please use the following naming schema:
-```
-<scope>: <short summary>
-```
-Where the scope defines the changed component/part of the project.
-
-Add the appropriate labels to the issue (e.g. backend, bug) and assign the issue to a user (if wanted).
