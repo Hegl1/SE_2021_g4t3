@@ -3,23 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>at.qe</groupId>
-    <artifactId>skeleton</artifactId>
+    <artifactId>TimeGuess</artifactId>
     <version>1.0.5</version>
     <packaging>war</packaging>
 
-    <name>skeleton</name>
-    <description>A skeleton project to be used as starting point for the courses
-        "Software Architecture" and "Software Engineering" offered by the
-        University of Innsbruck.
-
-        Uses Spring framework (http://spring.io) for the backend and
-        JSF (http://www.oracle.com/technetwork/java/javaee/javaserverfaces-139869.html)
-        for the web frontend. PrimeFaces (http://primefaces.org) is used as
-        JSF component library to prettify the frontend.
-
-        Feel free to use this skeleton project as you see fit - but keept in
-        mind that this project is primarily provided to be used for educational
-        purposes. Don't use it for production.
+    <name>TimeGuess</name>
+    <description>
+        This project was created for the course "Software engineering" at the University of Innsbruck in the summer term of 2021.
+        This project models a game similar to "Activity" with a webinterface and an IoT dice, called "TimeFlip".
     </description>
 
     <parent>
@@ -60,18 +51,6 @@
             <artifactId>security-spring-boot-starter</artifactId>
             <version>${joinfaces.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.joinfaces</groupId>
-            <artifactId>primefaces-spring-boot-starter</artifactId>
-            <version>${joinfaces.version}</version>
-        </dependency>
-
-		<dependency>
-			<groupId>org.joinfaces</groupId>
-			<artifactId>omnifaces3-spring-boot-starter</artifactId>
-            <version>${joinfaces.version}</version>
-		</dependency>
 
         <!-- special test dependencies -->
         <dependency>
