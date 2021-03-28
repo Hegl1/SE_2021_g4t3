@@ -1,0 +1,85 @@
+@import '../../variables.scss';
+
+$nav-width: 20em;
+
+h1 {
+  padding: 0.5em;
+
+  a {
+    color: inherit;
+    display: block;
+  }
+
+  img,
+  span {
+    vertical-align: middle;
+    display: inline-block;
+  }
+
+  img {
+    height: 2em;
+    margin-right: 0.5em;
+  }
+}
+
+nav {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: $nav-width;
+  z-index: 10;
+
+  background: $navigation-background;
+
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.6);
+
+  mat-nav-list > * mat-icon {
+    margin-right: 0.5em;
+  }
+
+  .user a[mat-list-item] {
+    font-size: 1.25rem;
+  }
+
+  .admin {
+    margin-top: 2em;
+  }
+
+  .bottom_nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+}
+
+.wrapper {
+  position: fixed;
+  left: $nav-width;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+
+  main {
+    position: absolute;
+    width: 85%;
+    min-width: 960px;
+    max-width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  @media screen and (max-width: calc(#{$nav-width} + 960px + 2em)) {
+    main {
+      position: initial;
+      width: unset;
+      min-width: unset;
+      max-width: unset;
+      left: unset;
+      transform: unset;
+      padding: 0 2em;
+    }
+  }
+}
