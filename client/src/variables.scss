@@ -1,0 +1,12 @@
+@import '~@angular/material/theming';
+
+// https://material.io/design/color/
+$primary: mat-palette($mat-light-green, A700);
+$accent: mat-palette($mat-orange, 500);
+$warn: mat-palette($mat-red);
+
+$navigation-background: #1f1f1f;
+$background: #262626;
+$foreground: #ffffff;
+
+$link: #1693ff;
