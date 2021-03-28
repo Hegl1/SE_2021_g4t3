@@ -37,5 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
+        //for h2console to work
+        httpSecurity.headers().frameOptions().disable();
     }
 }
