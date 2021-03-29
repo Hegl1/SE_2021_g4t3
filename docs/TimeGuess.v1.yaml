@@ -15,6 +15,7 @@ tags:
   - name: Statistics
   - name: Game
   - name: Expression
+  - name: Category
   - name: Dice
 paths:
   '/dice/{id}/update':
@@ -31,6 +32,10 @@ paths:
       responses:
         '200':
           description: OK
+        '400':
+          description: Dice position not in between 0-11
+        '404':
+          description: Dice with this id not found
       description: Updates the backend on the new dice position for the dice with the given id
       requestBody:
         content:
@@ -373,7 +378,7 @@ paths:
       description: Deletes a running game having the given code
       security:
         - Token: []
-  '/users/{id}/stats':
+  '/stats/users/{id}':
     parameters:
       - schema:
           type: integer
@@ -402,7 +407,7 @@ paths:
     get:
       summary: Retrieve all categories
       tags:
-        - Expression
+        - Category
       responses:
         '200':
           description: OK
@@ -431,7 +436,7 @@ paths:
           description: Conflict
       description: Creates a new category with a supplied name
       tags:
-        - Expression
+        - Category
       requestBody:
         content:
           application/json:
@@ -463,7 +468,7 @@ paths:
         '404':
           description: Not Found
       tags:
-        - Expression
+        - Category
       description: Deletes a category by id
       security:
         - Token: []
@@ -681,8 +686,6 @@ components:
     Category:
       title: Category
       type: object
-      x-tags:
-        - Expression
       properties:
         id:
           type: integer
@@ -697,8 +700,6 @@ components:
     Expression:
       title: Expression
       type: object
-      x-tags:
-        - Expression
       properties:
         id:
           type: integer
@@ -712,8 +713,6 @@ components:
     User:
       title: User
       type: object
-      x-tags:
-        - User
       properties:
         id:
           type: integer
@@ -734,8 +733,6 @@ components:
     RunningGame:
       title: RunningGame
       type: object
-      x-tags:
-        - Game
       properties:
         code:
           type: integer
@@ -778,14 +775,13 @@ components:
     UserStats:
       title: UserStats
       type: object
-      x-tags:
-        - Statistics
       properties:
         played_games:
           type: array
           uniqueItems: true
           items:
             type: object
+            description: Played games per category ordered by most won
             properties:
               category:
                 $ref: '#/components/schemas/Category'
@@ -813,8 +809,6 @@ components:
     GlobalStats:
       title: GlobalStats
       type: object
-      x-tags:
-        - Statistics
       properties:
         totalGames:
           type: integer
@@ -846,8 +840,6 @@ components:
     TopGamesStats:
       type: array
       title: TopGamesStats
-      x-tags:
-        - Statistics
       uniqueItems: true
       items:
         type: object
@@ -891,8 +883,6 @@ components:
     CategoryStats:
       type: array
       title: CategoryStats
-      x-tags:
-        - Statistics
       uniqueItems: true
       items:
         type: object
