@@ -13,6 +13,7 @@ import { GamesComponent } from './pages/admin/games/games.component';
 import { LoginComponent } from './pages/login/login.component';
 import { GameComponent } from './pages/game/game.component';
 import { LogoutComponent } from './pages/logout/logout.component';
+import { SettingsDialogComponent } from './layout/components/settings-dialog/settings-dialog.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { LogoutComponent } from './pages/logout/logout.component';
     LoginComponent,
     GameComponent,
     LogoutComponent,
+    SettingsDialogComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule],
   providers: [],

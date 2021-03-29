@@ -26,6 +26,25 @@ body {
   color: $foreground;
 }
 
+mat-dialog-container *[mat-dialog-title] {
+  mat-icon,
+  span {
+    vertical-align: middle;
+    display: inline-block;
+  }
+
+  mat-icon {
+    margin-right: 0.25em;
+  }
+}
+
+a,
+.link {
+  color: $link;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .primary {
   color: mat-color($primary) !important;
 }

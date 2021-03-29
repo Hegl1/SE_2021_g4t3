@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 
 @Component({
   selector: 'tg-layout',
@@ -6,10 +8,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent {
-  constructor() {}
+  constructor(private dialog: MatDialog) {}
 
   openSettings() {
-    throw new Error('Not implemented');
+    this.dialog.open(SettingsDialogComponent);
   }
 
   openProfile() {
