@@ -1,6 +1,6 @@
 <nav>
     <h1>
-        <a href="/home"><img src="/assets/time_flip.png" alt="TimeFlip icon" /><span>TimeGuess</span></a>
+        <a routerLink="/home"><img src="/assets/time_flip.png" alt="TimeFlip icon" /><span>TimeGuess</span></a>
     </h1>
 
     <div class="user">
@@ -12,19 +12,19 @@
     <div class="admin">
         <mat-nav-list>
             <div mat-subheader>Games</div>
-            <a mat-list-item href="/admin/games"><mat-icon>play_arrow</mat-icon> Open games</a>
+            <a mat-list-item routerLink="/admin/games"><mat-icon>play_arrow</mat-icon> Open games</a>
 
             <mat-divider></mat-divider>
             <div mat-subheader>Administrate</div>
-            <a mat-list-item href="/admin/users"><mat-icon>people</mat-icon> Users</a>
-            <a mat-list-item href="/admin/expressions"><mat-icon>translate</mat-icon> Expressions</a>
+            <a mat-list-item routerLink="/admin/users"><mat-icon>people</mat-icon> Users</a>
+            <a mat-list-item routerLink="/admin/expressions"><mat-icon>translate</mat-icon> Expressions</a>
         </mat-nav-list>
     </div>
 
     <div class="bottom_nav">
         <mat-nav-list>
             <a mat-list-item (click)="openSettings()"><mat-icon>settings</mat-icon> Settings</a>
-            <a mat-list-item href="/logout" class="warn"><mat-icon>power_settings_new</mat-icon> Logout</a>
+            <a mat-list-item routerLink="/logout" class="warn"><mat-icon>power_settings_new</mat-icon> Logout</a>
         </mat-nav-list>
     </div>
 </nav>

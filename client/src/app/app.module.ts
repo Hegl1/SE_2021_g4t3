@@ -14,6 +14,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { GameComponent } from './pages/game/game.component';
 import { LogoutComponent } from './pages/logout/logout.component';
 import { SettingsDialogComponent } from './layout/components/settings-dialog/settings-dialog.component';
+import { ProfileDialogComponent } from './components/profile-dialog/profile-dialog.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { SettingsDialogComponent } from './layout/components/settings-dialog/set
     GameComponent,
     LogoutComponent,
     SettingsDialogComponent,
+    ProfileDialogComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule],
   providers: [],
