@@ -32,8 +32,6 @@ paths:
         '200':
           description: OK
       description: Updates the backend on the new dice position for the dice with the given id
-      security:
-        - TimeFlipAuth: []
       requestBody:
         content:
           application/json:
@@ -51,8 +49,6 @@ paths:
       tags:
         - Dice
       operationId: get-dice-register
-      security:
-        - TimeFlipAuth: []
       responses:
         '200':
           description: OK
@@ -916,9 +912,6 @@ components:
           - number_correct
           - number_incorrect
   securitySchemes:
-    TimeFlipAuth:
-      type: http
-      scheme: basic
     Token:
       type: http
       scheme: bearer
