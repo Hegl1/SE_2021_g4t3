@@ -39,10 +39,10 @@ public class RaspberryController {
 	/**
 	 * Map that associates raspberries with games.
 	 */
-	private Map<Long, Game> gameMappings = new HashMap<Long, Game>();
+	private Map<String, Game> gameMappings;
 
 	public RaspberryController() {
-		this.gameMappings = new HashMap<Long, Game>();
+		this.gameMappings = new HashMap<String, Game>();
 	}
 
 	/**
@@ -72,7 +72,8 @@ public class RaspberryController {
 	 *         no game is registered)
 	 */
 	@PostMapping("/{id}/update")
-	public ResponseEntity<Void> updateDice(@PathVariable final long id, @RequestBody final RaspberryDiceUpdate update) {
+	public ResponseEntity<Void> updateDice(@PathVariable final String id,
+			@RequestBody final RaspberryDiceUpdate update) {
 		if (update.getSide() < 0 || update.getSide() > 11) {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		} else {
@@ -88,10 +89,10 @@ public class RaspberryController {
 	 * Method that registers a game for a given raspberry id.
 	 * 
 	 * @param raspbiId id of the raspberry the game should be associated with.
-	 * @param game     the game that gets registrated.
+	 * @param game     the game that gets registered.
 	 * @return true if successful, false if not.
 	 */
-	public boolean registerGame(final long raspbiId, final Game game) {
+	public boolean registerGame(final String raspbiId, final Game game) {
 		if (gameMappings.containsKey(raspbiId)) {
 			return false;
 		} else {
@@ -106,8 +107,11 @@ public class RaspberryController {
 	 * @param raspbiId Id of the raspberry that is associated with the game to be
 	 *                 unregistered.
 	 */
-	public void unregisterGame(final long raspbiId) {
+	public void unregisterGame(final String raspbiId) {
 		gameMappings.remove(raspbiId);
 	}
 
+	public Map<String, Game> getGameMappings() {
+		return gameMappings;
+	}
 }

@@ -19,6 +19,10 @@ public class Game {
 
 	}
 
+	public String getGameCode() {
+		return this.gameCode;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
