@@ -1,5 +1,6 @@
 package at.qe.timeguess.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -9,7 +10,9 @@ public class Category {
 
 	@Id
 	@GeneratedValue
-	private Long iD;
+	private Long id;
+
+	@Column(unique = true)
 	private String category;
 
 	public Category() {

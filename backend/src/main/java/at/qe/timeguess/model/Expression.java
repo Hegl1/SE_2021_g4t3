@@ -10,7 +10,7 @@ public class Expression {
 
 	@Id
 	@GeneratedValue
-	private long iD;
+	private long id;
 	private String expression;
 
 	@OneToOne

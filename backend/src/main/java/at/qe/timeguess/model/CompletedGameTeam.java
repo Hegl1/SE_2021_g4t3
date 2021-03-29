@@ -14,7 +14,7 @@ public class CompletedGameTeam {
 
 	@Id
 	@GeneratedValue
-	private long iD;
+	private long id;
 
 	private int score;
 	private int numberOfGuessedExpressions;

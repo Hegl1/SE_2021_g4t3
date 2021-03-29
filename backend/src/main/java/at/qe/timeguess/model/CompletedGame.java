@@ -18,7 +18,7 @@ public class CompletedGame {
 
 	@Id
 	@GeneratedValue
-	private long iD;
+	private long id;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date startTime;
