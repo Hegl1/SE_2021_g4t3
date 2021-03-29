@@ -77,11 +77,14 @@ public class RaspberryController {
 		if (update.getSide() < 0 || update.getSide() > 11) {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		} else {
-			if (!gameMappings.containsKey(id)) {
-				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			if (raspbiRepo.findFirstById(id) == null) {
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			} else {
+				if (gameMappings.get(id) != null) {
+					gameMappings.get(id).diceUpdate(update.getSide());
+				}
+				return new ResponseEntity<>(null, HttpStatus.OK);
 			}
-			gameMappings.get(id).diceUpdate(update.getSide());
-			return new ResponseEntity<>(null, HttpStatus.OK);
 		}
 	}
 
