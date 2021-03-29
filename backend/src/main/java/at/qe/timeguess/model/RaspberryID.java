@@ -12,18 +12,21 @@ import javax.persistence.Id;
 public class RaspberryID {
 
 	@Id
-	private String identifier;
+	private String id;
+
+	public RaspberryID() {
+	}
 
 	public RaspberryID(final String identifier) {
-		this.identifier = identifier;
+		this.id = identifier;
 	}
 
 	public String getIdentifier() {
-		return identifier;
+		return id;
 	}
 
 	public void setIdentifier(final String identifier) {
-		this.identifier = identifier;
+		this.id = identifier;
 	}
 
 }

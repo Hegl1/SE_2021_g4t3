@@ -6,6 +6,4 @@ public interface CategoryRepository extends AbstractRepository<Category, Long> {
 
 	Category findFirstByCategory(String category);
 
-	Category findFirstByid(Long iD);
-
 }
