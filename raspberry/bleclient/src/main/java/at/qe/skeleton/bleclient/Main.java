@@ -103,7 +103,7 @@ public final class Main {
                 }
                 
                 /* check battery level */
-                String batteryService Uuid = "0000180f-0000-1000-8000-00805f9b34fb";
+                String batteryServiceUuid = "0000180f-0000-1000-8000-00805f9b34fb";
                 BluetoothGattService batteryService = device.find(batteryServiceUuid);
                 if(batteryService != null) {
                 	System.out.println("Battery Service is available");
