@@ -6,6 +6,4 @@ public interface UserRepository extends AbstractRepository<User, Long> {
 
 	User findFirstByUsername(String username);
 
-	User findFirstByid(Long id);
-
 }

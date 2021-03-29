@@ -7,8 +7,6 @@ import at.qe.timeguess.model.CompletedGame;
 
 public interface CompletedGameRepository extends AbstractRepository<CompletedGame, Long> {
 
-	CompletedGame findFirstByid(Long id);
-
 	List<CompletedGame> findByStartTime(Date startTime);
 
 }

@@ -11,24 +11,27 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 /**
  * Configures for which sites no authorization is needed and which classes
- * handle the authorization. Also configures cors so that there are no problems with frontend.
+ * handle the authorization. Also configures cors so that there are no problems
+ * with frontend.
  */
 @Configuration
 @EnableWebSecurity()
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+	@Autowired
+	private JwtRequestFilter jwtRequestFilter;
 
-    @Autowired
-    private JwtAuthenticationHandler authenticationHandler;
+	@Autowired
+	private JwtAuthenticationHandler authenticationHandler;
 
-    @Override
-    protected void configure(HttpSecurity httpSecurity) throws Exception {
+	@Override
+    protected void configure(final HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf().disable().authorizeRequests()
             .antMatchers("/h2-console/**")
             .permitAll()
             .antMatchers(HttpMethod.POST, "/users/login")
+            .permitAll()
+            .antMatchers("/dice/**")
             .permitAll()
             .and().authorizeRequests().anyRequest().authenticated().and()
             .exceptionHandling().authenticationEntryPoint(authenticationHandler).and()
