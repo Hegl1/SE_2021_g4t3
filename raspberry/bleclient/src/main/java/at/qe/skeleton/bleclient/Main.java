@@ -60,28 +60,67 @@ public final class Main {
             if (device.connect()) {
                 System.out.println("Connection established");
                 // TODO: read from device
+
+                /* Plan:
+                 * get timeflip service
+                 * get password characteristic
+                 * write password (also after every disconnect)
+                 * get battery service
+                 * read battery level
+                 * if battery low, tell central backend
+                 * in timeflip service:
+                 * get facets characteristic
+                 * turn on notification for facets characteristic
+                 * read facets (handle case when same facet twice in a row!)
+                 * (do i need "command" or "command result output" characteristics?)
+                 * reconnect after disconnecting
+                 */
                 
-                String[] uuids = device.getUUIDs();
-                System.out.println("UuidsArraySize: " + uuids.length);
-                for (String current : uuids) {
-                    System.out.println("getUuid: " + current);
+                /* get all available services */
+                String[] serviceUuids = device.getUUIDs();
+                System.out.println("Service UUIDs available: " + serviceUuids.length);
+                for (String serviceUuid : serviceUuids) {
+                    System.out.println(serviceUuid);
+                    // TODO find out service names of those uuids to check if timeflip and battery service are available?
                 }
                 
-                System.out.println("\ngetServices: " + device.getServices() + " size: " + device.getServices().size());
-                System.out.println("getServiceData: " + device.getServiceData() + " size: " + device.getServiceData().size());
-                
-                BluetoothGattService bgs = device.find("f1196f50-71a4-11e6-bdf4-0800200c9a66");
-                if(bgs != null) {
-                    BluetoothGattCharacteristic characteristic = bgs.find("f1196f57-71a4-11e6-bdf4-0800200c9a66");
-                    byte[] config = {0x30,0x30,0x30,0x30,0x30,0x30};
-                    characteristic.writeValue(config);
-                    System.out.println("Password set");
-                    // System.out.println("getPassword: " + characteristic.readValue());
+                /* input password 
+                 * (hex 30 30 30 30 30 30 = ascii 6x zero) 
+                 * TODO: do again after every reconnect with TimeFlip die
+                 */
+                String timeFlipServiceUuid = "f1196f50-71a4-11e6-bdf4-0800200c9a66";
+                BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
+                if(timeFlipService != null) {
+                	System.out.println("TimeFlip Service is available");
+                	BluetoothGattCharacteristic passwordCharacteristic = timeFlipService.find("f1196f57-71a4-11e6-bdf4-0800200c9a66");
+                	byte[] passwordConfig = {0x30,0x30,0x30,0x30,0x30,0x30};
+                	passwordCharacteristic.writeValue(passwordConfig);
+                	System.out.println("TimeFlip password should be set now");
+                	// TODO check if password is set
                 } else {
-                    System.out.println("Service is null");
+                	System.out.println("TimeFlip Service is not available");
+                	// TODO retry connecting to device?
                 }
+                
+                /* check battery level */
+                String batteryService Uuid = "0000180f-0000-1000-8000-00805f9b34fb";
+                BluetoothGattService batteryService = device.find(batteryServiceUuid);
+                if(batteryService != null) {
+                	System.out.println("Battery Service is available");
+                	System.out.println("Characteristic UUIDs available:");
+                	for (BluetoothGattCharacteristic c : batteryService.getCharacteristics()) {
+                		System.out.println(c.getUUID());
+                	}
+                	
+                	// BluetoothGattCharacteristic batteryLevelCharacteristic = batteryService.find();
+                } else {
+                	System.out.println("Battery Service is not available");
+                	// TODO retry connecting to device?
+                }
+                
                 
                 device.disconnect();
+                System.out.println("Connection closed");
             } else {
                 System.out.println("Connection not established - trying next one");
             }
