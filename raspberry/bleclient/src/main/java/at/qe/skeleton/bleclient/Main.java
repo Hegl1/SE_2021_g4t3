@@ -59,7 +59,6 @@ public final class Main {
 
             if (device.connect()) {
                 System.out.println("Connection established");
-                // TODO: read from device
 
                 /* Plan:
                  * get timeflip service
@@ -76,6 +75,7 @@ public final class Main {
                  * reconnect after disconnecting
                  */
                 
+                /* C R E A T E   G A M E   -    S E T U P   D I C E */
                 /* get all available services */
                 String[] serviceUuids = device.getUUIDs();
                 System.out.println("Service UUIDs available: " + serviceUuids.length);
@@ -107,16 +107,20 @@ public final class Main {
                 BluetoothGattService batteryService = device.find(batteryServiceUuid);
                 if(batteryService != null) {
                 	System.out.println("Battery Service is available");
-                	System.out.println("Characteristic UUIDs available:");
-                	for (BluetoothGattCharacteristic c : batteryService.getCharacteristics()) {
-                		System.out.println(c.getUUID());
-                	}
-                	
-                	// BluetoothGattCharacteristic batteryLevelCharacteristic = batteryService.find();
+                	BluetoothGattCharacteristic batteryLevelCharacteristic = batteryService.find("00002a19-0000-1000-8000-00805f9b34fb");
+                    byte[] batteryLevel = batteryLevelCharacteristic.readValue();
+                    int batteryLevelValue = batteryLevel[0];
+                    System.out.println("Battery level: " + batteryLevelValue);
+                    // TODO send value to backend
                 } else {
                 	System.out.println("Battery Service is not available");
                 	// TODO retry connecting to device?
                 }
+
+                /* I N G A M E   -   R E A D   F A C E T S */
+                // get facet characteristic
+                // enable notify
+                // get updates while game is running
                 
                 
                 device.disconnect();
