@@ -1,10 +1,9 @@
 package at.qe.timeguess.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
 import at.qe.timeguess.controllers.RaspberryController;
-import at.qe.timeguess.dto.Game;
+import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
 import at.qe.timeguess.dto.RaspberryRegisterResult;
 import at.qe.timeguess.repositories.RaspberryIDRepository;
+import gamelogic.Game;
 
 @SpringBootTest
 public class RaspberryControllerTest {
@@ -27,16 +27,17 @@ public class RaspberryControllerTest {
 	private RaspberryIDRepository raspiRepo;
 
 	@Test
-	public void testRegisterGame() {
-		assertTrue(raspiController.registerGame("testid", new Game("Gamecode")));
-		assertFalse(raspiController.registerGame("testid", new Game("Gamecode")));
-		assertEquals(raspiController.getGameMappings().get("testid").getGameCode(), "Gamecode");
+	public void testRegisterGame() throws RaspberryAlreadyInUseException {
+		raspiController.registerGame("testid", new Game(500));
+		assertThrows(RaspberryController.RaspberryAlreadyInUseException.class,
+				() -> raspiController.registerGame("testid", new Game(500)));
+		assertEquals(raspiController.getGameMappings().get("testid").getGameCode(), 500);
 		raspiController.unregisterGame("testid");
 	}
 
 	@Test
-	public void testUnregisterGame() {
-		raspiController.registerGame("testid", new Game("Gamecode"));
+	public void testUnregisterGame() throws RaspberryAlreadyInUseException {
+		raspiController.registerGame("testid", new Game(500));
 		raspiController.unregisterGame("testid");
 		assertNull(raspiController.getGameMappings().get("testid"));
 	}

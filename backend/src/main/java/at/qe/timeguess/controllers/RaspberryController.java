@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import at.qe.timeguess.dto.Game;
 import at.qe.timeguess.dto.RaspberryDiceUpdate;
 import at.qe.timeguess.dto.RaspberryRegisterResult;
 import at.qe.timeguess.model.RaspberryID;
 import at.qe.timeguess.repositories.RaspberryIDRepository;
-import at.qe.timeguess.services.RandomStringService;
+import at.qe.timeguess.services.RandomCodeService;
+import gamelogic.Game;
 
 /**
  * Class that handles communication with raspberries. Also contains a mapping
@@ -31,7 +31,7 @@ public class RaspberryController {
 	private static final int identifyerLength = 8;
 
 	@Autowired
-	private RandomStringService stringGenrator;
+	private RandomCodeService codeGenerator;
 
 	@Autowired
 	private RaspberryIDRepository raspbiRepo;
@@ -54,7 +54,7 @@ public class RaspberryController {
 	public ResponseEntity<RaspberryRegisterResult> registerRaspberry() {
 		String identifier;
 		do {
-			identifier = stringGenrator.generateRandomString(identifyerLength);
+			identifier = codeGenerator.generateRandomRaspberryCode(identifyerLength);
 		} while (raspbiRepo.findFirstById(identifier) != null);
 
 		raspbiRepo.save(new RaspberryID(identifier));
@@ -93,14 +93,14 @@ public class RaspberryController {
 	 * 
 	 * @param raspbiId id of the raspberry the game should be associated with.
 	 * @param game     the game that gets registered.
-	 * @return true if successful, false if not.
+	 * @throws RaspberryAlreadyInUseException when raspberry is already assigned to
+	 *                                        a running game.
 	 */
-	public boolean registerGame(final String raspbiId, final Game game) {
+	public void registerGame(final String raspbiId, final Game game) throws RaspberryAlreadyInUseException {
 		if (gameMappings.containsKey(raspbiId)) {
-			return false;
+			throw new RaspberryAlreadyInUseException("Id " + raspbiId + "already in use");
 		} else {
 			gameMappings.put(raspbiId, game);
-			return true;
 		}
 	}
 
@@ -116,5 +116,19 @@ public class RaspberryController {
 
 	public Map<String, Game> getGameMappings() {
 		return gameMappings;
+	}
+
+	/**
+	 * Exception for when trying to register an already registered game to a
+	 * raspberry.
+	 *
+	 */
+	public class RaspberryAlreadyInUseException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
+		public RaspberryAlreadyInUseException(final String message) {
+			super(message);
+		}
 	}
 }
