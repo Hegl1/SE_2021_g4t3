@@ -6,13 +6,13 @@ package at.qe.timeguess.dto;
  */
 public class RaspberryRegisterResult {
 
-	private String result;
+	private String identifier;
 
 	public RaspberryRegisterResult(final String result) {
-		this.result = result;
+		this.identifier = result;
 	}
 
 	public String getResult() {
-		return this.result;
+		return this.identifier;
 	}
 }

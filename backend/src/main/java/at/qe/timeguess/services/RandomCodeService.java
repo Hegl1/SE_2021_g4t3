@@ -17,7 +17,7 @@ public class RandomCodeService {
 	private static final String UPPER_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	private static final String LOWER_CHARS = UPPER_CHARS.toLowerCase();
 	private static final String NUMBERS = "1234567890";
-	private static final String SPECIAL_CHARS = "#*+-";
+	private static final String SPECIAL_CHARS = "_-";
 	private static final String ALL_CHARS = UPPER_CHARS + LOWER_CHARS + NUMBERS + SPECIAL_CHARS;
 
 	private SecureRandom randNumGenerator;

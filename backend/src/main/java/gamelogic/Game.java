@@ -28,6 +28,7 @@ public class Game {
 	private List<Expression> usedExpressions;
 	private Expression currentExpression;
 	private Dice dice;
+	private String raspberryId;
 
 	public Game(final int code) {
 		this.teams = new ArrayList<Team>();
@@ -37,8 +38,8 @@ public class Game {
 		this.gameCode = code;
 	}
 
-	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category,
-			final User host) {
+	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
+			final String raspberryId) {
 		this(code);
 		this.category = category;
 		this.host = host;
@@ -48,11 +49,12 @@ public class Game {
 			teams.add(new Team());
 		}
 		this.dice = new Dice();
+		this.raspberryId = raspberryId;
 	}
 
 	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
-			final Dice dice) {
-		this(code, maxPoints, numberOfTeams, category, host);
+			final Dice dice, final String raspberryId) {
+		this(code, maxPoints, numberOfTeams, category, host, raspberryId);
 		this.dice = dice;
 	}
 
@@ -96,6 +98,22 @@ public class Game {
 
 	public int getGameCode() {
 		return this.gameCode;
+	}
+
+	public List<Team> getTeams() {
+		return teams;
+	}
+
+	public User getHost() {
+		return host;
+	}
+
+	public Category getCategory() {
+		return category;
+	}
+
+	public String getRaspberryId() {
+		return raspberryId;
 	}
 
 	@Override

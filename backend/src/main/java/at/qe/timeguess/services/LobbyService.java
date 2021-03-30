@@ -19,7 +19,7 @@ import gamelogic.Game;
  * Class that holds and manages all games.
  */
 @Service
-@Scope("Application")
+@Scope("application")
 public class LobbyService {
 
 	@Autowired
@@ -60,7 +60,7 @@ public class LobbyService {
 	public Game createGame(final int maxPoints, final int numberOfTeams, final Category category,
 			final String raspberryId) throws RaspberryAlreadyInUseException {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
-				userService.getAuthenticatedUser());
+				userService.getAuthenticatedUser(), raspberryId);
 		runningGames.put(newGame.getGameCode(), newGame);
 		raspberryController.registerGame(raspberryId, newGame);
 		return newGame;
@@ -82,7 +82,7 @@ public class LobbyService {
 	public Game createGame(final int maxPoints, final int numberOfTeams, final Category category, final Dice dice,
 			final String raspberryId) throws RaspberryAlreadyInUseException {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
-				userService.getAuthenticatedUser());
+				userService.getAuthenticatedUser(), raspberryId);
 		runningGames.put(newGame.getGameCode(), newGame);
 		raspberryController.registerGame(raspberryId, newGame);
 		return newGame;
@@ -123,8 +123,8 @@ public class LobbyService {
 	public void deleteRunningGame(final int gameCode) {
 		if (runningGames.containsKey(gameCode)) {
 			runningGames.get(gameCode).forceClose();
+			closeFinishedGame(gameCode);
 		}
-		runningGames.remove(gameCode);
 	}
 
 	/**
@@ -133,7 +133,10 @@ public class LobbyService {
 	 * @param gameCode
 	 */
 	public void closeFinishedGame(final int gameCode) {
-		runningGames.remove(gameCode);
+		if (runningGames.containsKey(gameCode)) {
+			raspberryController.unregisterGame(runningGames.get(gameCode).getRaspberryId());
+			runningGames.remove(gameCode);
+		}
 	}
 
 	/**
@@ -143,6 +146,16 @@ public class LobbyService {
 	 */
 	public Collection<Game> getAllRunningGames() {
 		return runningGames.values();
+	}
+
+	/**
+	 * Returns a running game
+	 * 
+	 * @param gamecode code of the game to get
+	 * @return game with the given code
+	 */
+	public Game getGame(final int gamecode) {
+		return runningGames.get(gamecode);
 	}
 
 }
