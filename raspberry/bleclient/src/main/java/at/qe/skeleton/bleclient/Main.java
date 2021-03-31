@@ -6,7 +6,12 @@ import tinyb.BluetoothGattCharacteristic;
 import tinyb.BluetoothException;
 import tinyb.BluetoothManager;
 
+import tinyb.*;
+import java.util.*;
+import java.time.*;
+
 import java.util.Set;
+import java.util.concurrent.locks.*;
 
 // TODO: use logging instead of System.out/System.err
 
@@ -93,10 +98,15 @@ public final class Main {
                 if(timeFlipService != null) {
                 	System.out.println("TimeFlip Service is available");
                 	BluetoothGattCharacteristic passwordCharacteristic = timeFlipService.find("f1196f57-71a4-11e6-bdf4-0800200c9a66");
-                	byte[] passwordConfig = {0x30,0x30,0x30,0x30,0x30,0x30};
+                    if (passwordCharacteristic != null) {
+                        byte[] passwordConfig = {0x30,0x30,0x30,0x30,0x30,0x30};
                 	passwordCharacteristic.writeValue(passwordConfig);
                 	System.out.println("TimeFlip password should be set now");
                 	// TODO check if password is set
+                    } else {
+                        System.out.println("TimeFlip password characteristic not found");
+                    }
+                	
                 } else {
                 	System.out.println("TimeFlip Service is not available");
                 	// TODO retry connecting to device?
@@ -118,12 +128,41 @@ public final class Main {
                 }
 
                 /* I N G A M E   -   R E A D   F A C E T S */
+                
                 // get facet characteristic
+                String facetsCharacteristicUuid = "f1196f52-71a4-11e6-bdf4-0800200c9a66";
+                BluetoothGattCharacteristic facetsCharacteristic = timeFlipService.find(facetsCharacteristicUuid);
+                
                 // enable notify
+                if (facetsCharacteristic != null) {
+                    System.out.println("facets characteristic is available");
+                    try {
+                        facetsCharacteristic.enableValueNotifications(new ValueNotification());
+                        System.out.println("notifications should be turned on now");
+                    } catch(Exception e) {
+                        System.out.println("turning on notifications didn't work");
+                    }
+                } else {
+                	System.out.println("facets characteristic is not available");
+                }
+                
                 // get updates while game is running
+                // with help from https://github.com/intel-iot-devkit/tinyb/blob/ac6d3082d06183c860eea97f451d5a92022348e0/examples/java/Notification.java#L66
+                Lock lock = new ReentrantLock();
+                Condition cv = lock.newCondition();
+                lock.lock();
+                boolean gameIsRunning = true; // TODO set this elsewhere, maybe in a thread that listens to messages from the backend?
+                try {
+                    while(gameIsRunning) {
+                        cv.await();
+                        gameIsRunning = false; // TODO decide this elsewhere, otherwise this program will run forever and the dice has to be reset before each run of the program because it wasn't disconnected from raspy
+                    }
+                } finally {
+                    lock.unlock();
+                }
                 
                 
-                device.disconnect();
+                device.disconnect(); // TODO make sure the device disconnects in program failure cases, too
                 System.out.println("Connection closed");
             } else {
                 System.out.println("Connection not established - trying next one");
