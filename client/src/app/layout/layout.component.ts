@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileDialogComponent } from '../components/profile-dialog/profile-dialog.component';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
+import { BreakpointObserver } from '@angular/cdk/layout';
+
+const maxWidthPx = 1000;
 
 @Component({
   selector: 'tg-layout',
@@ -9,7 +12,13 @@ import { SettingsDialogComponent } from './components/settings-dialog/settings-d
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent {
-  constructor(private dialog: MatDialog) {}
+  isSmallScreen = this.breakpointObserver.isMatched(`(max-width: ${maxWidthPx}px)`);
+
+  constructor(private dialog: MatDialog, private breakpointObserver: BreakpointObserver) {
+    this.breakpointObserver
+      .observe([`(max-width: ${maxWidthPx}px)`])
+      .subscribe((result) => (this.isSmallScreen = result.matches));
+  }
 
   openSettings() {
     this.dialog.open(SettingsDialogComponent);

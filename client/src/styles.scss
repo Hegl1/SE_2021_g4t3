@@ -39,11 +39,16 @@ mat-dialog-container *[mat-dialog-title] {
   }
 }
 
+.mat-drawer-backdrop.mat-drawer-shown {
+  background: $navigation-backdrop;
+}
+
 a,
 .link {
   color: $link;
   text-decoration: underline;
   cursor: pointer;
+  outline: transparent;
 }
 
 .primary {
