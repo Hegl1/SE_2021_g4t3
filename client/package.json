@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "open": "ng s -o",
     "build": "ng build"
   },
   "private": true,
