@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import at.qe.timeguess.dto.RaspberryDiceUpdate;
 import at.qe.timeguess.model.RaspberryID;
 import at.qe.timeguess.repositories.RaspberryIDRepository;
 import at.qe.timeguess.services.RandomCodeService;
@@ -71,16 +70,15 @@ public class RaspberryController {
 	 *         no game is registered)
 	 */
 	@PostMapping("/{id}/update")
-	public ResponseEntity<Void> updateDice(@PathVariable final String id,
-			@RequestBody final RaspberryDiceUpdate update) {
-		if (update.getSide() < 0 || update.getSide() > 11) {
+	public ResponseEntity<Void> updateDice(@PathVariable final String id, @RequestBody final int update) {
+		if (update < 0 || update > 11) {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		} else {
 			if (raspbiRepo.findFirstById(id) == null) {
 				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			} else {
 				if (gameMappings.get(id) != null) {
-					gameMappings.get(id).diceUpdate(update.getSide());
+					gameMappings.get(id).diceUpdate(update);
 				}
 				return new ResponseEntity<>(null, HttpStatus.OK);
 			}
