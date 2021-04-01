@@ -9,10 +9,10 @@ trim_trailing_whitespace = true
 [*.md]
 trim_trailing_whitespace = false
 
-[*.{java,html}]
+[*.{java,scss,json}]
 indent_style = space
 indent_size = 4
 
-[*.{ts,scss,json}]
+[*.ts]
 indent_style = space
 indent_size = 2
