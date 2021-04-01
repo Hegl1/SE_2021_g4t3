@@ -275,6 +275,12 @@ paths:
                 description: Game code
                 minimum: 0
                 maximum: 99999999
+        '400':
+          description: Bad request
+        '403':
+          description: The cube is already in use
+        '404':
+          description: The cube was not found
       security:
         - Token: []
       tags:
@@ -290,6 +296,9 @@ paths:
                 category_id:
                   type: integer
                   minimum: 0
+                max_score:
+                  type: integer
+                  minimum: 1
                 mapping:
                   type: array
                   nullable: true
@@ -319,6 +328,7 @@ paths:
               required:
                 - dice_code
                 - category_id
+                - max_score
                 - mapping
                 - number_of_teams
       description: Creates a new game
@@ -691,12 +701,12 @@ components:
           type: integer
           exclusiveMinimum: false
           minimum: 0
-        name:
+        category:
           type: string
           example: Geography
       required:
         - id
-        - name
+        - category
     Expression:
       title: Expression
       type: object
@@ -739,6 +749,9 @@ components:
           minimum: 0
           maximum: 99999999
           description: The 8 digit game code
+        max_score:
+          type: integer
+          minimum: 1
         teams:
           type: array
           uniqueItems: true
@@ -769,6 +782,7 @@ components:
           $ref: '#/components/schemas/Category'
       required:
         - code
+        - max_score
         - teams
         - host
         - category
