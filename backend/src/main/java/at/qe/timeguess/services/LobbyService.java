@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import at.qe.timeguess.controllers.RaspberryController;
 import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
+import at.qe.timeguess.controllers.RaspberryController.RaspberryNotFoundException;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import gamelogic.Dice;
@@ -58,9 +59,11 @@ public class LobbyService {
 	 * @throws RaspberryAlreadyInUseException when raspberry is already assigned to
 	 *                                        a running game.
 	 * @throws GameCreationException
+	 * @throws RaspberryNotFoundException
 	 */
 	public Game createGame(final int maxPoints, final int numberOfTeams, final Category category,
-			final String raspberryId) throws RaspberryAlreadyInUseException, GameCreationException {
+			final String raspberryId)
+			throws RaspberryAlreadyInUseException, GameCreationException, RaspberryNotFoundException {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
 				userService.getAuthenticatedUser(), raspberryId);
 		raspberryController.registerGame(raspberryId, newGame);
@@ -81,9 +84,11 @@ public class LobbyService {
 	 * @throws RaspberryAlreadyInUseException when raspberry is already assigned to
 	 *                                        a running game.
 	 * @throws GameCreationException
+	 * @throws RaspberryNotFoundException
 	 */
 	public Game createGame(final int maxPoints, final int numberOfTeams, final Category category, final Dice dice,
-			final String raspberryId) throws RaspberryAlreadyInUseException, GameCreationException {
+			final String raspberryId)
+			throws RaspberryAlreadyInUseException, GameCreationException, RaspberryNotFoundException {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
 				userService.getAuthenticatedUser(), raspberryId);
 		raspberryController.registerGame(raspberryId, newGame);

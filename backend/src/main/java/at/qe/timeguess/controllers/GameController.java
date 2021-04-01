@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
+import at.qe.timeguess.controllers.RaspberryController.RaspberryNotFoundException;
 import at.qe.timeguess.dto.CreateGame;
 import at.qe.timeguess.dto.GameDTO;
 import at.qe.timeguess.dto.TeamDTO;
@@ -72,6 +73,8 @@ public class GameController {
 			return new ResponseEntity<Integer>(HttpStatus.FORBIDDEN);
 		} catch (GameCreationException e) {
 			return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
+		} catch (RaspberryNotFoundException e) {
+			return new ResponseEntity<Integer>(HttpStatus.NOT_FOUND);
 		}
 	}
 

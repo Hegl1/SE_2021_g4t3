@@ -93,7 +93,13 @@ public class RaspberryController {
 	 * @throws RaspberryAlreadyInUseException when raspberry is already assigned to
 	 *                                        a running game.
 	 */
-	public void registerGame(final String raspbiId, final Game game) throws RaspberryAlreadyInUseException {
+	public void registerGame(final String raspbiId, final Game game)
+			throws RaspberryAlreadyInUseException, RaspberryNotFoundException {
+
+		if (raspbiRepo.findFirstById(raspbiId) == null) {
+			throw new RaspberryNotFoundException();
+		}
+
 		if (gameMappings.containsKey(raspbiId)) {
 			throw new RaspberryAlreadyInUseException("Id " + raspbiId + "already in use");
 		} else {
@@ -127,5 +133,11 @@ public class RaspberryController {
 		public RaspberryAlreadyInUseException(final String message) {
 			super(message);
 		}
+	}
+
+	public class RaspberryNotFoundException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
 	}
 }

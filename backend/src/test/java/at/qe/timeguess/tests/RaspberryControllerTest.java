@@ -13,6 +13,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import at.qe.timeguess.controllers.RaspberryController;
 import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
+import at.qe.timeguess.controllers.RaspberryController.RaspberryNotFoundException;
 import at.qe.timeguess.repositories.RaspberryIDRepository;
 import gamelogic.Game;
 
@@ -26,18 +27,20 @@ public class RaspberryControllerTest {
 	private RaspberryIDRepository raspiRepo;
 
 	@Test
-	public void testRegisterGame() throws RaspberryAlreadyInUseException {
-		raspiController.registerGame("testid", new Game(500));
+	public void testRegisterGame() throws RaspberryAlreadyInUseException, RaspberryNotFoundException {
+		raspiController.registerGame("TESTRASPIID", new Game(500));
 		assertThrows(RaspberryController.RaspberryAlreadyInUseException.class,
-				() -> raspiController.registerGame("testid", new Game(500)));
-		assertEquals(raspiController.getGameMappings().get("testid").getGameCode(), 500);
-		raspiController.unregisterGame("testid");
+				() -> raspiController.registerGame("TESTRASPIID", new Game(500)));
+		assertEquals(raspiController.getGameMappings().get("TESTRASPIID").getGameCode(), 500);
+		raspiController.unregisterGame("TESTRASPIID");
+		assertThrows(RaspberryController.RaspberryNotFoundException.class,
+				() -> raspiController.registerGame("FalseID", null));
 	}
 
 	@Test
-	public void testUnregisterGame() throws RaspberryAlreadyInUseException {
-		raspiController.registerGame("testid", new Game(500));
-		raspiController.unregisterGame("testid");
+	public void testUnregisterGame() throws RaspberryAlreadyInUseException, RaspberryNotFoundException {
+		raspiController.registerGame("TESTRASPIID", new Game(500));
+		raspiController.unregisterGame("TESTRASPIID");
 		assertNull(raspiController.getGameMappings().get("testid"));
 	}
 
