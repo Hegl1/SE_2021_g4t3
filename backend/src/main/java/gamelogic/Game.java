@@ -30,6 +30,7 @@ public class Game {
 	private Dice dice;
 	private String raspberryId;
 
+	// TODO maybe delete, revisit later
 	public Game(final int code) {
 		this.teams = new ArrayList<Team>();
 		this.usedExpressions = new LinkedList<Expression>();
@@ -39,12 +40,16 @@ public class Game {
 	}
 
 	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
-			final String raspberryId) {
+			final String raspberryId) throws GameCreationException {
 		this(code);
 		this.category = category;
 		this.host = host;
+		this.unassignedUsers.add(host);
 		this.maxPoints = maxPoints;
 		this.numberOfTeams = numberOfTeams;
+		if (numberOfTeams < 2) {
+			throw new GameCreationException("Too less teams for game construction");
+		}
 		for (int i = 0; i < numberOfTeams; i++) {
 			teams.add(new Team());
 		}
@@ -53,7 +58,7 @@ public class Game {
 	}
 
 	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
-			final Dice dice, final String raspberryId) {
+			final Dice dice, final String raspberryId) throws GameCreationException {
 		this(code, maxPoints, numberOfTeams, category, host, raspberryId);
 		this.dice = dice;
 	}
@@ -116,6 +121,18 @@ public class Game {
 		return raspberryId;
 	}
 
+	public Dice getDice() {
+		return dice;
+	}
+
+	public List<User> getUnassignedUsers() {
+		return this.unassignedUsers;
+	}
+
+	public int getMaxPoints() {
+		return this.maxPoints;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -140,6 +157,16 @@ public class Game {
 			return false;
 		}
 		return true;
+	}
+
+	public class GameCreationException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
+		public GameCreationException(final String message) {
+			super(message);
+		}
+
 	}
 
 }

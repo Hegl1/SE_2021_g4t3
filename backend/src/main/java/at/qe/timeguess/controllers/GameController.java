@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
-import at.qe.timeguess.dto.AllGameDTO;
 import at.qe.timeguess.dto.CreateGame;
-import at.qe.timeguess.dto.CreateGameResult;
 import at.qe.timeguess.dto.GameDTO;
 import at.qe.timeguess.dto.TeamDTO;
 import at.qe.timeguess.dto.UserDTO;
@@ -28,6 +26,7 @@ import at.qe.timeguess.repositories.CategoryRepository;
 import at.qe.timeguess.services.LobbyService;
 import gamelogic.Dice;
 import gamelogic.Game;
+import gamelogic.Game.GameCreationException;
 import gamelogic.Team;
 
 /**
@@ -46,17 +45,15 @@ public class GameController {
 	@Autowired
 	private CategoryRepository categoryRepository;
 
-	// TODO change javadoc comment when updated responsecode
 	/**
 	 * Method that creates a game from a HTTP request.
 	 * 
-	 * @param game CreateGame DTO that carries neccessary data. Comes form HTTP
-	 *             body.
+	 * @param game CreateGame DTO that carries necessary data. Comes form HTTP body.
 	 * @return ResponseEntity for REST communication(status 200 if successful, else
-	 *         status 500).
+	 *         status 403).
 	 */
 	@PostMapping("")
-	public ResponseEntity<CreateGameResult> createGame(@RequestBody final CreateGame game) {
+	public ResponseEntity<Integer> createGame(@RequestBody final CreateGame game) {
 
 		Category gameCateogry = categoryRepository.findFirstById((long) game.getCategory_id());
 		try {
@@ -69,12 +66,12 @@ public class GameController {
 						buildDice(game), game.getDice_code());
 			}
 
-			return new ResponseEntity<CreateGameResult>(new CreateGameResult(newGame.getGameCode()),
-					HttpStatus.CREATED);
+			return new ResponseEntity<Integer>(newGame.getGameCode(), HttpStatus.CREATED);
 
 		} catch (RaspberryAlreadyInUseException e) {
-			// TODO return response code
-			return new ResponseEntity<CreateGameResult>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<Integer>(HttpStatus.FORBIDDEN);
+		} catch (GameCreationException e) {
+			return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -84,13 +81,13 @@ public class GameController {
 	 * @return ResponseEntity for REST communication(status 200 if successful).
 	 */
 	@GetMapping("")
-	public ResponseEntity<AllGameDTO> getAllRunningGames() {
+	public ResponseEntity<List<GameDTO>> getAllRunningGames() {
 		Collection<Game> runninGames = lobbyService.getAllRunningGames();
 		List<GameDTO> gameDTOs = new LinkedList<>();
 		for (Game g : runninGames) {
 			gameDTOs.add(buildGameDTO(g));
 		}
-		return new ResponseEntity<AllGameDTO>(new AllGameDTO(gameDTOs), HttpStatus.OK);
+		return new ResponseEntity<>(gameDTOs, HttpStatus.OK);
 	}
 
 	/**
@@ -145,7 +142,8 @@ public class GameController {
 			}
 			teams.add(new TeamDTO(t.getName(), t.getScore(), users));
 		}
-		return new GameDTO(game.getGameCode(), teams, buildUserDTO(game.getHost()), game.getCategory());
+		return new GameDTO(game.getGameCode(), teams, buildUserDTO(game.getHost()), game.getCategory(),
+				game.getMaxPoints());
 	}
 
 	/**

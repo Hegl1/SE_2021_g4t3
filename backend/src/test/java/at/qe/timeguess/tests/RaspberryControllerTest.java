@@ -13,7 +13,6 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import at.qe.timeguess.controllers.RaspberryController;
 import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
-import at.qe.timeguess.dto.RaspberryRegisterResult;
 import at.qe.timeguess.repositories.RaspberryIDRepository;
 import gamelogic.Game;
 
@@ -50,10 +49,10 @@ public class RaspberryControllerTest {
 	@DirtiesContext
 	@Test
 	public void testRegisterRaspberry() {
-		ResponseEntity<RaspberryRegisterResult> response = raspiController.registerRaspberry();
-		RaspberryRegisterResult body = response.getBody();
-		raspiRepo.findFirstById(body.getResult());
-		assertNotNull(raspiRepo.findFirstById(body.getResult()));
+		ResponseEntity<String> response = raspiController.registerRaspberry();
+		String body = response.getBody();
+		raspiRepo.findFirstById(body);
+		assertNotNull(raspiRepo.findFirstById(body));
 	}
 
 }

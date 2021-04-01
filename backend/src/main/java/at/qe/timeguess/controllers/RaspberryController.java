@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import at.qe.timeguess.dto.RaspberryDiceUpdate;
-import at.qe.timeguess.dto.RaspberryRegisterResult;
 import at.qe.timeguess.model.RaspberryID;
 import at.qe.timeguess.repositories.RaspberryIDRepository;
 import at.qe.timeguess.services.RandomCodeService;
@@ -51,7 +50,7 @@ public class RaspberryController {
 	 * @return ResponseEntity for REST communication(status 200 if successful).
 	 */
 	@GetMapping("/register")
-	public ResponseEntity<RaspberryRegisterResult> registerRaspberry() {
+	public ResponseEntity<String> registerRaspberry() {
 		String identifier;
 		do {
 			identifier = codeGenerator.generateRandomRaspberryCode(identifyerLength);
@@ -59,7 +58,7 @@ public class RaspberryController {
 
 		raspbiRepo.save(new RaspberryID(identifier));
 
-		return new ResponseEntity<>(new RaspberryRegisterResult(identifier), HttpStatus.OK);
+		return new ResponseEntity<>(identifier, HttpStatus.OK);
 	}
 
 	/**

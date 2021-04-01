@@ -14,6 +14,7 @@ import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import gamelogic.Dice;
 import gamelogic.Game;
+import gamelogic.Game.GameCreationException;
 
 /**
  * Class that holds and manages all games.
@@ -56,13 +57,14 @@ public class LobbyService {
 	 * @return the representation of the game.
 	 * @throws RaspberryAlreadyInUseException when raspberry is already assigned to
 	 *                                        a running game.
+	 * @throws GameCreationException
 	 */
 	public Game createGame(final int maxPoints, final int numberOfTeams, final Category category,
-			final String raspberryId) throws RaspberryAlreadyInUseException {
+			final String raspberryId) throws RaspberryAlreadyInUseException, GameCreationException {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
 				userService.getAuthenticatedUser(), raspberryId);
-		runningGames.put(newGame.getGameCode(), newGame);
 		raspberryController.registerGame(raspberryId, newGame);
+		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}
 
@@ -78,13 +80,14 @@ public class LobbyService {
 	 * @return the representation of the game.
 	 * @throws RaspberryAlreadyInUseException when raspberry is already assigned to
 	 *                                        a running game.
+	 * @throws GameCreationException
 	 */
 	public Game createGame(final int maxPoints, final int numberOfTeams, final Category category, final Dice dice,
-			final String raspberryId) throws RaspberryAlreadyInUseException {
+			final String raspberryId) throws RaspberryAlreadyInUseException, GameCreationException {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
 				userService.getAuthenticatedUser(), raspberryId);
-		runningGames.put(newGame.getGameCode(), newGame);
 		raspberryController.registerGame(raspberryId, newGame);
+		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}
 
