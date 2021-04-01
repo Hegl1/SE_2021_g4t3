@@ -14,9 +14,9 @@ import at.qe.timeguess.controllers.RaspberryController.RaspberryNotFoundExceptio
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.services.LobbyService;
-import gamelogic.Dice;
-import gamelogic.Game;
-import gamelogic.Game.GameCreationException;
+import at.qe.timeguess.gamelogic.Dice;
+import at.qe.timeguess.gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game.GameCreationException;
 
 @SpringBootTest
 public class LobbyServiceTest {

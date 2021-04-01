@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import at.qe.timeguess.model.RaspberryID;
 import at.qe.timeguess.repositories.RaspberryIDRepository;
 import at.qe.timeguess.services.RandomCodeService;
-import gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game;
 
 /**
  * Class that handles communication with raspberries. Also contains a mapping
@@ -45,7 +45,7 @@ public class RaspberryController {
 
 	/**
 	 * Method that persists a new raspberry with a random id.
-	 * 
+	 *
 	 * @return ResponseEntity for REST communication(status 200 if successful).
 	 */
 	@GetMapping("/register")
@@ -63,7 +63,7 @@ public class RaspberryController {
 	/**
 	 * Method that receives and updates the dice state in the game that is
 	 * registered for the given raspberry id.
-	 * 
+	 *
 	 * @param id     id of the raspberry that updates the value.
 	 * @param update DTO that contains the new dice side.
 	 * @return esponseEntity for REST communication(status 200 if successful, 500 if
@@ -87,7 +87,7 @@ public class RaspberryController {
 
 	/**
 	 * Method that registers a game for a given raspberry id.
-	 * 
+	 *
 	 * @param raspbiId id of the raspberry the game should be associated with.
 	 * @param game     the game that gets registered.
 	 * @throws RaspberryAlreadyInUseException when raspberry is already assigned to
@@ -109,7 +109,7 @@ public class RaspberryController {
 
 	/**
 	 * Method to unregister a game of raspberry.
-	 * 
+	 *
 	 * @param raspbiId Id of the raspberry that is associated with the game to be
 	 *                 unregistered.
 	 */

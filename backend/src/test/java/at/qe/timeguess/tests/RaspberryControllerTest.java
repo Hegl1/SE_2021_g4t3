@@ -15,7 +15,7 @@ import at.qe.timeguess.controllers.RaspberryController;
 import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
 import at.qe.timeguess.controllers.RaspberryController.RaspberryNotFoundException;
 import at.qe.timeguess.repositories.RaspberryIDRepository;
-import gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game;
 
 @SpringBootTest
 public class RaspberryControllerTest {
