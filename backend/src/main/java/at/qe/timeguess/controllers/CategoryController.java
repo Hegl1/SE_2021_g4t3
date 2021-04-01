@@ -5,11 +5,11 @@ import at.qe.timeguess.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 @RequestMapping("/categories")
 @RestController
@@ -18,18 +18,32 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    public ResponseEntity<Category> getAllCategories(){
-        this.categoryService.getAllCategories();
-        return new ResponseEntity<Category>(HttpStatus.OK);
+    @GetMapping("")
+    public ResponseEntity<List<Category>> getAllCategories(){
+        List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
+        return new ResponseEntity<List<Category>>(allCategories, HttpStatus.OK);
     }
 
-    // TODO: createCategory method
+    @PostMapping("")
+    public ResponseEntity<Category> createCategory(@RequestBody final Category category) {
+        try {
+            Category newCategory = this.categoryService.saveCategory(category);
+            return new ResponseEntity<Category>(newCategory, HttpStatus.CREATED);
+        } catch (CategoryService.CategoryAlreadyExistsException e) {
+            return new ResponseEntity<Category>(HttpStatus.CONFLICT);
+        }
+    }
 
-    public ResponseEntity<Category> deleteCategory(final Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Category> deleteCategory(@PathVariable final Long id) {
         Category categoryToDelete = this.categoryService.getCategoryById(id);
 
         if(categoryToDelete != null) {
-            this.categoryService.deleteCategory(categoryToDelete);
+            try {
+                this.categoryService.deleteCategory(categoryToDelete);
+            } catch (CategoryService.CategoryAlreadyExistsException e) {
+                return new ResponseEntity<Category>(HttpStatus.FORBIDDEN);
+            }
             return new ResponseEntity<Category>(HttpStatus.OK);
         } else {
             return new ResponseEntity<Category>(HttpStatus.NOT_FOUND);
