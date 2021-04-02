@@ -18,12 +18,37 @@ $theme: mat-dark-theme(
 html,
 body {
   height: 100%;
+  background: $background;
 }
 body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
-  background: $background;
   color: $foreground;
+}
+
+mat-dialog-container *[mat-dialog-title] {
+  mat-icon,
+  span {
+    vertical-align: middle;
+    display: inline-block;
+  }
+
+  mat-icon {
+    font-size: 1.5em !important;
+    margin-right: 0.25em;
+  }
+}
+
+.mat-drawer-backdrop.mat-drawer-shown {
+  background: $navigation-backdrop;
+}
+
+a,
+.link {
+  color: $link;
+  text-decoration: underline;
+  cursor: pointer;
+  outline: transparent;
 }
 
 .primary {
