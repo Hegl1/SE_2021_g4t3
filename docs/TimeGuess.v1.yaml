@@ -691,6 +691,58 @@ paths:
       description: Retrieves the stats for the top n games
       security:
         - Token: []
+  '/dice/{id}/notify/battery':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    post:
+      summary: Update battery status
+      operationId: post-dice-id-battery-low
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not Found
+      tags:
+        - Dice
+      description: Tells the server that the battery is low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: number
+              minimum: 0
+              maximum: 100
+              description: The battery percentage
+  '/dice/{id}/notify/connection':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    post:
+      summary: Update connection status
+      operationId: post-dice-id-connection
+      responses:
+        '200':
+          description: OK
+        '204':
+          description: Dice not in a game
+        '404':
+          description: Not Found
+      tags:
+        - Dice
+      description: Updates the server on the connection status between the raspberry and the TimeFlip dice
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: boolean
+              description: Whether the dice is connected to the raspberry
 components:
   schemas:
     Category:
