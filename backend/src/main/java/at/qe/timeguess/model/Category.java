@@ -18,6 +18,10 @@ public class Category {
 	public Category() {
 	}
 
+	public Long getId() {
+		return id;
+	}
+
 	public Category(final String category) {
 		this.category = category;
 	}
