@@ -29,6 +29,11 @@ mat-drawer-container {
   mat-drawer {
     width: $nav-width;
     background: $navigation-background;
+    color: $navigation-foreground;
+
+    a[mat-list-item] {
+      color: $navigation-foreground;
+    }
 
     &:not(.small-screen) {
       border-right: 0;
@@ -66,12 +71,15 @@ mat-drawer-container {
   }
 
   mat-drawer-content {
+    color: inherit;
+
     header {
       position: sticky;
       top: 0;
       z-index: 2;
 
       background: $navigation-background;
+      color: $navigation-foreground;
       box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.6);
 
       margin-bottom: 1em;

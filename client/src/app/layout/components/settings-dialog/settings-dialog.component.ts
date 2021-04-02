@@ -21,7 +21,7 @@ export class SettingsDialogComponent {
       password_confirm: [
         '',
         () => {
-          if (this.settingsForm !== null && this.password?.value != this.password_confirm?.value) {
+          if (this.password?.value != this.password_confirm?.value) {
             return { passwordsMismatch: true };
           }
           return null;
