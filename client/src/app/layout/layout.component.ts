@@ -1,8 +1,8 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileDialogComponent } from '../components/profile-dialog/profile-dialog.component';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
-import { BreakpointObserver } from '@angular/cdk/layout';
 
 const maxWidthPx = 1000;
 
