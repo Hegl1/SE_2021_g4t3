@@ -35,6 +35,9 @@ export class ConfigService {
     return val;
   }
 
+  /**
+   * Loads the config file
+   */
   async load() {
     this.data = await this.http.get<{}>(URL).toPromise();
   }

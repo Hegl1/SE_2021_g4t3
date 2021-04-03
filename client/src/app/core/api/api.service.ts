@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Expression } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { ApiResponse } from './ApiResponse';
-import { ConfigService } from './config.service';
+import { ConfigService } from '../config/config.service';
 import {
   Category,
   CategoryStat,
@@ -13,7 +13,7 @@ import {
   TopGamesStat,
   User,
   UserStats,
-} from './interfaces';
+} from './ApiInterfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +21,9 @@ import {
 export class ApiService {
   constructor(private http: HttpClient, private config: ConfigService) {}
 
+  /**
+   * The http-options containing the token, if a user is logged-in
+   */
   private get httpOptions(): { observe: 'response'; headers: HttpHeaders } {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -32,10 +35,19 @@ export class ApiService {
     };
   }
 
+  /**
+   * The api url from the config
+   */
   get URL() {
     return this.config.get('api_url', 'http://localhost:8080');
   }
 
+  /**
+   * Handles the received http-response-promise and returns the appropriate ApiResponse instance
+   *
+   * @param prom the http-response-promise to handle
+   * @returns the created ApiResponse instance
+   */
   private async handleResponse<T>(prom: Promise<HttpResponse<T | null>>): Promise<ApiResponse<T>> {
     let status: number;
     let value: T | null;
