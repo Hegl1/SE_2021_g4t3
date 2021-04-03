@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from './core/auth/auth.guard';
 import { LayoutComponent } from './layout/layout.component';
 import { ExpressionsComponent } from './pages/admin/expressions/expressions.component';
 import { GamesComponent } from './pages/admin/games/games.component';
@@ -16,6 +17,7 @@ const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
+    canActivate: [AuthGuard],
     children: [
       { path: 'home', component: HomeComponent },
       {
@@ -28,9 +30,9 @@ const routes: Routes = [
       },
       { path: 'game', component: GameComponent },
       { path: 'game/:id', component: GameComponent },
-      { path: '**', redirectTo: '/home' },
     ],
   },
+  { path: '**', redirectTo: '/home' },
 ];
 
 @NgModule({

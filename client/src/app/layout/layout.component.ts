@@ -2,6 +2,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileDialogComponent } from '../components/profile-dialog/profile-dialog.component';
+import { UserService } from '../core/auth/user.service';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 
 const maxWidthPx = 1000;
@@ -14,7 +15,7 @@ const maxWidthPx = 1000;
 export class LayoutComponent {
   isSmallScreen = this.breakpointObserver.isMatched(`(max-width: ${maxWidthPx}px)`);
 
-  constructor(private dialog: MatDialog, private breakpointObserver: BreakpointObserver) {
+  constructor(private dialog: MatDialog, private breakpointObserver: BreakpointObserver, private user: UserService) {
     this.breakpointObserver
       .observe([`(max-width: ${maxWidthPx}px)`])
       .subscribe((result) => (this.isSmallScreen = result.matches));
@@ -27,7 +28,7 @@ export class LayoutComponent {
   openProfile() {
     this.dialog.open(ProfileDialogComponent, {
       data: {
-        user_id: 0, // TODO: set user_id
+        user_id: this.user.user?.id,
       },
     });
   }

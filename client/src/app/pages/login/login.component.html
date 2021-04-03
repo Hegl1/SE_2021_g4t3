@@ -25,13 +25,25 @@
 
                 <mat-slide-toggle color="primary" formControlName="remember">Remember me</mat-slide-toggle>
 
-                <button mat-raised-button color="primary" (click)="action()">
-                    {{ isLogin ? 'Login' : 'Register' }}
-                </button>
+                <div class="form_footer">
+                    <button mat-raised-button color="primary" (click)="action()" [disabled]="loading">
+                        {{ isLogin ? 'Login' : 'Register' }}
+                    </button>
+
+                    <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+
+                    <span *ngIf="error" class="error">{{ error }}</span>
+                </div>
             </form>
 
-            <p *ngIf="isLogin">Don't have an account yet? <a routerLink="/register">Register</a></p>
-            <p *ngIf="!isLogin">Already have an account? <a routerLink="/login">Login</a></p>
+            <p *ngIf="isLogin">
+                Don't have an account yet?
+                <a [routerLink]="loading ? null : '/register'" [class.disabled]="loading">Register</a>
+            </p>
+            <p *ngIf="!isLogin">
+                Already have an account?
+                <a [routerLink]="loading ? null : '/login'" [class.disabled]="loading">Login</a>
+            </p>
         </div>
 
         <div class="right">
