@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import at.qe.timeguess.services.RandomCodeService;
 import at.qe.timeguess.services.RaspberryService;
+import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
 
 /**
  * Class that handles communication with raspberries. Also contains a mapping
@@ -46,8 +47,8 @@ public class RaspberryController {
 	 * 
 	 * @param id     id of the raspberry that updates the value.
 	 * @param update DTO that contains the new dice side.
-	 * @return esponseEntity for REST communication(status 200 if successful, 500 if
-	 *         no game is registered)
+	 * @return ResponseEntity for REST communication(status 200 if successful, 404
+	 *         if rasoberry is not found, 400 if update is out of bounds )
 	 */
 	@PostMapping("/{id}/update")
 	public ResponseEntity<Void> updateDice(@PathVariable final String id, @RequestBody final int update) {
@@ -57,10 +58,52 @@ public class RaspberryController {
 			try {
 				raspiService.updateDice(id, update);
 				return new ResponseEntity<>(null, HttpStatus.OK);
-			} catch (at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException e) {
+			} catch (RaspberryNotFoundException e) {
 				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			}
 		}
+	}
+
+	/**
+	 * Method that receives updates for dice battery levels.
+	 * 
+	 * @param id           id of the raspberry that updates its battery level.
+	 * @param batteryLevel value of the new battery level
+	 * @return ResponseEntity for REST communication(status 200 if successful, 404
+	 *         if raspberry not registered)
+	 */
+	@PostMapping("/{id}/notify/battery")
+	public ResponseEntity<Void> updateDiceBattery(@PathVariable final String id, @RequestBody final int batteryLevel) {
+		try {
+			raspiService.updateDiceBatteryStatus(id, batteryLevel);
+			return new ResponseEntity<Void>(HttpStatus.OK);
+		} catch (RaspberryNotFoundException e) {
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	/**
+	 * Method that receives updates for dice connection statuses.
+	 * 
+	 * @param id               id of the raspberry that updates its connection
+	 *                         status.
+	 * @param connectionStatus new connection status.
+	 * @return ResponseEntity for REST communication(status 200 if succesfull, 404
+	 *         if raspberry not registered, 204 if dice is not assigned to a game)
+	 */
+	@PostMapping("/{id}/notify/connection")
+	public ResponseEntity<Void> updateDiceConnection(@PathVariable final String id,
+			@RequestBody final boolean connectionStatus) {
+		try {
+			if (raspiService.updateDiceConnectionStatus(id, connectionStatus)) {
+				return new ResponseEntity<Void>(HttpStatus.OK);
+			} else {
+				return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+			}
+		} catch (RaspberryNotFoundException e) {
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+		}
+
 	}
 
 }

@@ -67,6 +67,48 @@ public class RaspberryService {
 	}
 
 	/**
+	 * Method that updates the batteryStatus of a Dice if a game is registered to
+	 * it.
+	 * 
+	 * @param raspberryId   id of the raspberry that sent the update.
+	 * @param batteryStatus new battery level in percent
+	 * @throws RaspberryNotFoundException if the raspberry is not registered
+	 */
+	public void updateDiceBatteryStatus(final String raspberryId, final int batteryStatus)
+			throws RaspberryNotFoundException {
+		if (raspbiRepo.findFirstById(raspberryId) == null) {
+			throw new RaspberryNotFoundException();
+		} else {
+			if (gameMappings.get(raspberryId) != null) {
+				gameMappings.get(raspberryId).updateDiceBattery(batteryStatus);
+			}
+		}
+	}
+
+	/**
+	 * Method that updates the connectionStatus of a Dice if a game is registered to
+	 * it. If not it returns false.
+	 * 
+	 * @param raspberryId      id of the raspberry that sent the update.
+	 * @param connectionStatus new connection status.
+	 * @return true if raspberry is in a game, false if not.
+	 * @throws RaspberryNotFoundException if the raspberry is not registered.
+	 */
+	public boolean updateDiceConnectionStatus(final String raspberryId, final boolean connectionStatus)
+			throws RaspberryNotFoundException {
+		if (raspbiRepo.findFirstById(raspberryId) == null) {
+			throw new RaspberryNotFoundException();
+		} else {
+			if (gameMappings.get(raspberryId) != null) {
+				gameMappings.get(raspberryId).updateDiceConnection(connectionStatus);
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	/**
 	 * Method that registers a game for a given raspberry id.
 	 * 
 	 * @param raspbiId id of the raspberry the game should be associated with.

@@ -1,9 +1,11 @@
 package at.qe.timeguess.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,28 @@ public class RaspberryServiceTest {
 	@Test
 	public void testUpdateDice() throws RaspberryNotFoundException {
 		assertThrows(RaspberryNotFoundException.class, () -> raspberryService.updateDice("NotUpdateable", 0));
+	}
+
+	@Test
+	public void testUpdateDiceBattery() throws RaspberryAlreadyInUseException, RaspberryNotFoundException {
+		Game testGame = new Game(111111111);
+		raspberryService.registerGame("TESTRASPIID", testGame);
+		raspberryService.updateDiceBatteryStatus("TESTRASPIID", 69);
+		assertEquals(69, testGame.getDice().getBatteryPower());
+		raspberryService.unregisterGame("TESTRASPIID");
+		assertThrows(RaspberryNotFoundException.class, () -> raspberryService.updateDice("NOT_FOUND", 0));
+	}
+
+	@Test
+	public void testUpdateDiceConnection() throws RaspberryNotFoundException, RaspberryAlreadyInUseException {
+		Game testGame = new Game(111111111);
+		assertFalse(raspberryService.updateDiceConnectionStatus("TESTRASPIID", false));
+		raspberryService.registerGame("TESTRASPIID", testGame);
+		assertTrue(raspberryService.updateDiceConnectionStatus("TESTRASPIID", false));
+		assertEquals(testGame.getDice().isRaspberryConnected(), false);
+		raspberryService.unregisterGame("TESTRASPIID");
+		assertThrows(RaspberryNotFoundException.class, () -> raspberryService.updateDice("NOT_FOUND", 0));
+
 	}
 
 }
