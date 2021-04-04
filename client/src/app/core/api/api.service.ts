@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Expression } from '@angular/compiler';
 import { Injectable } from '@angular/core';
-import { ApiResponse } from './ApiResponse';
+import { UserService } from '../auth/user.service';
 import { ConfigService } from '../config/config.service';
 import {
   Category,
@@ -14,12 +14,13 @@ import {
   User,
   UserStats,
 } from './ApiInterfaces';
+import { ApiResponse } from './ApiResponse';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  constructor(private http: HttpClient, private config: ConfigService) {}
+  constructor(private http: HttpClient, private config: ConfigService, private user: UserService) {}
 
   /**
    * The http-options containing the token, if a user is logged-in
@@ -28,6 +29,12 @@ export class ApiService {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
     });
+
+    let token = this.user.token;
+
+    if (this.user.isLoggedin && token) {
+      headers = headers.append('Authorization', token);
+    }
 
     return {
       observe: 'response',
@@ -62,6 +69,11 @@ export class ApiService {
       value = e.error;
 
       if (status != 404) {
+        if (status == 401 && this.user.isLoggedin) {
+          // TODO: fetch new token
+          this.user.logoutReason('unauthorized');
+        }
+
         return new ApiResponse<T>(e.status);
       }
     }

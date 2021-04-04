@@ -10,6 +10,6 @@ export class LogoutComponent implements OnInit {
   constructor(private user: UserService) {}
 
   ngOnInit() {
-    this.user.logout(true);
+    this.user.logoutReason('logout');
   }
 }

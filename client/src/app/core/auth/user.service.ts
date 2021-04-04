@@ -156,4 +156,15 @@ export class UserService {
 
     if (redirect) this.router.navigateByUrl('/login');
   }
+
+  /**
+   * Logsout the user, removes him from storage and cookies and redirects him to the login page with a set reason
+   *
+   * @param redirect whether to redirect the user to the login page afterwards
+   */
+  async logoutReason(reason: string) {
+    this.logout(false);
+
+    this.router.navigateByUrl(`/login?reason=${reason}`);
+  }
 }

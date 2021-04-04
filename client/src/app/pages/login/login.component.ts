@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from 'src/app/core/api/api.service';
 import { User } from 'src/app/core/api/ApiInterfaces';
@@ -24,7 +25,8 @@ export class LoginComponent implements OnInit {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private api: ApiService,
-    private user: UserService
+    private user: UserService,
+    private snackBar: MatSnackBar
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
@@ -39,6 +41,27 @@ export class LoginComponent implements OnInit {
         },
       ],
       remember: [false],
+    });
+
+    this.route.queryParams.subscribe((params) => {
+      if (params.reason) {
+        let reason: string;
+
+        switch (params.reason) {
+          case 'logout':
+            reason = 'Successfully logged out!';
+            break;
+          case 'unauthorized':
+            reason = 'You have to log back in!';
+            break;
+          default:
+            reason = 'You have been logged out';
+        }
+
+        this.snackBar.open(reason, 'OK', {
+          duration: 5000,
+        });
+      }
     });
   }
 
