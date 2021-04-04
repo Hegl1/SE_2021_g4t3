@@ -51,6 +51,7 @@ export class LoginComponent implements OnInit {
           case 'logout':
             reason = 'Successfully logged out!';
             break;
+          case 'badToken':
           case 'unauthorized':
             reason = 'You have to log back in!';
             break;
@@ -120,7 +121,7 @@ export class LoginComponent implements OnInit {
     this.loginForm.enable();
 
     if (res.isOK() && res.value !== null) {
-      this.user.login(res.value.user, res.value.token, this.remember?.value);
+      this.user.login(res.value.token, this.remember?.value);
 
       this.router.navigateByUrl(this.route.snapshot.queryParams.redirectUrl || '/');
     } else if (res.isUnauthorized()) {

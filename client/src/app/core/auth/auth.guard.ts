@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Role } from '../api/ApiInterfaces';
 import { UserService } from './user.service';
 
@@ -7,7 +8,7 @@ import { UserService } from './user.service';
   providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
-  constructor(private user: UserService, private router: Router) {}
+  constructor(private user: UserService, private router: Router, private snackBar: MatSnackBar) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     const redirectUrl = state.url;
@@ -24,13 +25,23 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    this.router.navigateByUrl(
-      this.router.createUrlTree(['/login'], {
+    let redirect: string | UrlTree;
+
+    if (this.user.isLoggedin) {
+      this.snackBar.open('You are not authorized to view this page!', 'OK', {
+        panelClass: 'action-warn',
+      });
+
+      redirect = '/home';
+    } else {
+      redirect = this.router.createUrlTree(['/login'], {
         queryParams: {
           redirectUrl,
         },
-      })
-    );
+      });
+    }
+
+    this.router.navigateByUrl(redirect);
 
     return false;
   }

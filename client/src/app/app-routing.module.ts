@@ -17,22 +17,21 @@ const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
-    canActivate: [AuthGuard],
     children: [
-      { path: 'home', component: HomeComponent },
+      { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
       {
         path: 'admin',
         children: [
-          { path: 'users', component: UsersComponent },
-          { path: 'expressions', component: ExpressionsComponent },
-          { path: 'games', component: GamesComponent },
+          { path: 'users', component: UsersComponent, canActivate: [AuthGuard] },
+          { path: 'expressions', component: ExpressionsComponent, canActivate: [AuthGuard] },
+          { path: 'games', component: GamesComponent, canActivate: [AuthGuard] },
         ],
       },
-      { path: 'game', component: GameComponent },
-      { path: 'game/:id', component: GameComponent },
+      { path: 'game', component: GameComponent, canActivate: [AuthGuard] },
+      { path: 'game/:id', component: GameComponent, canActivate: [AuthGuard] },
+      { path: '**', redirectTo: '/home' },
     ],
   },
-  { path: '**', redirectTo: '/home' },
 ];
 
 @NgModule({

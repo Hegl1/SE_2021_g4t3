@@ -18,7 +18,7 @@
                 </mat-nav-list>
             </div>
 
-            <div class="admin">
+            <div class="admin" *ngIf="userHasRole('gamemanager')">
                 <mat-nav-list>
                     <div mat-subheader>Games</div>
                     <a mat-list-item routerLink="/admin/games" routerLinkActive="active">
@@ -27,7 +27,7 @@
 
                     <mat-divider></mat-divider>
                     <div mat-subheader>Administrate</div>
-                    <a mat-list-item routerLink="/admin/users" routerLinkActive="active">
+                    <a mat-list-item routerLink="/admin/users" routerLinkActive="active" *ngIf="userHasRole('admin')">
                         <mat-icon>people</mat-icon> Users
                     </a>
                     <a mat-list-item routerLink="/admin/expressions" routerLinkActive="active">

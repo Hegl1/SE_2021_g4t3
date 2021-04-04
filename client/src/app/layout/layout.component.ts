@@ -2,6 +2,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileDialogComponent } from '../components/profile-dialog/profile-dialog.component';
+import { Role } from '../core/api/ApiInterfaces';
 import { UserService } from '../core/auth/user.service';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 
@@ -31,5 +32,22 @@ export class LayoutComponent {
         user_id: this.user.user?.id,
       },
     });
+  }
+
+  /**
+   * Checks whether the current user has permissions for a given role
+   *
+   * @param role the searched role in string form
+   * @returns true, if the user has the permissions for the role
+   */
+  userHasRole(role: 'admin' | 'gamemanager' | 'player') {
+    switch (role) {
+      case 'admin':
+        return this.user.hasRole(Role.Admin);
+      case 'gamemanager':
+        return this.user.hasRole(Role.Gamemanager);
+      case 'player':
+        return this.user.hasRole(Role.Player);
+    }
   }
 }
