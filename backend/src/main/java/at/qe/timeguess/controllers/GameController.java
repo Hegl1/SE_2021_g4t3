@@ -56,6 +56,9 @@ public class GameController {
 	public ResponseEntity<Integer> createGame(@RequestBody final CreateGame game) {
 
 		Category gameCateogry = categoryRepository.findFirstById((long) game.getCategory_id());
+		if (gameCateogry == null) {
+			return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
+		}
 		try {
 			Game newGame;
 			if (game.getMapping() == null) {
