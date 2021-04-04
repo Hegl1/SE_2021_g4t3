@@ -79,6 +79,8 @@ paths:
                     $ref: '#/components/schemas/User'
                   token:
                     type: string
+                    example: 'Bearer j.w.t'
+                    pattern: '^Bearer \w+.\w+.\w+$'
         '401':
           description: Username or password are wrong
       tags:
@@ -116,6 +118,8 @@ paths:
                     $ref: '#/components/schemas/User'
                   token:
                     type: string
+                    example: 'Bearer j.w.t'
+                    pattern: '^Bearer \w+.\w+.\w+$'
         '409':
           description: The username was already taken
       tags:
@@ -156,6 +160,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           description: Not Found
       operationId: get-user-id
@@ -168,6 +174,10 @@ paths:
       responses:
         '200':
           description: OK
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Not Found
       tags:
@@ -203,6 +213,10 @@ paths:
       responses:
         '200':
           description: OK
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Not Found
       description: Deletes the user having the given id
@@ -224,6 +238,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
       operationId: get-user
       description: Returns a list of all users
       security:
@@ -239,8 +257,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '409':
-          description: Conflict
+          description: The username was already taken
       description: Creates a new user
       security:
         - Token: []
@@ -277,10 +299,12 @@ paths:
                 maximum: 99999999
         '400':
           description: Bad request
-        '403':
-          description: The cube is already in use
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
-          description: The cube was not found
+          description: The dice was not found
+        '409':
+          description: The dice is already in use
       security:
         - Token: []
       tags:
@@ -344,6 +368,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RunningGame'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
       description: Returns a list of all currently running games
       tags:
         - Game
@@ -368,6 +396,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RunningGame'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Not Found
       description: Retrieves information about a running game having the given code
@@ -381,6 +413,10 @@ paths:
       responses:
         '200':
           description: OK
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Not Found
       tags:
@@ -405,6 +441,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           description: Not Found
       operationId: get-users-id-stats
@@ -427,6 +465,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
       operationId: get-expressions
       description: Retrieves all categories
       security:
@@ -442,8 +482,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '409':
-          description: Conflict
+          description: A category with this name exists already
       description: Creates a new category with a supplied name
       tags:
         - Category
@@ -475,8 +519,14 @@ paths:
       responses:
         '200':
           description: OK
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Not Found
+        '409':
+          description: Could not be deleted, since already used in a game
       tags:
         - Category
       description: Deletes a category by id
@@ -503,6 +553,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Expression'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           description: Not Found
       operationId: get-categories-id-expressions
@@ -519,10 +571,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Expression'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Not Found
         '409':
-          description: Conflict
+          description: An expression with this name exists already in this category
       tags:
         - Expression
       description: Creates a new expression for the category having the supplied id
@@ -532,7 +588,7 @@ paths:
             schema:
               type: object
               properties:
-                expression:
+                name:
                   type: string
                   example: Democracy
               required:
@@ -548,13 +604,19 @@ paths:
         in: path
         required: true
     delete:
-      summary: Delete a expression
+      summary: Delete an expression
       operationId: delete-expressions-id
       responses:
         '200':
           description: OK
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Not Found
+        '409':
+          description: Could not be deleted, since already used in a game
       tags:
         - Expression
       description: Deletes the expression having the given id
@@ -581,6 +643,10 @@ paths:
                 uniqueItems: true
                 items:
                   $ref: '#/components/schemas/Expression'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Not Found
       tags:
@@ -619,6 +685,10 @@ paths:
                   required:
                     - category
                     - expressions
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
       tags:
         - Expression
       requestBody:
@@ -655,6 +725,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GlobalStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
       operationId: get-stats-global
       description: Retrieves the global stats
       security:
@@ -671,6 +743,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
       operationId: get-stats-categories
       description: Retrieves the category stats
       security:
@@ -687,6 +761,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TopGamesStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
       operationId: get-stats-topGames
       description: Retrieves the stats for the top n games
       security:
@@ -708,7 +784,7 @@ paths:
           description: Not Found
       tags:
         - Dice
-      description: Tells the server that the battery is low
+      description: Tells the server the current battery status
       requestBody:
         content:
           application/json:
@@ -753,12 +829,12 @@ components:
           type: integer
           exclusiveMinimum: false
           minimum: 0
-        category:
+        name:
           type: string
           example: Geography
       required:
         - id
-        - category
+        - name
     Expression:
       title: Expression
       type: object
@@ -766,7 +842,7 @@ components:
         id:
           type: integer
           minimum: 0
-        expression:
+        name:
           type: string
           example: Russia
       required:
@@ -967,6 +1043,11 @@ components:
           - category
           - number_correct
           - number_incorrect
+  responses:
+    Unauthorized:
+      description: There was no authentication provided or it was invalid
+    Forbidden:
+      description: The user has not the rights to perform this action
   securitySchemes:
     Token:
       type: http
