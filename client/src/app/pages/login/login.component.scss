@@ -23,6 +23,9 @@ main {
   transform: translate(-50%, -50%);
   z-index: 1;
 
+  max-height: 100%;
+  overflow-y: auto;
+
   width: 1000px;
   max-width: calc(100% - 4rem);
 
@@ -144,10 +147,6 @@ main {
 }
 
 @media screen and (max-width: 550px) {
-  ::ng-deep body {
-    background: $curve-background;
-  }
-
   main {
     position: initial;
     transform: unset;
@@ -180,11 +179,23 @@ main {
 
   .bg-curve {
     position: relative;
-    bottom: -1em;
+    background-color: $background;
   }
 
   .wrapper {
     background: $background;
     position: relative;
+    z-index: 1;
+
+    &::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: $curve-background;
+      z-index: -1;
+    }
   }
 }
