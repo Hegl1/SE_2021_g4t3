@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
-import at.qe.timeguess.controllers.RaspberryController.RaspberryNotFoundException;
 import at.qe.timeguess.dto.CreateGame;
 import at.qe.timeguess.dto.GameDTO;
 import at.qe.timeguess.dto.TeamDTO;
@@ -25,10 +23,11 @@ import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.repositories.CategoryRepository;
 import at.qe.timeguess.services.LobbyService;
-import at.qe.timeguess.gamelogic.Dice;
-import at.qe.timeguess.gamelogic.Game;
-import at.qe.timeguess.gamelogic.Game.GameCreationException;
-import at.qe.timeguess.gamelogic.Team;
+import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
+import gamelogic.Dice;
+import gamelogic.Game;
+import gamelogic.Game.GameCreationException;
+import gamelogic.Team;
 
 /**
  * Class that controls creating, viewing and deleting games via REST.
@@ -57,6 +56,9 @@ public class GameController {
 	public ResponseEntity<Integer> createGame(@RequestBody final CreateGame game) {
 
 		Category gameCateogry = categoryRepository.findFirstById((long) game.getCategory_id());
+		if (gameCateogry == null) {
+			return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
+		}
 		try {
 			Game newGame;
 			if (game.getMapping() == null) {
@@ -69,7 +71,7 @@ public class GameController {
 
 			return new ResponseEntity<Integer>(newGame.getGameCode(), HttpStatus.CREATED);
 
-		} catch (RaspberryAlreadyInUseException e) {
+		} catch (at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException e) {
 			return new ResponseEntity<Integer>(HttpStatus.FORBIDDEN);
 		} catch (GameCreationException e) {
 			return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);

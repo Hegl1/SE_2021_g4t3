@@ -1,4 +1,4 @@
-package at.qe.timeguess.gamelogic;
+package gamelogic;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -37,6 +37,7 @@ public class Game {
 		this.unassignedUsers = new LinkedList<User>();
 		this.active = false;
 		this.gameCode = code;
+		this.dice = new Dice();
 	}
 
 	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
@@ -61,6 +62,7 @@ public class Game {
 			final Dice dice, final String raspberryId) throws GameCreationException {
 		this(code, maxPoints, numberOfTeams, category, host, raspberryId);
 		this.dice = dice;
+		dice.setRaspberryConnected(true);
 	}
 
 	/**
@@ -90,6 +92,22 @@ public class Game {
 	 */
 	public void pickExpression() {
 		// TODO implement after expressionservice
+	}
+
+	/**
+	 * Method that updates the dices battery status
+	 */
+	public void updateDiceBattery(final int batteryStatus) {
+		this.dice.setBatteryPower(batteryStatus);
+		// TODO implement proper actions with game logic
+	}
+
+	/**
+	 * Method that updates the dices connection status
+	 */
+	public void updateDiceConnection(final boolean isConnected) {
+		this.dice.setRaspberryConnected(isConnected);
+		// TODO implement proper action with game logic
 	}
 
 	/**

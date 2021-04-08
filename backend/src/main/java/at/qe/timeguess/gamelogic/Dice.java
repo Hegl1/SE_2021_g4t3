@@ -1,4 +1,4 @@
-package at.qe.timeguess.gamelogic;
+package gamelogic;
 
 /**
  * Class that holds the dice mapping for a running game.
@@ -6,6 +6,8 @@ package at.qe.timeguess.gamelogic;
  */
 public class Dice {
 
+	private int batteryPower;
+	private boolean raspberryConnected;
 	private int[] pointsMapping;
 	private String[] activityMapping;
 	private int[] durationMapping;
@@ -17,6 +19,7 @@ public class Dice {
 		pointsMapping = new int[12];
 		activityMapping = new String[12];
 		durationMapping = new int[12];
+		this.raspberryConnected = true;
 		loadDefaultMapping();
 	}
 
@@ -32,6 +35,30 @@ public class Dice {
 		this.pointsMapping = pointsMapping;
 		this.activityMapping = activityMapping;
 		this.durationMapping = durationMapping;
+	}
+
+	/**
+	 * Initializes dice with default mapping.
+	 */
+	private void loadDefaultMapping() {
+		// TODO proper default mapping.
+		for (int i = 0; i < 12; i++) {
+			pointsMapping[i] = i % 3 + 1;
+			durationMapping[i] = ((i % 3) + 1) * 60;
+		}
+
+		activityMapping[0] = "Mime";
+		activityMapping[1] = "Speak";
+		activityMapping[2] = "Draw";
+		activityMapping[3] = "Rhime";
+		activityMapping[4] = "Mime";
+		activityMapping[5] = "Speak";
+		activityMapping[6] = "Draw";
+		activityMapping[7] = "Rhime";
+		activityMapping[8] = "Mime";
+		activityMapping[9] = "Speak";
+		activityMapping[10] = "Draw";
+		activityMapping[11] = "Rhime";
 	}
 
 	public int getPoints(final int facet) {
@@ -70,28 +97,20 @@ public class Dice {
 		this.durationMapping = durationMapping;
 	}
 
-	/**
-	 * Initializes dice with default mapping.
-	 */
-	private void loadDefaultMapping() {
-		// TODO proper default mapping.
-		for (int i = 0; i < 12; i++) {
-			pointsMapping[i] = i % 3 + 1;
-			durationMapping[i] = ((i % 3) + 1) * 60;
-		}
+	public int getBatteryPower() {
+		return batteryPower;
+	}
 
-		activityMapping[0] = "Mime";
-		activityMapping[1] = "Speak";
-		activityMapping[2] = "Draw";
-		activityMapping[3] = "Rhime";
-		activityMapping[4] = "Mime";
-		activityMapping[5] = "Speak";
-		activityMapping[6] = "Draw";
-		activityMapping[7] = "Rhime";
-		activityMapping[8] = "Mime";
-		activityMapping[9] = "Speak";
-		activityMapping[10] = "Draw";
-		activityMapping[11] = "Rhime";
+	public void setBatteryPower(final int batteryPower) {
+		this.batteryPower = batteryPower;
+	}
+
+	public boolean isRaspberryConnected() {
+		return raspberryConnected;
+	}
+
+	public void setRaspberryConnected(final boolean raspberryConnected) {
+		this.raspberryConnected = raspberryConnected;
 	}
 
 }

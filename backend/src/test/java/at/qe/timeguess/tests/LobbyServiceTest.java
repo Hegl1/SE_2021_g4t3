@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
-import at.qe.timeguess.controllers.RaspberryController.RaspberryNotFoundException;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.services.LobbyService;
-import at.qe.timeguess.gamelogic.Dice;
-import at.qe.timeguess.gamelogic.Game;
-import at.qe.timeguess.gamelogic.Game.GameCreationException;
+import at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException;
+import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
+import gamelogic.Dice;
+import gamelogic.Game;
+import gamelogic.Game.GameCreationException;
 
 @SpringBootTest
 public class LobbyServiceTest {

@@ -8,14 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import at.qe.timeguess.controllers.RaspberryController;
-import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
-import at.qe.timeguess.controllers.RaspberryController.RaspberryNotFoundException;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
-import at.qe.timeguess.gamelogic.Dice;
-import at.qe.timeguess.gamelogic.Game;
-import at.qe.timeguess.gamelogic.Game.GameCreationException;
+import at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException;
+import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
+import gamelogic.Dice;
+import gamelogic.Game;
+import gamelogic.Game.GameCreationException;
 
 /**
  * Class that holds and manages all games.
@@ -31,7 +30,7 @@ public class LobbyService {
 	private RandomCodeService codeService;
 
 	@Autowired
-	private RaspberryController raspberryController;
+	private RaspberryService raspberryService;
 
 	/**
 	 * Map that holds all open games.
@@ -62,11 +61,11 @@ public class LobbyService {
 	 * @throws RaspberryNotFoundException
 	 */
 	public Game createGame(final int maxPoints, final int numberOfTeams, final Category category,
-			final String raspberryId)
-			throws RaspberryAlreadyInUseException, GameCreationException, RaspberryNotFoundException {
+			final String raspberryId) throws at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException,
+			GameCreationException, at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
 				userService.getAuthenticatedUser(), raspberryId);
-		raspberryController.registerGame(raspberryId, newGame);
+		raspberryService.registerGame(raspberryId, newGame);
 		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}
@@ -91,7 +90,7 @@ public class LobbyService {
 			throws RaspberryAlreadyInUseException, GameCreationException, RaspberryNotFoundException {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
 				userService.getAuthenticatedUser(), raspberryId);
-		raspberryController.registerGame(raspberryId, newGame);
+		raspberryService.registerGame(raspberryId, newGame);
 		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}
@@ -142,7 +141,7 @@ public class LobbyService {
 	 */
 	public void closeFinishedGame(final int gameCode) {
 		if (runningGames.containsKey(gameCode)) {
-			raspberryController.unregisterGame(runningGames.get(gameCode).getRaspberryId());
+			raspberryService.unregisterGame(runningGames.get(gameCode).getRaspberryId());
 			runningGames.remove(gameCode);
 		}
 	}
