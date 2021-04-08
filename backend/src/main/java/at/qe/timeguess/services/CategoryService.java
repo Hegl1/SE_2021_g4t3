@@ -42,12 +42,12 @@ public class CategoryService {
         return this.categoryRepository.save(category);
     }
 
-    public void deleteCategory(final Category category) throws CategoryAlreadyExistsException {
+    public void deleteCategory(final Category category) throws CategoryIsReferencedInCompletedGamesException {
 
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
 
         if(allCompletedGames.stream().anyMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName()))) {
-            throw new CategoryAlreadyExistsException("This Category can not be deleted, because it is referenced in a completed game!");
+            throw new CategoryIsReferencedInCompletedGamesException("This Category can not be deleted, because it is referenced in a completed game!");
         }
         this.categoryRepository.delete(category);
     }

@@ -41,7 +41,7 @@ public class CategoryController {
         if(categoryToDelete != null) {
             try {
                 this.categoryService.deleteCategory(categoryToDelete);
-            } catch (CategoryService.CategoryAlreadyExistsException e) {
+            } catch (CategoryService.CategoryIsReferencedInCompletedGamesException e) {
                 return new ResponseEntity<Category>(HttpStatus.FORBIDDEN);
             }
             return new ResponseEntity<Category>(HttpStatus.OK);
