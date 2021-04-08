@@ -24,10 +24,10 @@ import at.qe.timeguess.model.User;
 import at.qe.timeguess.repositories.CategoryRepository;
 import at.qe.timeguess.services.LobbyService;
 import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
-import gamelogic.Dice;
-import gamelogic.Game;
-import gamelogic.Game.GameCreationException;
-import gamelogic.Team;
+import at.qe.timeguess.gamelogic.Dice;
+import at.qe.timeguess.gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game.GameCreationException;
+import at.qe.timeguess.gamelogic.Team;
 
 /**
  * Class that controls creating, viewing and deleting games via REST.

@@ -1,4 +1,4 @@
-package gamelogic;
+package at.qe.timeguess.gamelogic;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

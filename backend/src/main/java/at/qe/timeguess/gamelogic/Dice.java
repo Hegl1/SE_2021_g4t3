@@ -1,4 +1,4 @@
-package gamelogic;
+package at.qe.timeguess.gamelogic;
 
 /**
  * Class that holds the dice mapping for a running game.

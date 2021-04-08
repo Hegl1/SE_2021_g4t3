@@ -16,7 +16,7 @@ import at.qe.timeguess.repositories.RaspberryIDRepository;
 import at.qe.timeguess.services.RaspberryService;
 import at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException;
 import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
-import gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game;
 
 @SpringBootTest
 public class RaspberryServiceTest {
