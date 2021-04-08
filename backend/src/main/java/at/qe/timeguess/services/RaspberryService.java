@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import at.qe.timeguess.model.RaspberryID;
 import at.qe.timeguess.repositories.RaspberryIDRepository;
-import gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game;
 
 @Service
 @Scope("application")
@@ -34,7 +34,7 @@ public class RaspberryService {
 
 	/**
 	 * Creates a random ID for a new raspberry and saves it in the database.
-	 * 
+	 *
 	 * @return the created ID.
 	 */
 	public String registerRaspberry() {
@@ -51,7 +51,7 @@ public class RaspberryService {
 	/**
 	 * Calls the diceUpdate method on the game that is registered for the given
 	 * raspberry. If the raspberry is not registered to a game, nothing happens.
-	 * 
+	 *
 	 * @param raspberryId the raspberry which sends the update
 	 * @param update      the facet number of the update
 	 * @throws RaspberryNotFoundException if the raspberry does not exist.
@@ -69,7 +69,7 @@ public class RaspberryService {
 	/**
 	 * Method that updates the batteryStatus of a Dice if a game is registered to
 	 * it.
-	 * 
+	 *
 	 * @param raspberryId   id of the raspberry that sent the update.
 	 * @param batteryStatus new battery level in percent
 	 * @throws RaspberryNotFoundException if the raspberry is not registered
@@ -88,7 +88,7 @@ public class RaspberryService {
 	/**
 	 * Method that updates the connectionStatus of a Dice if a game is registered to
 	 * it. If not it returns false.
-	 * 
+	 *
 	 * @param raspberryId      id of the raspberry that sent the update.
 	 * @param connectionStatus new connection status.
 	 * @return true if raspberry is in a game, false if not.
@@ -110,8 +110,8 @@ public class RaspberryService {
 
 	/**
 	 * Method that registers a game for a given raspberry id.
-	 * 
-	 * @param raspbiId id of the raspberry the game should be associated with.
+	 *
+	 * @param raspberryID id of the raspberry the game should be associated with.
 	 * @param game     the game that gets registered.
 	 * @throws RaspberryAlreadyInUseException when raspberry is already assigned to
 	 *                                        a running game.
@@ -131,8 +131,8 @@ public class RaspberryService {
 
 	/**
 	 * Method to unregister a game of raspberry.
-	 * 
-	 * @param raspbiId Id of the raspberry that is associated with the game to be
+	 *
+	 * @param raspberryID Id of the raspberry that is associated with the game to be
 	 *                 unregistered.
 	 */
 	public void unregisterGame(final String raspberryID) {
