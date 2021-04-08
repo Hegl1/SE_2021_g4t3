@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.List;
 
 @Service
 @Scope("application")
@@ -31,13 +30,13 @@ public class CategoryService {
         return this.categoryRepository.findFirstById(id);
     }
 
-    public Category getCategoryByName(final String category) {
-        return this.categoryRepository.findFirstByCategory(category);
+    public Category getCategoryByName(final String name) {
+        return this.categoryRepository.findFirstByName(name);
     }
 
     public Category saveCategory(final Category category) throws CategoryAlreadyExistsException{
 
-        if(this.getCategoryByName(category.getCategory()) != null) {
+        if(this.getCategoryByName(category.getName()) != null) {
             throw new CategoryAlreadyExistsException("This Category already exists!");
         }
         return this.categoryRepository.save(category);
@@ -47,7 +46,7 @@ public class CategoryService {
 
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
 
-        if(allCompletedGames.stream().anyMatch(completedGame -> completedGame.getCategory().getCategory().equals(category.getCategory()))) {
+        if(allCompletedGames.stream().anyMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName()))) {
             throw new CategoryAlreadyExistsException("This Category can not be deleted, because it is referenced in a completed game!");
         }
         this.categoryRepository.delete(category);
