@@ -22,18 +22,42 @@ public class CategoryService {
     @Autowired
     private CompletedGameRepository completedGameRepository;
 
+    /**
+     * Returns all Categories
+     *
+     * @return all Categories from the database
+     */
     public Collection<Category> getAllCategories() {
         return this.categoryRepository.findAll();
     }
 
+    /**
+     * Returns Category which is searched by a given ID
+     *
+     * @param id the ID which the Category is searched by
+     * @return the Category found by the ID
+     */
     public Category getCategoryById(final Long id) {
         return this.categoryRepository.findFirstById(id);
     }
 
+    /**
+     * Returns Category which is searched by a given name
+     *
+     * @param name the name which the Category is searched by
+     * @return the Category found by the name
+     */
     public Category getCategoryByName(final String name) {
         return this.categoryRepository.findFirstByName(name);
     }
 
+    /**
+     * Saves a new Category for Expressions
+     *
+     * @param category the Category to save
+     * @return the Category that got saved in the database
+     * @throws CategoryAlreadyExistsException if a Category to save already exists
+     */
     public Category saveCategory(final Category category) throws CategoryAlreadyExistsException{
 
         if(this.getCategoryByName(category.getName()) != null) {
@@ -42,6 +66,12 @@ public class CategoryService {
         return this.categoryRepository.save(category);
     }
 
+    /**
+     * Deletes a Category, except when it is referenced in the completed games
+     *
+     * @param category the Category to delete
+     * @throws CategoryIsReferencedInCompletedGamesException if the Category to be deleted is referenced in the persisted completed games
+     */
     public void deleteCategory(final Category category) throws CategoryIsReferencedInCompletedGamesException {
 
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
@@ -52,6 +82,9 @@ public class CategoryService {
         this.categoryRepository.delete(category);
     }
 
+    /**
+     * Gets thrown when a Category is tried to be deleted, which is referenced in the persisted completed games
+     */
     public class CategoryIsReferencedInCompletedGamesException extends Exception {
 
         private static final long serialVersionUID = 1L;
@@ -61,6 +94,9 @@ public class CategoryService {
         }
     }
 
+    /**
+     * Gets thrown when a Category is tried to be created and saved, which already exists in the database
+     */
     public class CategoryAlreadyExistsException extends Exception {
 
         private static final long serialVersionUID = 1L;
