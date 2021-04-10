@@ -6,10 +6,13 @@ import tinyb.*;
 class ValueNotification implements BluetoothNotification<byte[]> {
 
     public void run(byte[] data) {
-            System.out.print("data = {");
+            System.out.print("facet = ");
             for (byte b : data) {
-                System.out.print(String.format("%02x,", b));
+                System.out.print(String.format("%02x ", b)); 
             }
-            System.out.println("}");
+            System.out.println("");
+
+            // TODO connect a restService to send data
+
     }
 }

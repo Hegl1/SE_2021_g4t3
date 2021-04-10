@@ -13,13 +13,39 @@ import java.time.*;
 import java.util.Set;
 import java.util.concurrent.locks.*;
 
-// TODO: use logging instead of System.out/System.err
+// this program was written with help from https://github.com/intel-iot-devkit/tinyb/blob/ac6d3082d06183c860eea97f451d5a92022348e0/examples/java/Notification.java#L66
+// a note from the Author of the code from the link above:
+/*
+ * Author: Petre Eftime <petre.p.eftime@intel.com>
+ * Copyright (c) 2016 Intel Corporation.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+// TODO: use logging instead of System.out/System.err ?
 
 /**
  * Entry point for program to search for Bluetooth devices and communicate with them
  */
 public final class Main {
-
+    static boolean running = true;
     private Main() {
     }
 
@@ -64,6 +90,20 @@ public final class Main {
 
             if (device.connect()) {
                 System.out.println("Connection established");
+
+                Lock lock = new ReentrantLock();
+                Condition cv = lock.newCondition();
+                Runtime.getRuntime().addShutdownHook(new Thread() {
+                    public void run() {
+                        running = false;
+                        lock.lock();
+                        try {
+                            cv.signalAll();
+                        } finally {
+                            lock.unlock();
+                        }
+                    }
+                });
 
                 /* Plan:
                  * get timeflip service
@@ -145,17 +185,73 @@ public final class Main {
                 } else {
                 	System.out.println("facets characteristic is not available");
                 }
+
+                // TODO ???? make the ValueNotification method "run()" call following code:
+                // delete history to recognize a facet even if it's the same facet again? does it work that way? or maybe accelerometer data helps?
+                String commandCharacteristicUuid = "f1196f54-71a4-11e6-bdf4-0800200c9a66";
+                BluetoothGattCharacteristic commandCharacteristic = timeFlipService.find(commandCharacteristicUuid);
+                if (commandCharacteristic != null) {
+                    System.out.println("command characteristic is available");
+                    System.out.println("deleting history");
+                    byte[] deleteHistoryConfig = {0x02};
+                    commandCharacteristic.writeValue(deleteHistoryConfig);
+                    byte[] result = commandCharacteristic.readValue(); // check if write request worked
+                    for (byte b : result) {
+                        System.out.print(String.format("%02x ", b)); // if output is "02 02" it's "OK"
+                    }
+                    System.out.println(""); 
+                } else {
+                    System.out.println("command characteristic is not available");
+                }
+
+                // read history
+                if (commandCharacteristic != null) {
+                    System.out.println("command characteristic is available");
+                    System.out.println("reading history");
+                    byte[] readHistoryConfig = {0x01};
+                    commandCharacteristic.writeValue(readHistoryConfig);
+            
+                    String commandResultOutputCharacteristicUuid = "f1196f53-71a4-11e6-bdf4-0800200c9a66";
+                    BluetoothGattCharacteristic commandResultOutputCharacteristic = timeFlipService.find(commandResultOutputCharacteristicUuid);
+                    if (commandResultOutputCharacteristic != null) {
+                        System.out.println("command result output characteristic is available");
+                        for (int i = 0; i < 5; i++) {
+                            byte[] historyLine = commandResultOutputCharacteristic.readValue(); // reads just one of multible lines. last line is just zeros. TODO put this in a loop that recognizes last line
+                            for (byte b : historyLine) {
+                                // TODO research: what exactly do I get from the byte? hex value? asci code?
+                                System.out.print(String.format("%02x ", b)); 
+                            }
+                            System.out.println(""); 
+                        }
+                        // TODO how to interpret the history???
+                        // why is it not empty after i deleted history?
+                    } else {
+                        System.out.println("command result output characteristic is not available");
+                    }
+                } else {
+                    System.out.println("command characteristic is not available");
+                }
+
+                // read accelerometer data - no clue how to use this yet or even if it's useful
+                String accelerometerDataCharacteristicUuid = "f1196f51-71a4-11e6-bdf4-0800200c9a66";
+                BluetoothGattCharacteristic accelerometerDataCharacteristic = timeFlipService.find(accelerometerDataCharacteristicUuid);
+                if (accelerometerDataCharacteristic != null) {
+                    System.out.println("accelerometer data characteristic is available");
+                    byte[] result = accelerometerDataCharacteristic.readValue();
+                    for (byte b : result) {
+                        System.out.print(String.format("%02x ", b)); 
+                    }
+                    System.out.println(""); 
+                } else {
+                    System.out.println("accelerometer data characteristic is not available");
+                }
                 
                 // get updates while game is running
-                // with help from https://github.com/intel-iot-devkit/tinyb/blob/ac6d3082d06183c860eea97f451d5a92022348e0/examples/java/Notification.java#L66
-                Lock lock = new ReentrantLock();
-                Condition cv = lock.newCondition();
                 lock.lock();
-                boolean gameIsRunning = true; // TODO set this elsewhere, maybe in a thread that listens to messages from the backend?
                 try {
-                    while(gameIsRunning) {
+                    while(running) {
                         cv.await();
-                        gameIsRunning = false; // TODO decide this elsewhere, otherwise this program will run forever and the dice has to be reset before each run of the program because it wasn't disconnected from raspy
+                        running = false;
                     }
                 } finally {
                     lock.unlock();
