@@ -6,19 +6,30 @@ import org.springframework.stereotype.Service;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.repositories.UserRepository;
 
+import java.util.Calendar;
+
 @Service
 public class UserService {
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-	public User loadUser(final String username) {
-		return userRepository.findFirstByUsername(username);
-	}
+    public User getUserById(final Long id) {
+        return userRepository.findFirstById(id);
+    }
 
-	public User getAuthenticatedUser() {
-		// TODO: implement
-		return null;
-	}
+    public User getUserByUsername(final String username) {
+        return userRepository.findFirstByUsername(username);
+    }
+
+    public User getAuthenticatedUser() {
+        // TODO: implement
+        return null;
+    }
+
+    public User saveUser(final User user) {
+        user.setUpdateDate(Calendar.getInstance().getTime());
+        return this.userRepository.save(user);
+    }
 
 }

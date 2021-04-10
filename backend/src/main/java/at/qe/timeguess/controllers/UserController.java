@@ -32,7 +32,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<LoginResult> login(@RequestBody Login login) {
 
-        User retrievedUser = userService.loadUser(login.getUsername());
+        User retrievedUser = userService.getUserByUsername(login.getUsername());
 
         String receivedPassword = login.getPassword();
 
