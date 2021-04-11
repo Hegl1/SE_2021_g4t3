@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @SpringBootTest
 public class AuthenticationServiceTest {
@@ -23,7 +25,7 @@ public class AuthenticationServiceTest {
     private UserService userService;
 
     @BeforeEach
-    public void init() {
+    public void init() throws UserService.UsernameNotAvailableException {
         this.admin = userService.getUserById(0L);
         this.admin.setUsername("admin");
         this.admin.setRole(UserRole.ADMIN);
@@ -58,7 +60,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void testOutdatedToken() {
+    public void testOutdatedToken() throws UserService.UsernameNotAvailableException {
         String token = authenticationService.generateToken(admin, 30000L);
         admin.setUsername("dagerhgdfherh");
         userService.saveUser(admin);
@@ -71,6 +73,13 @@ public class AuthenticationServiceTest {
     public void testTokenWithFixedExpiration() {
         String token = authenticationService.generateTokenWithFixedExpiration(this.admin);
         Assertions.assertTrue(authenticationService.validateToken(token.substring(7), this.admin));
+    }
+
+    @Test
+    public void testSetAuthenticatedUser() {
+        authenticationService.setUserAuthentication(this.admin);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Assertions.assertEquals(this.admin,userService.getUserByUsername(auth.getName()));
     }
 
 
