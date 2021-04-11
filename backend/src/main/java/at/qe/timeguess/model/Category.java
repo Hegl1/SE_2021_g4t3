@@ -18,12 +18,12 @@ public class Category {
 	public Category() {
 	}
 
-	public Category(final String name) {
-	    this.name = name;
-    }
-
 	public Long getId() {
 		return id;
+	}
+
+	public Category(final String name) {
+		this.name = name;
 	}
 
 	public String getName() {
