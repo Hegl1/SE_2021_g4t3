@@ -60,20 +60,7 @@ public class ExpressionServiceTest {
         Assertions.assertEquals(2, allExpressionsOfCategory.size());
         Assertions.assertTrue(allExpressionsOfCategory.stream().anyMatch(expression -> expression.getName().equals("Berlin")));
     }
-/*
-    @Test
-    public void testImportExpressions() {
 
-    }
-
-    @Test
-    @DirtiesContext
-    public void testDeleteExpression() {
-        Expression expressionToDelete = this.expressionService.getExpressionById(0L);
-        this.expressionService.deleteExpression(expressionToDelete);
-        Assertions.assertEquals(0, this.expressionService.getAllExpressions().size());
-    }
-*/
     @Test
     @DirtiesContext
     public void testExpressionAlreadyExistsException() throws ExpressionService.ExpressionAlreadyExists {

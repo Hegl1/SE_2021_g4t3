@@ -80,24 +80,6 @@ public class ExpressionService {
         }
         return this.expressionRepository.save(expression);
     }
-/*
-    public Expression importExpressions() {
-
-        // get JSON file
-
-        // read out Category
-
-        // create and save Category if it doesn't exist already
-
-        // read out Expressions
-
-        // save all Expressions
-    }
-
-    public void deleteExpression(final Expression expression) {
-        this.expressionRepository.delete(expression);
-    }
-*/
 
     /**
      * Gets thrown when an Expression is tried to be created, which already exists
