@@ -24,7 +24,10 @@ public class AuthenticationServiceTest {
 
     @BeforeEach
     public void init() {
-        this.admin = userService.getUserByUsername("admin");
+        this.admin = userService.getUserById(0L);
+        this.admin.setUsername("admin");
+        this.admin.setRole(UserRole.ADMIN);
+        this.userService.saveUser(this.admin);
     }
 
     @Test
@@ -61,6 +64,12 @@ public class AuthenticationServiceTest {
         userService.saveUser(admin);
         Assertions.assertFalse(authenticationService.validateToken(token.substring(7), this.admin));
         token = authenticationService.generateToken(admin, 30000L);
+        Assertions.assertTrue(authenticationService.validateToken(token.substring(7), this.admin));
+    }
+
+    @Test
+    public void testTokenWithFixedExpiration() {
+        String token = authenticationService.generateTokenWithFixedExpiration(this.admin);
         Assertions.assertTrue(authenticationService.validateToken(token.substring(7), this.admin));
     }
 

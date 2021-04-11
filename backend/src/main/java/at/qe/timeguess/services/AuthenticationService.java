@@ -12,7 +12,6 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
@@ -28,6 +27,9 @@ public class AuthenticationService {
 
     @Value("${jwt.secret}")
     private String secret;
+
+    @Value("${jwt.expiration}")
+    private Long tokenExpiration;
 
     private DecodedJWT decodeToken(String token) {
         try {
@@ -78,17 +80,26 @@ public class AuthenticationService {
      * a specific action depending on his role and username.
      *
      * @param user             user that generates token
-     * @param token_expiration date when token expires
+     * @param expiration date when token expires
      * @return JWT Token String
      */
-    public String generateToken(User user, Long token_expiration) {
+    public String generateToken(User user,Long expiration) {
+        if (user == null || expiration == null) {
+            return null;
+        }
+
+        Long updateDate = null;
+        if (user.getUpdateDate() != null) {
+            updateDate = user.getUpdateDate().getTime();
+        }
+
         try {
             return TOKEN_PREFIX + " " + JWT.create()
-                .withClaim("last_updated", user.getUpdateDate())
+                .withClaim("last_updated", updateDate)
                 .withClaim("user_id", user.getId())
                 .withClaim("user_username", user.getUsername())
                 .withClaim("user_role", user.getRole().toString())
-                .withExpiresAt(new Date(System.currentTimeMillis() + token_expiration))
+                .withExpiresAt(new Date(System.currentTimeMillis() + expiration))
                 .withIssuedAt(new Date(System.currentTimeMillis()))
                 .sign(HMAC512(this.secret.getBytes()));
         } catch (JWTCreationException exception) {
@@ -96,6 +107,12 @@ public class AuthenticationService {
         }
 
     }
+
+    public String generateTokenWithFixedExpiration(User user) {
+        return generateToken(user,tokenExpiration);
+    }
+
+
 
     /**
      * Validates a JWT token.
@@ -107,7 +124,7 @@ public class AuthenticationService {
      * @return if token is valid
      */
     public boolean validateToken(String token, User user) {
-        if (token == null) {
+        if (token == null || user == null) {
             return false;
         }
         try {
@@ -116,18 +133,17 @@ public class AuthenticationService {
             DecodedJWT jwt = verifier.verify(token);
 
             Long id = jwt.getClaim("user_id").asLong();
-            Date lastUpdated = jwt.getClaim("last_updated").asDate();
-            Date updateDate = user.getUpdateDate();
+            Long lastUpdated = jwt.getClaim("last_updated").asLong();
+            Long updateDate = 0L;
 
-            Long timeDifference = -2000L;
-
-            if (lastUpdated != null && updateDate != null) {
-                timeDifference = lastUpdated.getTime() - updateDate.getTime();
+            if (user.getUpdateDate() != null) {
+                updateDate = user.getUpdateDate().getTime();
             }
+
 
             //check if it's token of right user and not expired
             return id != null && id.equals(user.getId())
-                && (user.getUpdateDate() == null || (timeDifference < 1000 && timeDifference > -1000))
+                && (user.getUpdateDate() == null || lastUpdated.equals(updateDate))
                 && !this.isTokenExpired(token);
         } catch (JWTVerificationException exception) {
             //Invalid signature/claims

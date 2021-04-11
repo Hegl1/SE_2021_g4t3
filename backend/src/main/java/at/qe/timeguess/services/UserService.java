@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.repositories.UserRepository;
 
-import java.util.Calendar;
+import java.util.Date;
 
 @Service
 public class UserService {
@@ -28,7 +28,7 @@ public class UserService {
     }
 
     public User saveUser(final User user) {
-        user.setUpdateDate(Calendar.getInstance().getTime());
+        user.setUpdateDate(new Date(System.currentTimeMillis()));
         return this.userRepository.save(user);
     }
 
