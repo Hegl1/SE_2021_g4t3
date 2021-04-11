@@ -61,31 +61,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer")) {
             jwtToken = requestTokenHeader.substring(7);
             idClaim = authenticationService.getClaimFromToken(jwtToken,"user_id");
-            roleClaim = authenticationService.getClaimFromToken(jwtToken, "user_role");
         }
 
         //Validate token and set authentication if valid
-        if (idClaim != null && roleClaim != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (idClaim != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             Long id = idClaim.asLong();
             User user = this.userService.getUserById(id);
-            String role = roleClaim.asString();
 
             if (authenticationService.validateToken(jwtToken, user)) {
-
-                //adding role to authentication
-                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority(role));
-
-                //creating user authentication object
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
-                usernamePasswordAuthenticationToken
-                    .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // Setting Authentication in the context, and specifying that the current user is authenticated.
-                // So that Spring Security Configurations works.
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                authenticationService.setUserAuthentication(user);
             }
         }
         chain.doFilter(request, response);
