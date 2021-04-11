@@ -10,6 +10,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
+/**
+ * This class represents the Service with which Categories get managed.
+ * It is possible to create, delete Categories, and to find Categories by specific properties as well.
+ *
+ */
 @Service
 @Scope("application")
 public class CategoryService {

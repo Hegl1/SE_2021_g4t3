@@ -9,9 +9,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
+/**
+ * This class represents the Service with which Expressions get managed.
+ * It is possible to create, import with JSON file, delete Expressions,
+ * and to find Expression by specific properties as well.
+ *
+ */
 @Service
 @Scope("application")
 public class ExpressionService {
+
+    // TODO: add PreAuthorize-annotations where needed
 
     @Autowired
     private ExpressionRepository expressionRepository;
