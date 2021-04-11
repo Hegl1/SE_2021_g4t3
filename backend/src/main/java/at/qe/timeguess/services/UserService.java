@@ -1,5 +1,7 @@
 package at.qe.timeguess.services;
 
+import at.qe.timeguess.model.CompletedGameTeam;
+import at.qe.timeguess.repositories.CompletedGameTeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,12 +11,20 @@ import at.qe.timeguess.model.User;
 import at.qe.timeguess.repositories.UserRepository;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CompletedGameTeamRepository completedGameTeamRepository;
+
+    public List<User> getAllUsers() {
+        return this.userRepository.findAll();
+    }
 
     public User getUserById(final Long id) {
         return userRepository.findFirstById(id);
@@ -42,6 +52,11 @@ public class UserService {
         user.setUpdateDate(new Date(System.currentTimeMillis()));
         return this.userRepository.save(user);
 
+    }
+
+    public void deleteUser(final User user) {
+        //TODO: set user ids null in completedgameteams
+        this.userRepository.delete(user);
     }
 
     public class UsernameNotAvailableException extends Exception {
