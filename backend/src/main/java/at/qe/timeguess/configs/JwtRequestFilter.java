@@ -53,21 +53,22 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         final String requestTokenHeader = request.getHeader("Authorization");
 
-        String username = null;
+        Claim idClaim = null;
         String jwtToken = null;
         Claim roleClaim = null;
 
         // Removing Bearer from token
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer")) {
             jwtToken = requestTokenHeader.substring(7);
-            username = authenticationService.getSubject(jwtToken);
-            roleClaim = authenticationService.getClaimFromToken(jwtToken, "role");
+            idClaim = authenticationService.getClaimFromToken(jwtToken,"user_id");
+            roleClaim = authenticationService.getClaimFromToken(jwtToken, "user_role");
         }
 
         //Validate token and set authentication if valid
-        if (username != null && roleClaim != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (idClaim != null && roleClaim != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            User user = this.userService.loadUser(username);
+            Long id = idClaim.asLong();
+            User user = this.userService.getUserById(id);
             String role = roleClaim.asString();
 
             if (authenticationService.validateToken(jwtToken, user)) {
