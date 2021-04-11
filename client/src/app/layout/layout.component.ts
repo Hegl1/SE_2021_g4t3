@@ -1,8 +1,10 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfileDialogComponent } from '../components/profile-dialog/profile-dialog.component';
+import { Role } from '../core/api/ApiInterfaces';
+import { UserService } from '../core/auth/user.service';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
-import { BreakpointObserver } from '@angular/cdk/layout';
 
 const maxWidthPx = 1000;
 
@@ -14,7 +16,7 @@ const maxWidthPx = 1000;
 export class LayoutComponent {
   isSmallScreen = this.breakpointObserver.isMatched(`(max-width: ${maxWidthPx}px)`);
 
-  constructor(private dialog: MatDialog, private breakpointObserver: BreakpointObserver) {
+  constructor(private dialog: MatDialog, private breakpointObserver: BreakpointObserver, private user: UserService) {
     this.breakpointObserver
       .observe([`(max-width: ${maxWidthPx}px)`])
       .subscribe((result) => (this.isSmallScreen = result.matches));
@@ -27,8 +29,25 @@ export class LayoutComponent {
   openProfile() {
     this.dialog.open(ProfileDialogComponent, {
       data: {
-        user_id: 0, // TODO: set user_id
+        user_id: this.user.user?.id,
       },
     });
+  }
+
+  /**
+   * Checks whether the current user has permissions for a given role
+   *
+   * @param role the searched role in string form
+   * @returns true, if the user has the permissions for the role
+   */
+  userHasRole(role: 'admin' | 'gamemanager' | 'player') {
+    switch (role) {
+      case 'admin':
+        return this.user.hasRole(Role.Admin);
+      case 'gamemanager':
+        return this.user.hasRole(Role.Gamemanager);
+      case 'player':
+        return this.user.hasRole(Role.Player);
+    }
   }
 }

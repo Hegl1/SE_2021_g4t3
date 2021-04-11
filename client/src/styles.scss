@@ -43,6 +43,19 @@ mat-dialog-container *[mat-dialog-title] {
   background: $navigation-backdrop;
 }
 
+.mat-snack-bar-container {
+  background-color: $snackbar-background;
+  color: $snackbar-foreground;
+
+  &:not(.action-warn) .mat-simple-snackbar-action {
+    color: mat-color($primary);
+  }
+
+  &.action-warn .mat-simple-snackbar-action {
+    color: mat-color($warn);
+  }
+}
+
 a,
 .link {
   color: $link;

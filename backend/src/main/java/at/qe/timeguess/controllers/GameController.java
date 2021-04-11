@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
-import at.qe.timeguess.controllers.RaspberryController.RaspberryNotFoundException;
 import at.qe.timeguess.dto.CreateGame;
 import at.qe.timeguess.dto.GameDTO;
 import at.qe.timeguess.dto.TeamDTO;
@@ -25,14 +23,15 @@ import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.repositories.CategoryRepository;
 import at.qe.timeguess.services.LobbyService;
-import gamelogic.Dice;
-import gamelogic.Game;
-import gamelogic.Game.GameCreationException;
-import gamelogic.Team;
+import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
+import at.qe.timeguess.gamelogic.Dice;
+import at.qe.timeguess.gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game.GameCreationException;
+import at.qe.timeguess.gamelogic.Team;
 
 /**
  * Class that controls creating, viewing and deleting games via REST.
- * 
+ *
  *
  */
 @RequestMapping("/games")
@@ -48,7 +47,7 @@ public class GameController {
 
 	/**
 	 * Method that creates a game from a HTTP request.
-	 * 
+	 *
 	 * @param game CreateGame DTO that carries necessary data. Comes form HTTP body.
 	 * @return ResponseEntity for REST communication(status 200 if successful, else
 	 *         status 403).
@@ -57,6 +56,9 @@ public class GameController {
 	public ResponseEntity<Integer> createGame(@RequestBody final CreateGame game) {
 
 		Category gameCateogry = categoryRepository.findFirstById((long) game.getCategory_id());
+		if (gameCateogry == null) {
+			return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
+		}
 		try {
 			Game newGame;
 			if (game.getMapping() == null) {
@@ -69,7 +71,7 @@ public class GameController {
 
 			return new ResponseEntity<Integer>(newGame.getGameCode(), HttpStatus.CREATED);
 
-		} catch (RaspberryAlreadyInUseException e) {
+		} catch (at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException e) {
 			return new ResponseEntity<Integer>(HttpStatus.FORBIDDEN);
 		} catch (GameCreationException e) {
 			return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
@@ -80,7 +82,7 @@ public class GameController {
 
 	/**
 	 * Method to fetch all currently running games as an AllGameDTO via REST.
-	 * 
+	 *
 	 * @return ResponseEntity for REST communication(status 200 if successful).
 	 */
 	@GetMapping("")
@@ -96,7 +98,7 @@ public class GameController {
 	/**
 	 * Method to fetch one currently running game by its gamecode as a GameDTO. Code
 	 * comes from URL.
-	 * 
+	 *
 	 * @param code code of the game to fetch.
 	 * @return ResponseEntity for REST communication(status 200 if successful, 404
 	 *         if game does not exist).
@@ -115,7 +117,7 @@ public class GameController {
 
 	/**
 	 * Method that forcefully closes a game via HTTP request.
-	 * 
+	 *
 	 * @param code the code of the game to close. Comes from the URL.
 	 * @return ResponseEntity for REST communication(status 200 if successful, 404
 	 *         if game does not exist).
@@ -132,7 +134,7 @@ public class GameController {
 
 	/**
 	 * Private method to build a GameDTO from a game.
-	 * 
+	 *
 	 * @param game the game to build the DTO from.
 	 * @return the corresponding DTO
 	 */
@@ -151,7 +153,7 @@ public class GameController {
 
 	/**
 	 * Private method to build a Dice from a Mapping DTO.
-	 * 
+	 *
 	 * @param game CreateGame DTO which contains the MappingDTO
 	 * @return corresponding Dice.
 	 */
@@ -171,7 +173,7 @@ public class GameController {
 
 	/**
 	 * Private method that builds a UserDTO from a User.
-	 * 
+	 *
 	 * @param user user to build DTO from
 	 * @return corresponding UserDTO
 	 */

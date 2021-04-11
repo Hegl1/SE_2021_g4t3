@@ -8,14 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import at.qe.timeguess.controllers.RaspberryController;
-import at.qe.timeguess.controllers.RaspberryController.RaspberryAlreadyInUseException;
-import at.qe.timeguess.controllers.RaspberryController.RaspberryNotFoundException;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
-import gamelogic.Dice;
-import gamelogic.Game;
-import gamelogic.Game.GameCreationException;
+import at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException;
+import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
+import at.qe.timeguess.gamelogic.Dice;
+import at.qe.timeguess.gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game.GameCreationException;
 
 /**
  * Class that holds and manages all games.
@@ -31,7 +30,7 @@ public class LobbyService {
 	private RandomCodeService codeService;
 
 	@Autowired
-	private RaspberryController raspberryController;
+	private RaspberryService raspberryService;
 
 	/**
 	 * Map that holds all open games.
@@ -51,7 +50,7 @@ public class LobbyService {
 	 * Creates a game with the currently logged in user as host, a randomly
 	 * generated gamecode and the default dice mapping and adds it to the
 	 * runningGames index. Also registers a game to get updates from a raspberry.
-	 * 
+	 *
 	 * @param maxPoints     amount of points necessary to win.
 	 * @param numberOfTeams number of teams the game should host.
 	 * @param category      category of the game.
@@ -62,11 +61,11 @@ public class LobbyService {
 	 * @throws RaspberryNotFoundException
 	 */
 	public Game createGame(final int maxPoints, final int numberOfTeams, final Category category,
-			final String raspberryId)
-			throws RaspberryAlreadyInUseException, GameCreationException, RaspberryNotFoundException {
+			final String raspberryId) throws at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException,
+			GameCreationException, at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
 				userService.getAuthenticatedUser(), raspberryId);
-		raspberryController.registerGame(raspberryId, newGame);
+		raspberryService.registerGame(raspberryId, newGame);
 		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}
@@ -75,7 +74,7 @@ public class LobbyService {
 	 * Creates a game with the currently logged in user as host, a randomly
 	 * generated gamecode and the given dice mapping and adds it to the runningGames
 	 * index. Also registers a game to get updates from a raspberry.
-	 * 
+	 *
 	 * @param maxPoints     amount of points necessary to win.
 	 * @param numberOfTeams number of teams the game should host.
 	 * @param category      category of the game.
@@ -91,14 +90,14 @@ public class LobbyService {
 			throws RaspberryAlreadyInUseException, GameCreationException, RaspberryNotFoundException {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
 				userService.getAuthenticatedUser(), raspberryId);
-		raspberryController.registerGame(raspberryId, newGame);
+		raspberryService.registerGame(raspberryId, newGame);
 		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}
 
 	/**
 	 * Generates a game code which is not already used.
-	 * 
+	 *
 	 * @return the generated game code.
 	 */
 	private int generateGameCode() {
@@ -111,7 +110,7 @@ public class LobbyService {
 
 	/**
 	 * Method to assign a user to a running game.
-	 * 
+	 *
 	 * @param gameCode code of the running game. If there is no running game with
 	 *                 this code, nothing happens.
 	 * @param user
@@ -124,7 +123,7 @@ public class LobbyService {
 
 	/**
 	 * Method that forcefully closes a game and removes it from the index.
-	 * 
+	 *
 	 * @param gameCode code of the game to close.
 	 */
 	// TODO check for user user roles
@@ -137,19 +136,19 @@ public class LobbyService {
 
 	/**
 	 * Removes a game from the index. Not to be used to forcefully close a game.
-	 * 
+	 *
 	 * @param gameCode
 	 */
 	public void closeFinishedGame(final int gameCode) {
 		if (runningGames.containsKey(gameCode)) {
-			raspberryController.unregisterGame(runningGames.get(gameCode).getRaspberryId());
+			raspberryService.unregisterGame(runningGames.get(gameCode).getRaspberryId());
 			runningGames.remove(gameCode);
 		}
 	}
 
 	/**
 	 * Method to get all running games
-	 * 
+	 *
 	 * @return a collection of all running games.
 	 */
 	public Collection<Game> getAllRunningGames() {
@@ -158,7 +157,7 @@ public class LobbyService {
 
 	/**
 	 * Returns a running game
-	 * 
+	 *
 	 * @param gamecode code of the game to get
 	 * @return game with the given code
 	 */
