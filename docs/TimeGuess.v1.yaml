@@ -79,8 +79,8 @@ paths:
                     $ref: '#/components/schemas/User'
                   token:
                     type: string
-                    example: 'Bearer j.w.t'
-                    pattern: '^Bearer \w+.\w+.\w+$'
+                    example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjowLCJ1c2VyX3VzZXJuYW1lIjoiYWRtaW4iLCJ1c2VyX3JvbGUiOiJhZG1pbiJ9.s2VwS53UhlYtcMI7pRmee-tL70TwVCF9QgZTuobo-a0'
+                    pattern: '^(\w|[-_=])+\.(\w|[-_=])+\.?(\w|[-_.+\/=])*$'
         '401':
           description: Username or password are wrong
       tags:
@@ -118,8 +118,8 @@ paths:
                     $ref: '#/components/schemas/User'
                   token:
                     type: string
-                    example: 'Bearer j.w.t'
-                    pattern: '^Bearer \w+.\w+.\w+$'
+                    example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjowLCJ1c2VyX3VzZXJuYW1lIjoiYWRtaW4iLCJ1c2VyX3JvbGUiOiJhZG1pbiJ9.s2VwS53UhlYtcMI7pRmee-tL70TwVCF9QgZTuobo-a0'
+                    pattern: '^(\w|[-_=])+\.(\w|[-_=])+\.?(\w|[-_.+\/=])*$'
         '409':
           description: The username was already taken
       tags:
@@ -180,6 +180,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           description: Not Found
+        '409':
+          description: The username was already taken
       tags:
         - User
       security:
@@ -201,11 +203,7 @@ paths:
                   type: string
                   example: '12'
                 role:
-                  type: string
-                  enum:
-                    - admin
-                    - gamemanager
-                    - player
+                  $ref: '#/components/schemas/Role'
       description: Updates the users credentials/information
     delete:
       summary: Delete a user
@@ -280,6 +278,8 @@ paths:
                 password:
                   type: string
                   example: passwd
+                role:
+                  $ref: '#/components/schemas/Role'
               required:
                 - username
                 - password
@@ -859,15 +859,18 @@ components:
           type: string
           example: max.muster
         role:
-          type: string
-          enum:
-            - admin
-            - gamemanager
-            - player
+          $ref: '#/components/schemas/Role'
       required:
         - id
         - username
         - role
+    Role:
+      title: Role
+      type: string
+      enum:
+        - admin
+        - gamemanager
+        - player
     RunningGame:
       title: RunningGame
       type: object
