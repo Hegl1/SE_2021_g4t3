@@ -56,9 +56,14 @@ export class UserService {
 
     if (token) {
       try {
-        this._user = JSON.parse(atob(token.split('.')[1])).user;
+        let user: User = UserService.parseUserFromToken(token);
+
+        this._user = user;
+
         this._token = token;
       } catch (e) {
+        console.error(e);
+
         if (this.isLoggedin) {
           this.logoutReason('badToken');
         } else {
@@ -75,6 +80,8 @@ export class UserService {
     localStorage.removeItem(StorageNames.Token);
 
     document.cookie = StorageNames.Token + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+
+    this._user = this._token = null;
   }
 
   /**
@@ -144,5 +151,52 @@ export class UserService {
     this.logout(false);
 
     this.router.navigateByUrl(`/login?reason=${reason}`);
+  }
+
+  /**
+   * Parses the user from a jwt token
+   *
+   * @throws If the token is not formatted correctly
+   * @param token The jwt token
+   * @returns The parsed user
+   */
+  static parseUserFromToken(token: string): User | never {
+    let token_payload = JSON.parse(atob(token.split('.')[1]));
+    let role: Role | null;
+
+    if (
+      !(
+        typeof token_payload.user_id === 'number' &&
+        typeof token_payload.user_username === 'string' &&
+        typeof token_payload.user_role === 'string' &&
+        (role = UserService.parseRole(token_payload.user_role)) != null
+      )
+    ) {
+      throw new Error('Token does not contain correct user data');
+    }
+
+    return {
+      id: token_payload.user_id,
+      username: token_payload.user_username,
+      role: role,
+    };
+  }
+
+  /**
+   * Parses the role-string and returns the Role-Enum value
+   *
+   * @param role The role to parse
+   * @returns The found role or null if it was not found
+   */
+  static parseRole(role: string): Role | null {
+    switch (role) {
+      case 'admin':
+        return Role.Admin;
+      case 'gamemanager':
+        return Role.Gamemanager;
+      case 'player':
+        return Role.Player;
+    }
+    return null;
   }
 }
