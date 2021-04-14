@@ -5,12 +5,12 @@ import { UserService } from '../auth/user.service';
 import { ConfigService } from '../config/config.service';
 import {
   Category,
-  CategoryStat,
+  CategoryStats,
   DiceMapping,
   GlobalStats,
   Role,
   RunningGame,
-  TopGamesStat,
+  TopGameStats,
   User,
   UserStats,
 } from './ApiInterfaces';
@@ -146,14 +146,14 @@ export class ApiService {
   }
 
   getCategoryStats() {
-    return this.handleResponse<CategoryStat[]>(
-      this.http.get<CategoryStat[]>(`${this.URL}/stats/categories`, this.httpOptions).toPromise()
+    return this.handleResponse<CategoryStats[]>(
+      this.http.get<CategoryStats[]>(`${this.URL}/stats/categories`, this.httpOptions).toPromise()
     );
   }
 
   getTopGamesStats() {
-    return this.handleResponse<TopGamesStat[]>(
-      this.http.get<TopGamesStat[]>(`${this.URL}/stats/topGames`, this.httpOptions).toPromise()
+    return this.handleResponse<TopGameStats[]>(
+      this.http.get<TopGameStats[]>(`${this.URL}/stats/topGames`, this.httpOptions).toPromise()
     );
   }
 
