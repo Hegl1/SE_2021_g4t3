@@ -31,9 +31,11 @@
             </mat-form-field>
         </ng-container>
     </form>
+    <p *ngIf="error" class="error warn">{{ error }}</p>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
+    <mat-spinner *ngIf="saving" color="primary" diameter="20" style="margin-right: 1rem"></mat-spinner>
     <button mat-flat-button mat-dialog-close [disabled]="saving">Cancel</button>
     <button mat-flat-button (click)="save()" color="primary" [disabled]="saving">Save changes</button>
 </mat-dialog-actions>

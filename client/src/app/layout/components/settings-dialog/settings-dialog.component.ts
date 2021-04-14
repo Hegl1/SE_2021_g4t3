@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ApiService } from 'src/app/core/api/api.service';
+import { UserService } from 'src/app/core/auth/user.service';
 
 @Component({
   selector: 'tg-settings-dialog',
@@ -12,8 +15,15 @@ export class SettingsDialogComponent {
 
   changePassword = false;
   private _saving = false;
+  error: string | null = null;
 
-  constructor(private fb: FormBuilder, private dialogRef: MatDialogRef<SettingsDialogComponent>) {
+  constructor(
+    private fb: FormBuilder,
+    private api: ApiService,
+    private user: UserService,
+    private dialogRef: MatDialogRef<SettingsDialogComponent>,
+    private snackBar: MatSnackBar
+  ) {
     this.settingsForm = this.fb.group({
       username: [''],
       current_password: ['', Validators.required],
@@ -57,16 +67,51 @@ export class SettingsDialogComponent {
     return null;
   }
 
+  /**
+   * Save the updated user information
+   */
   async save() {
+    this.settingsForm.markAllAsTouched();
+
+    if (!this.user.user || this.settingsForm.invalid) {
+      return;
+    }
+
     this._saving = true;
     this.settingsForm.disable();
+    this.error = null;
 
-    // TODO: save
+    let updateValues: any = {
+      old_password: this.current_password?.value,
+    };
+
+    if (this.username?.value.trim().length > 0) {
+      updateValues.username = this.username?.value.trim();
+    }
+    if (this.changePassword && this.password?.value.trim().length > 0) {
+      updateValues.username = this.username?.value.trim();
+    }
+
+    let res = await this.api.updateUser(this.user.user.id, updateValues);
 
     this._saving = false;
     this.settingsForm.enable();
 
-    this.dialogRef.close();
+    try {
+      if (res.isOK()) {
+        this.snackBar.open('Successfully updated settings!', 'OK', {
+          duration: 5000,
+        });
+
+        this.dialogRef.close();
+      } else if (res.isConflict()) {
+        throw new Error('This username is already taken!');
+      } else {
+        throw new Error();
+      }
+    } catch (e) {
+      this.error = e.message || 'An error occured!';
+    }
   }
 
   public get saving() {

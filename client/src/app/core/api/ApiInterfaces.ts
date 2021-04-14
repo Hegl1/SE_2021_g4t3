@@ -49,7 +49,7 @@ export interface GlobalStats {
   mostGamesWon: User[];
 }
 
-export interface TopGamesStat {
+export interface TopGameStats {
   teams: {
     score: number;
     number_correct: number;
@@ -60,7 +60,7 @@ export interface TopGamesStat {
   duration: number;
 }
 
-export interface CategoryStat {
+export interface CategoryStats {
   category: Category;
   number_correct: number;
   number_incorrect: number;
