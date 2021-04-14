@@ -742,7 +742,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CategoryStats'
+                type: array
+                uniqueItems: true
+                items:
+                  $ref: '#/components/schemas/CategoryStats'
         '401':
           $ref: '#/components/responses/Unauthorized'
       operationId: get-stats-categories
@@ -760,7 +763,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TopGamesStats'
+                type: array
+                uniqueItems: true
+                items:
+                  $ref: '#/components/schemas/TopGameStats'
         '401':
           $ref: '#/components/responses/Unauthorized'
       operationId: get-stats-topGames
@@ -982,70 +988,64 @@ components:
         - number_incorrect
         - mostPlayedCategory
         - mostGamesWon
-    TopGamesStats:
-      type: array
-      title: TopGamesStats
-      uniqueItems: true
-      items:
-        type: object
-        properties:
-          teams:
-            type: array
-            items:
-              type: object
-              properties:
-                score:
-                  type: integer
-                  description: The score of the team
-                  minimum: 0
-                number_correct:
-                  type: integer
-                  minimum: 0
-                  description: Number of correct guessed expressions
-                number_incorrect:
-                  type: integer
-                  minimum: 0
-                  description: Number of incorrect guessed expressions
-              required:
-                - score
-                - number_correct
-                - number_incorrect
-          category:
-            $ref: '#/components/schemas/Category'
-          score_per_time:
-            type: integer
-            description: Scored points divided by duration
-            minimum: 0
-          duration:
-            type: number
-            description: The duration of the game in seconds
-            minimum: 0
-        required:
-          - teams
-          - category
-          - score_per_time
-          - duration
+    TopGameStats:
+      title: TopGameStats
+      type: object
+      properties:
+        teams:
+          type: array
+          items:
+            type: object
+            properties:
+              score:
+                type: integer
+                description: The score of the team
+                minimum: 0
+              number_correct:
+                type: integer
+                minimum: 0
+                description: Number of correct guessed expressions
+              number_incorrect:
+                type: integer
+                minimum: 0
+                description: Number of incorrect guessed expressions
+            required:
+              - score
+              - number_correct
+              - number_incorrect
+        category:
+          $ref: '#/components/schemas/Category'
+        score_per_time:
+          type: integer
+          description: Scored points divided by duration
+          minimum: 0
+        duration:
+          type: number
+          description: The duration of the game in seconds
+          minimum: 0
+      required:
+        - teams
+        - category
+        - score_per_time
+        - duration
     CategoryStats:
-      type: array
       title: CategoryStats
-      uniqueItems: true
-      items:
-        type: object
-        properties:
-          category:
-            $ref: '#/components/schemas/Category'
-          number_correct:
-            type: integer
-            minimum: 0
-            description: Number of correct guessed expressions
-          number_incorrect:
-            type: integer
-            minimum: 0
-            description: Number of incorrect guessed expressions
-        required:
-          - category
-          - number_correct
-          - number_incorrect
+      type: object
+      properties:
+        category:
+          $ref: '#/components/schemas/Category'
+        number_correct:
+          type: integer
+          minimum: 0
+          description: Number of correct guessed expressions
+        number_incorrect:
+          type: integer
+          minimum: 0
+          description: Number of incorrect guessed expressions
+      required:
+        - category
+        - number_correct
+        - number_incorrect
   responses:
     Unauthorized:
       description: There was no authentication provided or it was invalid
