@@ -117,7 +117,7 @@ export class ApiService {
     return this.handleResponse<User[]>(this.http.get<User[]>(`${this.URL}/users`, this.httpOptions).toPromise());
   }
 
-  updateUser(id: number, values: { old_password: string; username?: string; password?: string; role?: Role }) {
+  updateUser(id: number, values: { old_password?: string; username?: string; password?: string; role?: Role }) {
     return this.handleResponse<{}>(this.http.put<{}>(`${this.URL}/users/${id}`, values, this.httpOptions).toPromise());
   }
 

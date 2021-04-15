@@ -6,7 +6,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { ApiService } from 'src/app/core/api/api.service';
-import { User } from 'src/app/core/api/ApiInterfaces';
+import { Role, User } from 'src/app/core/api/ApiInterfaces';
 import { UserService } from 'src/app/core/auth/user.service';
 import { EditUserDialogComponent } from './components/edit-user-dialog/edit-user-dialog.component';
 
@@ -59,6 +59,19 @@ export class UsersComponent implements AfterViewInit, OnInit {
     }
 
     this.loading = false;
+  }
+
+  /**
+   * Filters the user list
+   * @param event
+   */
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.users.filter = filterValue.trim().toLowerCase();
+
+    if (this.users.paginator) {
+      this.users.paginator.firstPage();
+    }
   }
 
   /**
