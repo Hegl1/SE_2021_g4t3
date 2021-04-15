@@ -18,6 +18,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { LogoutComponent } from './pages/logout/logout.component';
 import { EditUserDialogComponent } from './pages/admin/users/components/edit-user-dialog/edit-user-dialog.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();
@@ -38,6 +39,7 @@ export function setupConfig(service: ConfigService) {
     ProfileDialogComponent,
     TextPipe,
     EditUserDialogComponent,
+    ConfirmDialogComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, HttpClientModule],
   providers: [

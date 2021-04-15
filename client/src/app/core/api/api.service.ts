@@ -72,6 +72,8 @@ export class ApiService {
         if (status == 401 && this.user.isLoggedin) {
           // TODO: fetch new token
           this.user.logoutReason('unauthorized');
+        } else if (status == 403 && this.user.isLoggedin) {
+          // TODO: inform user that he is not allowed to perform this action
         }
 
         return new ApiResponse<T>(e.status);

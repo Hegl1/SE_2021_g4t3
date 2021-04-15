@@ -1,7 +1,10 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { ApiService } from 'src/app/core/api/api.service';
 import { User } from 'src/app/core/api/ApiInterfaces';
 import { UserService } from 'src/app/core/auth/user.service';
@@ -21,7 +24,12 @@ export class UsersComponent implements AfterViewInit, OnInit {
   loading = false;
   error: string | null = null;
 
-  constructor(private api: ApiService, private user: UserService) {}
+  constructor(
+    private api: ApiService,
+    private user: UserService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit() {
     this.reload();
@@ -43,7 +51,11 @@ export class UsersComponent implements AfterViewInit, OnInit {
 
     let res = await this.api.getAllUsers();
 
-    if (res.value) this.users.data = res.value;
+    if (res.isOK()) {
+      if (res.value) this.users.data = res.value;
+    } else {
+      this.error = 'Error loading users';
+    }
 
     this.loading = false;
   }
@@ -54,7 +66,7 @@ export class UsersComponent implements AfterViewInit, OnInit {
    * @returns whether the user has the same id
    */
   isCurrentUser(id: number) {
-    return this.user.user?.id === id;
+    return false && this.user.user?.id === id; // TODO: revert
   }
 
   /**
@@ -77,6 +89,36 @@ export class UsersComponent implements AfterViewInit, OnInit {
    * @param id the users id
    */
   deleteUser(id: number) {
-    // TODO
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Confirmation',
+          content: `Are you sure you want to delete the user with id (${id})?`,
+          warn: true,
+        },
+      })
+      .afterClosed()
+      .subscribe(async (confirmed: boolean) => {
+        if (confirmed) {
+          this.loading = true;
+
+          let res = await this.api.deleteUser(id);
+
+          this.loading = false;
+
+          if (res.isOK()) {
+            this.snackBar.open('User was deleted successfully!', 'OK', {
+              duration: 5000,
+            });
+
+            await this.reload();
+          } else {
+            this.snackBar.open('An error occured!', 'OK', {
+              panelClass: 'action-warn',
+              duration: 10000,
+            });
+          }
+        }
+      });
   }
 }

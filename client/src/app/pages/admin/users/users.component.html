@@ -44,9 +44,19 @@
 
         <!-- No rows -->
         <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell" style="text-align: center" colspan="3" *ngIf="!loading">No users found</td>
-            <td class="mat-cell" colspan="3" *ngIf="loading">
+            <td
+                class="mat-cell"
+                style="text-align: center"
+                [colSpan]="displayedColumns.length"
+                *ngIf="!loading && !error"
+            >
+                No users found
+            </td>
+            <td class="mat-cell" [colSpan]="displayedColumns.length" *ngIf="loading">
                 <mat-spinner diameter="28" style="margin: 0 auto"></mat-spinner>
+            </td>
+            <td class="mat-cell warn" style="text-align: center" [colSpan]="displayedColumns.length" *ngIf="error">
+                <mat-icon [inline]="true">error</mat-icon> {{ error }}
             </td>
         </tr>
 
