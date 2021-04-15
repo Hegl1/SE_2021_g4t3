@@ -8,6 +8,7 @@ import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confir
 import { ApiService } from 'src/app/core/api/api.service';
 import { User } from 'src/app/core/api/ApiInterfaces';
 import { UserService } from 'src/app/core/auth/user.service';
+import { EditUserDialogComponent } from './components/edit-user-dialog/edit-user-dialog.component';
 
 @Component({
   selector: 'tg-users',
@@ -66,22 +67,33 @@ export class UsersComponent implements AfterViewInit, OnInit {
    * @returns whether the user has the same id
    */
   isCurrentUser(id: number) {
-    return false && this.user.user?.id === id; // TODO: revert
-  }
-
-  /**
-   * Openes the EditUserDialog with the parameter to create one
-   */
-  createUser() {
-    // TODO
+    return this.user.user?.id === id;
   }
 
   /**
    * Openes the EditUserDialog for the user with the given id
-   * @param id the users id
+   * or opens the dialog to create a new user, if id is null
+   *
+   * @param id the users id or null if a new user should be created
    */
-  editUser(id: number) {
-    // TODO
+  editUser(id: number | null) {
+    this.dialog
+      .open(EditUserDialogComponent, {
+        data: {
+          user_id: id,
+        },
+        disableClose: true,
+      })
+      .afterClosed()
+      .subscribe(async (saved) => {
+        if (saved) {
+          this.snackBar.open(`User was ${id !== null ? 'updated' : 'created'} successfully!`, 'OK', {
+            duration: 5000,
+          });
+
+          await this.reload();
+        }
+      });
   }
 
   /**

@@ -121,10 +121,10 @@ export class ApiService {
     return this.handleResponse<{}>(this.http.put<{}>(`${this.URL}/users/${id}`, values, this.httpOptions).toPromise());
   }
 
-  createUser(username: string, password: string) {
+  createUser(username: string, password: string, role: Role) {
     return this.handleResponse<User>(
       this.http
-        .post<User>(`${this.URL}/users`, { username: username, password: password }, this.httpOptions)
+        .post<User>(`${this.URL}/users`, { username: username, password: password, role: role }, this.httpOptions)
         .toPromise()
     );
   }

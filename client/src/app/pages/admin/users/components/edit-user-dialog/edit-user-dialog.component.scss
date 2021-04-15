@@ -1,0 +1,18 @@
+mat-form-field {
+  display: block;
+  width: 20em;
+  max-width: 100%;
+}
+
+.change_password span {
+  float: right;
+  text-decoration: underline;
+
+  &::after {
+    clear: both;
+  }
+}
+
+.error {
+  margin: 1em 0;
+}

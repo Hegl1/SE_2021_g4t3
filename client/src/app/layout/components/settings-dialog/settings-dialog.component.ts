@@ -89,7 +89,7 @@ export class SettingsDialogComponent {
       updateValues.username = this.username?.value.trim();
     }
     if (this.changePassword && this.password?.value.trim().length > 0) {
-      updateValues.username = this.username?.value.trim();
+      updateValues.password = this.password?.value.trim();
     }
 
     let res = await this.api.updateUser(this.user.user.id, updateValues);
@@ -99,6 +99,7 @@ export class SettingsDialogComponent {
 
     try {
       if (res.isOK()) {
+        // TODO: check auth/logout
         this.snackBar.open('Successfully updated settings!', 'OK', {
           duration: 5000,
         });
