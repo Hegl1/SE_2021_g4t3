@@ -72,6 +72,8 @@ export class ApiService {
         if (status == 401 && this.user.isLoggedin) {
           // TODO: fetch new token
           this.user.logoutReason('unauthorized');
+        } else if (status == 403 && this.user.isLoggedin) {
+          // TODO: inform user that he is not allowed to perform this action
         }
 
         return new ApiResponse<T>(e.status);
@@ -115,14 +117,14 @@ export class ApiService {
     return this.handleResponse<User[]>(this.http.get<User[]>(`${this.URL}/users`, this.httpOptions).toPromise());
   }
 
-  updateUser(id: number, values: { old_password: string; username?: string; password?: string; role?: Role }) {
+  updateUser(id: number, values: { old_password?: string; username?: string; password?: string; role?: Role }) {
     return this.handleResponse<{}>(this.http.put<{}>(`${this.URL}/users/${id}`, values, this.httpOptions).toPromise());
   }
 
-  createUser(username: string, password: string) {
+  createUser(username: string, password: string, role: Role) {
     return this.handleResponse<User>(
       this.http
-        .post<User>(`${this.URL}/users`, { username: username, password: password }, this.httpOptions)
+        .post<User>(`${this.URL}/users`, { username: username, password: password, role: role }, this.httpOptions)
         .toPromise()
     );
   }
