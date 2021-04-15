@@ -58,37 +58,11 @@ public final class Main {
      * @see <a href="https://github.com/DI-GROUP/TimeFlip.Docs/blob/master/Hardware/BLE_device_commutication_protocol_v3.0_en.md" target="_top">BLE device communication protocol v3.0</a>
      */
     public static void main(String[] args) throws InterruptedException {
-        BluetoothManager manager = BluetoothManager.getBluetoothManager();
-
         final String findDeviceName = "TimeFlip";
+        BluetoothDevice device = connectDevice("TimeFlip");
 
-        final boolean discoveryStarted = manager.startDiscovery();
-        System.out.println("The discovery started: " + (discoveryStarted ? "true" : "false"));
-
-        FindDevicesManager findDevicesManager = new FindDevicesManager(findDeviceName);
-        final boolean findDevicesSuccess = findDevicesManager.findDevices(manager);
-
-        try {
-            manager.stopDiscovery();
-        } catch (BluetoothException e) {
-            System.err.println("Discovery could not be stopped.");
-        }
-
-        System.out.println("All found devices:");
-        manager.getDevices().forEach(d -> System.out.println(d.getAddress() + " - " + d.getName() + " (" + d.getRSSI() + ")"));
-
-        if (!findDevicesSuccess) {
-            System.err.println("No " + findDeviceName + " devices found during discovery.");
-            System.exit(-1);
-        }
-
-        Set<BluetoothDevice> foundDevices = findDevicesManager.getFoundDevices();
-        System.out.println("Found " + foundDevices.size() + " " + findDeviceName + " device(s).");
-        for (BluetoothDevice device : foundDevices) {
-            System.out.println("Found " + findDeviceName + " device with address " + device.getAddress() + " and RSSI " +
-                    device.getRSSI());
-
-            if (device.connect()) {
+        Dice dice = new Dice(device);
+        
                 System.out.println("Connection established");
 
                 Lock lock = new ReentrantLock();
@@ -106,19 +80,16 @@ public final class Main {
                 });
 
                 /* Plan:
-                 * get timeflip service
-                 * get password characteristic
                  * write password (also after every disconnect)
-                 * get battery service
-                 * read battery level
                  * if battery low, tell central backend
                  * in timeflip service:
-                 * get facets characteristic
-                 * turn on notification for facets characteristic
                  * read facets (handle case when same facet twice in a row!)
-                 * (do i need "command" or "command result output" characteristics?)
                  * reconnect after disconnecting
                  */
+
+                dice.inputPassword();
+                String timeFlipServiceUuid = "f1196f50-71a4-11e6-bdf4-0800200c9a66";
+                BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
                 
                 /* C R E A T E   G A M E   -    S E T U P   D I C E */
                 /* get all available services */
@@ -129,28 +100,7 @@ public final class Main {
                     // TODO find out service names of those uuids to check if timeflip and battery service are available?
                 }
                 
-                /* input password 
-                 * (hex 30 30 30 30 30 30 = ascii 6x zero) 
-                 * TODO: do again after every reconnect with TimeFlip die
-                 */
-                String timeFlipServiceUuid = "f1196f50-71a4-11e6-bdf4-0800200c9a66";
-                BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
-                if(timeFlipService != null) {
-                	System.out.println("TimeFlip Service is available");
-                	BluetoothGattCharacteristic passwordCharacteristic = timeFlipService.find("f1196f57-71a4-11e6-bdf4-0800200c9a66");
-                    if (passwordCharacteristic != null) {
-                        byte[] passwordConfig = {0x30,0x30,0x30,0x30,0x30,0x30};
-                	passwordCharacteristic.writeValue(passwordConfig);
-                	System.out.println("TimeFlip password should be set now");
-                	// TODO check if password is set
-                    } else {
-                        System.out.println("TimeFlip password characteristic not found");
-                    }
-                	
-                } else {
-                	System.out.println("TimeFlip Service is not available");
-                	// TODO retry connecting to device?
-                }
+                
                 
                 /* check battery level */
                 String batteryServiceUuid = "0000180f-0000-1000-8000-00805f9b34fb";
@@ -260,9 +210,51 @@ public final class Main {
                 
                 device.disconnect(); // TODO make sure the device disconnects in program failure cases, too
                 System.out.println("Connection closed");
+            
+        
+    }
+
+    private static Set<BluetoothDevice> findBluetoothDevices(final String findDeviceName) throws InterruptedException {
+        BluetoothManager manager = BluetoothManager.getBluetoothManager();
+
+        final boolean discoveryStarted = manager.startDiscovery();
+        System.out.println("The discovery started: " + (discoveryStarted ? "true" : "false"));
+
+        FindDevicesManager findDevicesManager = new FindDevicesManager(findDeviceName);
+        final boolean findDevicesSuccess = findDevicesManager.findDevices(manager);
+
+        try {
+            manager.stopDiscovery();
+        } catch (BluetoothException e) {
+            System.err.println("Discovery could not be stopped.");
+        }
+
+        System.out.println("All found devices:");
+        manager.getDevices().forEach(d -> System.out.println(d.getAddress() + " - " + d.getName() + " (" + d.getRSSI() + ")"));
+
+        if (!findDevicesSuccess) {
+            System.err.println("No " + findDeviceName + " devices found during discovery.");
+            System.exit(-1);
+        }
+
+        Set<BluetoothDevice> foundDevices = findDevicesManager.getFoundDevices();
+        System.out.println("Found " + foundDevices.size() + " " + findDeviceName + " device(s).");
+
+        return foundDevices;
+    }
+
+    private static BluetoothDevice connectDevice(final String findDeviceName) throws InterruptedException {
+        Set<BluetoothDevice> foundDevices = findBluetoothDevices(findDeviceName);
+        for (BluetoothDevice device : foundDevices) {
+            System.out.println("Found " + device.getName() + " device with address " + device.getAddress() + " and RSSI " +
+                    device.getRSSI());
+
+            if (device.connect()) {
+                return device;
             } else {
                 System.out.println("Connection not established - trying next one");
             }
         }
+        return null;
     }
 }
