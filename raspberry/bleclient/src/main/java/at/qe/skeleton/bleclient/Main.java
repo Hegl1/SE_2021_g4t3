@@ -96,8 +96,8 @@ public final class Main {
 
 		// dice.getServiceUuids(); // not necessary, just extra debug info
 
-		int batteryLevel = dice.readBatteryLevel();
-		// TODO send value to backend
+		dice.readBatteryLevel();
+		// TODO check the battery level regularly
 
 		/* I N G A M E   -   R E A D   F A C E T S */
 

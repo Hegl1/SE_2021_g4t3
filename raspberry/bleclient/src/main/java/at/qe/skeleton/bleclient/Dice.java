@@ -13,6 +13,7 @@ import tinyb.*;
 public final class Dice {
 	private String id;
 	private BluetoothDevice device;
+	private BackendCommunicator backendCommunicator;
 
 	private static final String batteryServiceUuid = "0000180f-0000-1000-8000-00805f9b34fb";
 	private static final String timeFlipServiceUuid = "f1196f50-71a4-11e6-bdf4-0800200c9a66";
@@ -27,8 +28,9 @@ public final class Dice {
 	private static final byte[] passwordConfig = { 0x30, 0x30, 0x30, 0x30, 0x30, 0x30 };
 
 	public Dice(BluetoothDevice device) {
-		this.id = "TODO"; // TODO set correct id
 		this.device = device;
+		this.backendCommunicator = new BackendCommunicator();
+		this.id = "TODO"; // TODO call backendCommunicator to get correct id
 	}
 
 	/**
@@ -61,22 +63,23 @@ public final class Dice {
 	 * Reads the battery level from the TimeFlip dice. The battery level can be any
 	 * number from 0 to 100.
 	 * 
-	 * @return battery level from 0 to 100, -1 on read failure
+	 * @return true if battery level was read, false otherwise
 	 */
-	public int readBatteryLevel() {
+	public boolean readBatteryLevel() {
 		BluetoothGattService batteryService = device.find(batteryServiceUuid);
 		if (batteryService != null) {
 			// System.out.println("Battery Service is available");
 			BluetoothGattCharacteristic batteryLevelCharacteristic = batteryService
 					.find(batteryLevelCharacteristicUuid);
 			byte[] batteryLevel = batteryLevelCharacteristic.readValue();
-			int batteryLevelValue = batteryLevel[0]; // TODO is this the smartest way to convert it?
+			int batteryLevelValue = Byte.toUnsignedInt(batteryLevel[0]);;
 			System.out.println("Battery level: " + batteryLevelValue);
-			return batteryLevelValue;
+			backendCommunicator.postBatteryStatus(batteryLevelValue);
+			return true;
 		} else {
-			// System.out.println("Battery Service is not available");
-			return -1;
+			// System.out.println("Battery Service is not available");	
 		}
+		return false;
 	}
 
 	/**
