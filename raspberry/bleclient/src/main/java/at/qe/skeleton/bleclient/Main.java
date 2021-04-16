@@ -63,157 +63,74 @@ public final class Main {
 
         Dice dice = new Dice(device);
         
-                System.out.println("Connection established");
+        System.out.println("Connection established");
 
-                Lock lock = new ReentrantLock();
-                Condition cv = lock.newCondition();
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    public void run() {
-                        running = false;
-                        lock.lock();
-                        try {
-                            cv.signalAll();
-                        } finally {
-                            lock.unlock();
-                        }
-                    }
-                });
-
-                /* Plan:
-                 * write password (also after every disconnect)
-                 * if battery low, tell central backend
-                 * in timeflip service:
-                 * read facets (handle case when same facet twice in a row!)
-                 * reconnect after disconnecting
-                 */
-
-                dice.inputPassword();
-                String timeFlipServiceUuid = "f1196f50-71a4-11e6-bdf4-0800200c9a66";
-                BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
-                
-                /* C R E A T E   G A M E   -    S E T U P   D I C E */
-                /* get all available services */
-                String[] serviceUuids = device.getUUIDs();
-                System.out.println("Service UUIDs available: " + serviceUuids.length);
-                for (String serviceUuid : serviceUuids) {
-                    System.out.println(serviceUuid);
-                    // TODO find out service names of those uuids to check if timeflip and battery service are available?
-                }
-                
-                
-                
-                /* check battery level */
-                String batteryServiceUuid = "0000180f-0000-1000-8000-00805f9b34fb";
-                BluetoothGattService batteryService = device.find(batteryServiceUuid);
-                if(batteryService != null) {
-                	System.out.println("Battery Service is available");
-                	BluetoothGattCharacteristic batteryLevelCharacteristic = batteryService.find("00002a19-0000-1000-8000-00805f9b34fb");
-                    byte[] batteryLevel = batteryLevelCharacteristic.readValue();
-                    int batteryLevelValue = batteryLevel[0];
-                    System.out.println("Battery level: " + batteryLevelValue);
-                    // TODO send value to backend
-                } else {
-                	System.out.println("Battery Service is not available");
-                	// TODO retry connecting to device?
-                }
-
-                /* I N G A M E   -   R E A D   F A C E T S */
-                
-                // get facet characteristic
-                String facetsCharacteristicUuid = "f1196f52-71a4-11e6-bdf4-0800200c9a66";
-                BluetoothGattCharacteristic facetsCharacteristic = timeFlipService.find(facetsCharacteristicUuid);
-                
-                // enable notify
-                if (facetsCharacteristic != null) {
-                    System.out.println("facets characteristic is available");
-                    try {
-                        facetsCharacteristic.enableValueNotifications(new ValueNotification());
-                        System.out.println("notifications should be turned on now");
-                    } catch(Exception e) {
-                        System.out.println("turning on notifications didn't work");
-                    }
-                } else {
-                	System.out.println("facets characteristic is not available");
-                }
-
-                // TODO ???? make the ValueNotification method "run()" call following code:
-                // delete history to recognize a facet even if it's the same facet again? does it work that way? or maybe accelerometer data helps?
-                String commandCharacteristicUuid = "f1196f54-71a4-11e6-bdf4-0800200c9a66";
-                BluetoothGattCharacteristic commandCharacteristic = timeFlipService.find(commandCharacteristicUuid);
-                if (commandCharacteristic != null) {
-                    System.out.println("command characteristic is available");
-                    System.out.println("deleting history");
-                    byte[] deleteHistoryConfig = {0x02};
-                    commandCharacteristic.writeValue(deleteHistoryConfig);
-                    byte[] result = commandCharacteristic.readValue(); // check if write request worked
-                    for (byte b : result) {
-                        System.out.print(String.format("%02x ", b)); // if output is "02 02" it's "OK"
-                    }
-                    System.out.println(""); 
-                } else {
-                    System.out.println("command characteristic is not available");
-                }
-
-                // read history
-                if (commandCharacteristic != null) {
-                    System.out.println("command characteristic is available");
-                    System.out.println("reading history");
-                    byte[] readHistoryConfig = {0x01};
-                    commandCharacteristic.writeValue(readHistoryConfig);
-            
-                    String commandResultOutputCharacteristicUuid = "f1196f53-71a4-11e6-bdf4-0800200c9a66";
-                    BluetoothGattCharacteristic commandResultOutputCharacteristic = timeFlipService.find(commandResultOutputCharacteristicUuid);
-                    if (commandResultOutputCharacteristic != null) {
-                        System.out.println("command result output characteristic is available");
-                        for (int i = 0; i < 5; i++) {
-                            byte[] historyLine = commandResultOutputCharacteristic.readValue(); // reads just one of multible lines. last line is just zeros. TODO put this in a loop that recognizes last line
-                            for (byte b : historyLine) {
-                                // TODO research: what exactly do I get from the byte? hex value? asci code?
-                                System.out.print(String.format("%02x ", b)); 
-                            }
-                            System.out.println(""); 
-                        }
-                        // TODO how to interpret the history???
-                        // why is it not empty after i deleted history?
-                    } else {
-                        System.out.println("command result output characteristic is not available");
-                    }
-                } else {
-                    System.out.println("command characteristic is not available");
-                }
-
-                // read accelerometer data - no clue how to use this yet or even if it's useful
-                String accelerometerDataCharacteristicUuid = "f1196f51-71a4-11e6-bdf4-0800200c9a66";
-                BluetoothGattCharacteristic accelerometerDataCharacteristic = timeFlipService.find(accelerometerDataCharacteristicUuid);
-                if (accelerometerDataCharacteristic != null) {
-                    System.out.println("accelerometer data characteristic is available");
-                    byte[] result = accelerometerDataCharacteristic.readValue();
-                    for (byte b : result) {
-                        System.out.print(String.format("%02x ", b)); 
-                    }
-                    System.out.println(""); 
-                } else {
-                    System.out.println("accelerometer data characteristic is not available");
-                }
-                
-                // get updates while game is running
+        Lock lock = new ReentrantLock();
+        Condition cv = lock.newCondition();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                running = false;
                 lock.lock();
                 try {
-                    while(running) {
-                        cv.await();
-                        running = false;
-                    }
+                    cv.signalAll();
                 } finally {
                     lock.unlock();
                 }
+            }
+        });
+
+        /* TODO
+         * make dice disconnect when program throws an exception during runtime
+         * read facets: handle case when same facet twice in a row
+         * reconnect after disconnecting
+         * calibrate facets (coz they can be random values)
+         */
+
+        /* C R E A T E   G A M E   -    S E T U P   D I C E */
+
+        dice.inputPassword();
+        // TODO redo after every reconnect with TimeFlip dice    
+
+        // dice.getServiceUuids(); // not necessary, just extra debug info
+                
+        int batteryLevel = dice.readBatteryLevel();
+        // TODO send value to backend
+                
+        /* I N G A M E   -   R E A D   F A C E T S */
+                
+        dice.enableFacetsNotifications();
+
+        // TODO ???? make the ValueNotification method "run()" call following code:
+        // delete history to recognize a facet even if it's the same facet again? does it work that way? or maybe accelerometer data helps?         
+        // dice.deleteHistory();
+
+        // dice.readHistory();
+
+        // dice.readAccelerometerData(); // no clue how to use this yet or if it's even useful
+              
+        // get updates while game is running
+        lock.lock();
+        try {
+            while(running) {
+                cv.await();
+            }
+        } finally {
+            lock.unlock();
+        }
                 
                 
-                device.disconnect(); // TODO make sure the device disconnects in program failure cases, too
-                System.out.println("Connection closed");
+        device.disconnect(); // TODO make sure the device disconnects in program failure cases, too
+        System.out.println("Connection closed");
             
         
     }
 
+    /**
+	 * Finds all bluetooth devices with a given device name if such devices are available.
+	 * 
+     * @param findDeviceName the name of the wanted bluetooth devices
+	 * @return all available bluetooth devices with the given name
+	 */
     private static Set<BluetoothDevice> findBluetoothDevices(final String findDeviceName) throws InterruptedException {
         BluetoothManager manager = BluetoothManager.getBluetoothManager();
 
@@ -243,6 +160,12 @@ public final class Main {
         return foundDevices;
     }
 
+    /**
+	 * Connects to a bluetooth device with a given device name if such a device is found.
+	 * 
+     * @param findDeviceName the name of the wanted bluetooth device 
+	 * @return a successfully connected bluetooth device with the given device name, null otherwise
+	 */
     private static BluetoothDevice connectDevice(final String findDeviceName) throws InterruptedException {
         Set<BluetoothDevice> foundDevices = findBluetoothDevices(findDeviceName);
         for (BluetoothDevice device : foundDevices) {
