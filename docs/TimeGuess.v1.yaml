@@ -1,14 +1,14 @@
 openapi: 3.0.0
 info:
   title: TimeGuess
-  version: '1.0'
+  version: "1.0"
   contact:
-    url: 'https://git.uibk.ac.at/informatik/qe/sepsss21/group4/g4t3'
+    url: "https://git.uibk.ac.at/informatik/qe/sepsss21/group4/g4t3"
     email: t.klotz@student.uibk.ac.at
     name: Thomas Klotz
   description: The API for the TimeGuess game
 servers:
-  - url: 'http://localhost:8080'
+  - url: "http://localhost:8080"
     description: Dev
 tags:
   - name: User
@@ -18,7 +18,7 @@ tags:
   - name: Category
   - name: Dice
 paths:
-  '/dice/{id}/update':
+  "/dice/{id}/update":
     parameters:
       - schema:
           type: string
@@ -30,11 +30,11 @@ paths:
       summary: Update dice position
       operationId: post-dice-id-update
       responses:
-        '200':
+        "200":
           description: OK
-        '400':
+        "400":
           description: Dice position not in between 0-11
-        '404':
+        "404":
           description: Dice with this id not found
       description: Updates the backend on the new dice position for the dice with the given id
       requestBody:
@@ -55,7 +55,7 @@ paths:
         - Dice
       operationId: get-dice-register
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -68,7 +68,7 @@ paths:
       summary: User login
       operationId: post-user-login
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -76,12 +76,13 @@ paths:
                 type: object
                 properties:
                   user:
-                    $ref: '#/components/schemas/User'
+                    $ref: "#/components/schemas/User"
                   token:
-                    type: string
-                    example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjowLCJ1c2VyX3VzZXJuYW1lIjoiYWRtaW4iLCJ1c2VyX3JvbGUiOiJhZG1pbiJ9.s2VwS53UhlYtcMI7pRmee-tL70TwVCF9QgZTuobo-a0'
-                    pattern: '^(\w|[-_=])+\.(\w|[-_=])+\.?(\w|[-_.+\/=])*$'
-        '401':
+                    $ref: "#/components/schemas/JwtToken"
+                required:
+                  - user
+                  - token
+        "401":
           description: Username or password are wrong
       tags:
         - User
@@ -96,7 +97,7 @@ paths:
                   example: max.muster
                 password:
                   type: string
-                  example: '123'
+                  example: "123"
               required:
                 - username
                 - password
@@ -107,7 +108,7 @@ paths:
       summary: Register a new user
       operationId: post-user-register
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
@@ -115,12 +116,13 @@ paths:
                 type: object
                 properties:
                   user:
-                    $ref: '#/components/schemas/User'
+                    $ref: "#/components/schemas/User"
                   token:
-                    type: string
-                    example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjowLCJ1c2VyX3VzZXJuYW1lIjoiYWRtaW4iLCJ1c2VyX3JvbGUiOiJhZG1pbiJ9.s2VwS53UhlYtcMI7pRmee-tL70TwVCF9QgZTuobo-a0'
-                    pattern: '^(\w|[-_=])+\.(\w|[-_=])+\.?(\w|[-_.+\/=])*$'
-        '409':
+                    $ref: "#/components/schemas/JwtToken"
+                required:
+                  - user
+                  - token
+        "409":
           description: The username was already taken
       tags:
         - User
@@ -135,13 +137,13 @@ paths:
                   example: max.muster
                 password:
                   type: string
-                  example: '123'
+                  example: "123"
               required:
                 - username
                 - password
       description: Registers a new user and returns the authentication token for it
     parameters: []
-  '/users/{id}':
+  "/users/{id}":
     parameters:
       - schema:
           type: integer
@@ -154,15 +156,15 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
           description: Not Found
       operationId: get-user-id
       security:
@@ -172,15 +174,15 @@ paths:
       summary: Update user
       operationId: put-user-id
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
           description: Not Found
-        '409':
+        "409":
           description: The username was already taken
       tags:
         - User
@@ -195,27 +197,27 @@ paths:
                 old_password:
                   type: string
                   description: Required if user updating for itself
-                  example: '123'
+                  example: "123"
                 username:
                   type: string
                   example: lorem
                 password:
                   type: string
-                  example: '12'
+                  example: "12"
                 role:
-                  $ref: '#/components/schemas/Role'
+                  $ref: "#/components/schemas/Role"
       description: Updates the users credentials/information
     delete:
       summary: Delete a user
       operationId: delete-user-id
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
           description: Not Found
       description: Deletes the user having the given id
       tags:
@@ -228,18 +230,18 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+                  $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
       operationId: get-user
       description: Returns a list of all users
       security:
@@ -249,17 +251,17 @@ paths:
       summary: Create a new user
       operationId: post-users
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
           description: The username was already taken
       description: Creates a new user
       security:
@@ -279,16 +281,44 @@ paths:
                   type: string
                   example: passwd
                 role:
-                  $ref: '#/components/schemas/Role'
+                  $ref: "#/components/schemas/Role"
               required:
                 - username
                 - password
+                - role
+  "/users/search/{username}":
+    parameters:
+      - schema:
+          type: string
+        name: username
+        in: path
+        required: true
+    get:
+      summary: Search for a username
+      operationId: search-username
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  type: string
+                  example: max.muster
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+        - Token: []
+      tags:
+        - User
   /games:
     post:
       summary: Create a new game
       operationId: post-games
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
@@ -297,13 +327,13 @@ paths:
                 description: Game code
                 minimum: 0
                 maximum: 99999999
-        '400':
+        "400":
           description: Bad request
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
           description: The dice was not found
-        '409':
+        "409":
           description: The dice is already in use
       security:
         - Token: []
@@ -326,7 +356,7 @@ paths:
                 mapping:
                   type: array
                   nullable: true
-                  description: 'If null, the default mapping is used'
+                  description: "If null, the default mapping is used"
                   minItems: 12
                   maxItems: 12
                   items:
@@ -360,24 +390,24 @@ paths:
       summary: Retrieve all running games
       operationId: get-games
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RunningGame'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+                  $ref: "#/components/schemas/RunningGame"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
       description: Returns a list of all currently running games
       tags:
         - Game
       security:
         - Token: []
-  '/games/{code}':
+  "/games/{code}":
     parameters:
       - schema:
           type: integer
@@ -390,17 +420,17 @@ paths:
       summary: Retrieve game information
       operationId: get-games-code
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RunningGame'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
+                $ref: "#/components/schemas/RunningGame"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
           description: Not Found
       description: Retrieves information about a running game having the given code
       tags:
@@ -411,20 +441,20 @@ paths:
       summary: Delete a running game
       operationId: delete-games-code
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
           description: Not Found
       tags:
         - Game
       description: Deletes a running game having the given code
       security:
         - Token: []
-  '/stats/users/{id}':
+  "/stats/users/{id}":
     parameters:
       - schema:
           type: integer
@@ -435,15 +465,15 @@ paths:
     get:
       summary: Retrieve user statistics
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserStats'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
+                $ref: "#/components/schemas/UserStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
           description: Not Found
       operationId: get-users-id-stats
       description: Returns the users statistics having the given id
@@ -457,16 +487,16 @@ paths:
       tags:
         - Category
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Category'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                  $ref: "#/components/schemas/Category"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
       operationId: get-expressions
       description: Retrieves all categories
       security:
@@ -476,17 +506,17 @@ paths:
       summary: Create new category
       operationId: post-categories
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
+                $ref: "#/components/schemas/Category"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
           description: A category with this name exists already
       description: Creates a new category with a supplied name
       tags:
@@ -502,10 +532,10 @@ paths:
                   example: Politics
               required:
                 - name
-        description: ''
+        description: ""
       security:
         - Token: []
-  '/categories/{id}':
+  "/categories/{id}":
     parameters:
       - schema:
           type: integer
@@ -517,22 +547,22 @@ paths:
       summary: Delete a category
       operationId: delete-categories-id
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
           description: Not Found
-        '409':
-          description: Could not be deleted, since already used in a game
+        "409":
+          description: "Could not be deleted, since already used in a game"
       tags:
         - Category
       description: Deletes a category by id
       security:
         - Token: []
-  '/categories/{id}/expressions':
+  "/categories/{id}/expressions":
     parameters:
       - schema:
           type: integer
@@ -545,17 +575,17 @@ paths:
       tags:
         - Expression
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Expression'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
+                  $ref: "#/components/schemas/Expression"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
           description: Not Found
       operationId: get-categories-id-expressions
       description: Returns all expressions for a category having the supplied id
@@ -565,19 +595,19 @@ paths:
       summary: Create a new expression for a category
       operationId: post-categories-id-expressions
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Expression'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
+                $ref: "#/components/schemas/Expression"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
           description: Not Found
-        '409':
+        "409":
           description: An expression with this name exists already in this category
       tags:
         - Expression
@@ -592,10 +622,10 @@ paths:
                   type: string
                   example: Democracy
               required:
-                - expression
+                - name
       security:
         - Token: []
-  '/expressions/{id}':
+  "/expressions/{id}":
     parameters:
       - schema:
           type: integer
@@ -607,22 +637,22 @@ paths:
       summary: Delete an expression
       operationId: delete-expressions-id
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
           description: Not Found
-        '409':
-          description: Could not be deleted, since already used in a game
+        "409":
+          description: "Could not be deleted, since already used in a game"
       tags:
         - Expression
       description: Deletes the expression having the given id
       security:
         - Token: []
-  '/categories/{id}/expressions/import':
+  "/categories/{id}/expressions/import":
     parameters:
       - schema:
           type: integer
@@ -634,7 +664,7 @@ paths:
       summary: Import expressions for a category
       operationId: post-categories-id-expressions-import
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
@@ -642,12 +672,12 @@ paths:
                 type: array
                 uniqueItems: true
                 items:
-                  $ref: '#/components/schemas/Expression'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
+                  $ref: "#/components/schemas/Expression"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
           description: Not Found
       tags:
         - Expression
@@ -667,7 +697,7 @@ paths:
       summary: Import expressions
       operationId: post-expressions-import
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
@@ -677,18 +707,18 @@ paths:
                   type: object
                   properties:
                     category:
-                      $ref: '#/components/schemas/Category'
+                      $ref: "#/components/schemas/Category"
                     expressions:
                       type: array
                       items:
-                        $ref: '#/components/schemas/Expression'
+                        $ref: "#/components/schemas/Expression"
                   required:
                     - category
                     - expressions
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
       tags:
         - Expression
       requestBody:
@@ -719,14 +749,14 @@ paths:
       tags:
         - Statistics
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GlobalStats'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                $ref: "#/components/schemas/GlobalStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
       operationId: get-stats-global
       description: Retrieves the global stats
       security:
@@ -737,7 +767,7 @@ paths:
       tags:
         - Statistics
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -745,9 +775,9 @@ paths:
                 type: array
                 uniqueItems: true
                 items:
-                  $ref: '#/components/schemas/CategoryStats'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                  $ref: "#/components/schemas/CategoryStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
       operationId: get-stats-categories
       description: Retrieves the category stats
       security:
@@ -758,7 +788,7 @@ paths:
       tags:
         - Statistics
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -766,14 +796,14 @@ paths:
                 type: array
                 uniqueItems: true
                 items:
-                  $ref: '#/components/schemas/TopGameStats'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                  $ref: "#/components/schemas/TopGameStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
       operationId: get-stats-topGames
       description: Retrieves the stats for the top n games
       security:
         - Token: []
-  '/dice/{id}/notify/battery':
+  "/dice/{id}/notify/battery":
     parameters:
       - schema:
           type: string
@@ -784,9 +814,9 @@ paths:
       summary: Update battery status
       operationId: post-dice-id-battery-low
       responses:
-        '200':
+        "200":
           description: OK
-        '404':
+        "404":
           description: Not Found
       tags:
         - Dice
@@ -799,7 +829,7 @@ paths:
               minimum: 0
               maximum: 100
               description: The battery percentage
-  '/dice/{id}/notify/connection':
+  "/dice/{id}/notify/connection":
     parameters:
       - schema:
           type: string
@@ -810,11 +840,11 @@ paths:
       summary: Update connection status
       operationId: post-dice-id-connection
       responses:
-        '200':
+        "200":
           description: OK
-        '204':
+        "204":
           description: Dice not in a game
-        '404':
+        "404":
           description: Not Found
       tags:
         - Dice
@@ -853,7 +883,7 @@ components:
           example: Russia
       required:
         - id
-        - expression
+        - name
     User:
       title: User
       type: object
@@ -865,7 +895,7 @@ components:
           type: string
           example: max.muster
         role:
-          $ref: '#/components/schemas/Role'
+          $ref: "#/components/schemas/Role"
       required:
         - id
         - username
@@ -874,9 +904,15 @@ components:
       title: Role
       type: string
       enum:
-        - admin
-        - gamemanager
-        - player
+        - ADMIN
+        - GAMEMANAGER
+        - PLAYER
+    JwtToken:
+      title: JWT Token
+      type: string
+      example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjowLCJ1c2VyX3VzZXJuYW1lIjoiYWRtaW4iLCJ1c2VyX3JvbGUiOiJBRE1JTiJ9.INqBvo5b1p-2evTrolDw3bqTH12zKvUEEUMfmY4oNX4
+      pattern: "^Bearer (?:\\w|[-_=])+\\.(?:\\w|[-_=])+\\.?(?:\\w|[-_.+\\/=])*$"
+      description: "The token containing user information in the payload: see User-Schema (prefixed by 'user_')"
     RunningGame:
       title: RunningGame
       type: object
@@ -904,7 +940,7 @@ components:
                 type: array
                 uniqueItems: true
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: "#/components/schemas/User"
               score:
                 type: integer
                 description: The achived score of the team so far
@@ -914,9 +950,9 @@ components:
               - players
               - score
         host:
-          $ref: '#/components/schemas/User'
+          $ref: "#/components/schemas/User"
         category:
-          $ref: '#/components/schemas/Category'
+          $ref: "#/components/schemas/Category"
       required:
         - code
         - max_score
@@ -927,7 +963,7 @@ components:
       title: UserStats
       type: object
       properties:
-        played_games:
+        won_games:
           type: array
           uniqueItems: true
           items:
@@ -935,26 +971,47 @@ components:
             description: Played games per category ordered by most won
             properties:
               category:
-                $ref: '#/components/schemas/Category'
-              won:
+                $ref: "#/components/schemas/Category"
+              amount:
                 type: integer
                 minimum: 0
                 description: Number of won games
-              lost:
+            required:
+              - category
+              - amount
+        lost_games:
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            description: Played games per category ordered by most lost
+            properties:
+              category:
+                $ref: "#/components/schemas/Category"
+              amount:
                 type: integer
                 minimum: 0
                 description: Number of lost games
             required:
               - category
-              - won
-              - lost
+              - amount
+        most_played_category:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/Category"
+        played_games:
+          type: integer
+          minimum: 0
         played_with:
           type: array
           description: Players who this player has played with
           uniqueItems: true
           items:
-            $ref: '#/components/schemas/User'
+            $ref: "#/components/schemas/User"
       required:
+        - won_games
+        - lost_games
+        - most_played_category
         - played_games
         - played_with
     GlobalStats:
@@ -974,14 +1031,14 @@ components:
           description: Number of incorrect guessed expressions
           minimum: 0
         mostPlayedCategory:
-          $ref: '#/components/schemas/Category'
+          $ref: "#/components/schemas/Category"
         mostGamesWon:
           type: array
           description: Players with the most won games
           uniqueItems: true
           minItems: 0
           items:
-            $ref: '#/components/schemas/User'
+            $ref: "#/components/schemas/User"
       required:
         - totalGames
         - number_correct
@@ -1014,7 +1071,7 @@ components:
               - number_correct
               - number_incorrect
         category:
-          $ref: '#/components/schemas/Category'
+          $ref: "#/components/schemas/Category"
         score_per_time:
           type: integer
           description: Scored points divided by duration
@@ -1033,7 +1090,7 @@ components:
       type: object
       properties:
         category:
-          $ref: '#/components/schemas/Category'
+          $ref: "#/components/schemas/Category"
         number_correct:
           type: integer
           minimum: 0
