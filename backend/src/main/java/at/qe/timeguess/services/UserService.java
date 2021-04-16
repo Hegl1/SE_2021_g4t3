@@ -5,6 +5,7 @@ import at.qe.timeguess.repositories.CompletedGameTeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import at.qe.timeguess.model.User;
@@ -21,6 +22,9 @@ public class UserService {
 
     @Autowired
     private CompletedGameTeamRepository completedGameTeamRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<User> getAllUsers() {
         return this.userRepository.findAll();
@@ -48,6 +52,9 @@ public class UserService {
         if (existingUser != null && existingUser.getId() != user.getId()) {
             throw new UsernameNotAvailableException("User can't be saved because another user with same username already exists!");
         }
+        if (existingUser == null || !user.getPassword().equals(existingUser.getPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
 
         user.setUpdateDate(new Date(System.currentTimeMillis()));
         return this.userRepository.save(user);
@@ -55,7 +62,12 @@ public class UserService {
     }
 
     public void deleteUser(final User user) {
-        //TODO: set user ids null in completedgameteams
+        for (CompletedGameTeam completedGameTeam : completedGameTeamRepository.findByUser(user)) {
+            List<User> playerList = completedGameTeam.getPlayers();
+            playerList.set(playerList.indexOf(user),null);
+            this.completedGameTeamRepository.save(completedGameTeam);
+        }
+
         this.userRepository.delete(user);
     }
 
