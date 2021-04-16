@@ -128,6 +128,7 @@ export class EditUserDialogComponent implements OnInit {
     this.saving = true;
     this.error = null;
     this.userForm.disable();
+    this.dialogRef.disableClose = true;
 
     if (this.create) {
       res = await this.api.createUser(this.username?.value, this.password?.value, role);
@@ -146,8 +147,12 @@ export class EditUserDialogComponent implements OnInit {
 
     this.saving = false;
     this.userForm.enable();
+    this.dialogRef.disableClose = false;
 
     if (res.isOK()) {
+      this.snackBar.open(`User was ${this.create ? 'created' : 'updated'} successfully!`, 'OK', {
+        duration: 5000,
+      });
       this.dialogRef.close(true);
     } else {
       if (res.isConflict()) {

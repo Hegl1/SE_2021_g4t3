@@ -5,6 +5,7 @@ import { UserService } from '../auth/user.service';
 import { ConfigService } from '../config/config.service';
 import {
   Category,
+  CategoryInfo,
   CategoryStats,
   DiceMapping,
   GlobalStats,
@@ -252,6 +253,12 @@ export class ApiService {
   getAllCategories() {
     return this.handleResponse<Category[]>(
       this.http.get<Category[]>(`${this.URL}/categories`, this.httpOptions).toPromise()
+    );
+  }
+
+  getAllCategoriesInfo() {
+    return this.handleResponse<CategoryInfo[]>(
+      this.http.get<CategoryInfo[]>(`${this.URL}/categories/info`, this.httpOptions).toPromise()
     );
   }
 

@@ -80,6 +80,7 @@ export class SettingsDialogComponent {
     this._saving = true;
     this.settingsForm.disable();
     this.error = null;
+    this.dialogRef.disableClose = true;
 
     let updateValues: any = {
       old_password: this.current_password?.value,
@@ -96,6 +97,7 @@ export class SettingsDialogComponent {
 
     this._saving = false;
     this.settingsForm.enable();
+    this.dialogRef.disableClose = true;
 
     try {
       if (res.isOK()) {

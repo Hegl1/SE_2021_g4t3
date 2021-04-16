@@ -3,6 +3,11 @@ export interface Category {
   name: string;
 }
 
+export interface CategoryInfo extends Category {
+  deletable: boolean;
+  expressions_amount: number;
+}
+
 export interface Expression {
   id: number;
   name: string;

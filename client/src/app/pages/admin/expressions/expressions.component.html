@@ -1,1 +1,105 @@
-<p>expressions works!</p>
+<h1><mat-icon [inline]="true">translate</mat-icon>Administrate Expressions</h1>
+
+<div class="actions">
+    <button mat-raised-button color="primary" [matMenuTriggerFor]="createMenu" [disabled]="loading">
+        <mat-icon [inline]="true">add_circle</mat-icon> Create
+    </button>
+    <button mat-icon-button (click)="reload()" [disabled]="loading"><mat-icon>refresh</mat-icon></button>
+</div>
+
+<mat-menu #createMenu="matMenu">
+    <ng-template matMenuContent>
+        <button mat-menu-item (click)="createCategory()">
+            <mat-icon>add_circle</mat-icon>
+            <span>Create category</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>file_upload</mat-icon>
+            <span>Import expressions</span>
+        </button>
+    </ng-template>
+</mat-menu>
+
+<div class="filter">
+    <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input matInput placeholder="E.g. Geography, ..." (keyup)="applyFilter($event)" />
+    </mat-form-field>
+</div>
+
+<div class="table_container mat-elevation-z8">
+    <table mat-table [dataSource]="categories" matSort>
+        <!-- Column definitions -->
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+            <td mat-cell *matCellDef="let category">{{ category.id }}</td>
+        </ng-container>
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
+            <td mat-cell *matCellDef="let category">{{ category.name }}</td>
+        </ng-container>
+        <ng-container matColumnDef="expressions">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Expressions</th>
+            <td mat-cell *matCellDef="let category">{{ category.expressions_amount }}</td>
+        </ng-container>
+        <ng-container matColumnDef="admin">
+            <th mat-header-cell *matHeaderCellDef style="width: 4em"></th>
+            <td mat-cell *matCellDef="let category" style="text-align: center">
+                <button
+                    mat-icon-button
+                    [matMenuTriggerFor]="adminMenu"
+                    [matMenuTriggerData]="{ category: category }"
+                    [disabled]="loading"
+                >
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="paginator">
+            <td mat-footer-cell *matFooterCellDef [colSpan]="displayedColumns.length">
+                <mat-paginator [pageSizeOptions]="[10, 25, 100]"></mat-paginator>
+            </td>
+        </ng-container>
+
+        <!-- No rows -->
+        <tr class="mat-row" *matNoDataRow>
+            <td
+                class="mat-cell"
+                style="text-align: center"
+                [colSpan]="displayedColumns.length"
+                *ngIf="!loading && !error"
+            >
+                No categories found
+            </td>
+            <td class="mat-cell" [colSpan]="displayedColumns.length" *ngIf="loading">
+                <mat-spinner diameter="28" style="margin: 0 auto"></mat-spinner>
+            </td>
+            <td class="mat-cell warn" style="text-align: center" [colSpan]="displayedColumns.length" *ngIf="error">
+                <mat-icon [inline]="true">error</mat-icon> {{ error }}
+            </td>
+        </tr>
+
+        <!-- Rows -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr mat-footer-row *matFooterRowDef="['paginator']; sticky: true"></tr>
+    </table>
+</div>
+
+<mat-menu #adminMenu="matMenu">
+    <ng-template matMenuContent let-category="category">
+        <button mat-menu-item>
+            <mat-icon>visibility</mat-icon>
+            <span>Show expressions</span>
+        </button>
+        <button mat-menu-item (click)="addExpressions(category.id)">
+            <mat-icon>add</mat-icon>
+            <span>Add expression(s)</span>
+        </button>
+        <button mat-menu-item (click)="deleteCategory(category.id)" [disabled]="!category.deletable">
+            <mat-icon [color]="!category.deletable ? '' : 'warn'">delete</mat-icon>
+            <span [class]="!category.deletable ? '' : 'warn'">Delete category</span>
+        </button>
+    </ng-template>
+</mat-menu>

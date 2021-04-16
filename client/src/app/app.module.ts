@@ -20,6 +20,8 @@ import { GameComponent } from './pages/game/game.component';
 import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { LogoutComponent } from './pages/logout/logout.component';
+import { InputDialogComponent } from './components/input-dialog/input-dialog.component';
+import { AddExpressionsDialogComponent } from './pages/admin/expressions/components/add-expressions-dialog/add-expressions-dialog.component';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();
@@ -42,6 +44,8 @@ export function setupConfig(service: ConfigService) {
     EditUserDialogComponent,
     ConfirmDialogComponent,
     RoleIconPipe,
+    InputDialogComponent,
+    AddExpressionsDialogComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, HttpClientModule],
   providers: [

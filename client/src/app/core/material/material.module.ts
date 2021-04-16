@@ -15,6 +15,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
+import { MatChipsModule } from '@angular/material/chips';
 
 @NgModule({
   declarations: [],
@@ -37,6 +38,7 @@ import { MatSelectModule } from '@angular/material/select';
     MatPaginatorModule,
     MatMenuModule,
     MatSelectModule,
+    MatChipsModule,
   ],
 })
 export class MaterialModule {}
