@@ -5,8 +5,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
+import { ProfileDialogComponent } from 'src/app/components/profile-dialog/profile-dialog.component';
 import { ApiService } from 'src/app/core/api/api.service';
-import { Role, User } from 'src/app/core/api/ApiInterfaces';
+import { User } from 'src/app/core/api/ApiInterfaces';
 import { UserService } from 'src/app/core/auth/user.service';
 import { EditUserDialogComponent } from './components/edit-user-dialog/edit-user-dialog.component';
 
@@ -107,6 +108,19 @@ export class UsersComponent implements AfterViewInit, OnInit {
           await this.reload();
         }
       });
+  }
+
+  /**
+   * Openes the users profile dialog
+   *
+   * @param id the users id
+   */
+  showProfile(id: number) {
+    this.dialog.open(ProfileDialogComponent, {
+      data: {
+        user_id: id,
+      },
+    });
   }
 
   /**

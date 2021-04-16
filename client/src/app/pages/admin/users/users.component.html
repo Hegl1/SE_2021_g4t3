@@ -38,7 +38,7 @@
                     mat-icon-button
                     [matMenuTriggerFor]="adminMenu"
                     [matMenuTriggerData]="{ id: user.id }"
-                    [disabled]="isCurrentUser(user.id) || loading"
+                    [disabled]="loading"
                 >
                     <mat-icon>more_vert</mat-icon>
                 </button>
@@ -78,13 +78,17 @@
 
 <mat-menu #adminMenu="matMenu">
     <ng-template matMenuContent let-id="id">
-        <button mat-menu-item (click)="editUser(id)">
+        <button mat-menu-item (click)="editUser(id)" [disabled]="isCurrentUser(id)">
             <mat-icon>edit</mat-icon>
             <span>Edit user</span>
         </button>
-        <button mat-menu-item (click)="deleteUser(id)">
-            <mat-icon color="warn">delete</mat-icon>
-            <span class="warn">Delete user</span>
+        <button mat-menu-item (click)="showProfile(id)">
+            <mat-icon>visibility</mat-icon>
+            <span>Show profile</span>
+        </button>
+        <button mat-menu-item (click)="deleteUser(id)" [disabled]="isCurrentUser(id)">
+            <mat-icon [color]="isCurrentUser(id) ? '' : 'warn'">delete</mat-icon>
+            <span [class]="isCurrentUser(id) ? '' : 'warn'">Delete user</span>
         </button>
     </ng-template>
 </mat-menu>
