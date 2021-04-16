@@ -2,7 +2,7 @@
     <mat-icon color="primary" [inline]="true">account_circle</mat-icon>
     <span>{{ user?.username || 'Loading ...' }}</span>
     <mat-icon
-        *ngIf="user !== null && user.role !== 'player'"
+        *ngIf="user !== null && user.role !== 'PLAYER'"
         [inline]="true"
         style="font-size: 1em !important; margin-left: 0.5em"
         >{{ user.role | roleIcon }}</mat-icon

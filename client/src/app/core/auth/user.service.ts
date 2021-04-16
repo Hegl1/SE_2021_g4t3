@@ -189,7 +189,7 @@ export class UserService {
    * @returns The found role or null if it was not found
    */
   static parseRole(role: string): Role | null {
-    switch (role) {
+    switch (role.toLocaleLowerCase()) {
       case 'admin':
         return Role.Admin;
       case 'gamemanager':

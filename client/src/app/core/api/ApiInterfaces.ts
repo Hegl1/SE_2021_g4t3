@@ -9,9 +9,9 @@ export interface Expression {
 }
 
 export enum Role {
-  Admin = 'admin',
-  Gamemanager = 'gamemanager',
-  Player = 'player',
+  Admin = 'ADMIN',
+  Gamemanager = 'GAMEMANAGER',
+  Player = 'PLAYER',
 }
 
 export interface User {
