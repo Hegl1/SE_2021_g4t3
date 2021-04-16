@@ -53,38 +53,24 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         final String requestTokenHeader = request.getHeader("Authorization");
 
-        String username = null;
+        Claim idClaim = null;
         String jwtToken = null;
         Claim roleClaim = null;
 
         // Removing Bearer from token
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer")) {
             jwtToken = requestTokenHeader.substring(7);
-            username = authenticationService.getSubject(jwtToken);
-            roleClaim = authenticationService.getClaimFromToken(jwtToken, "role");
+            idClaim = authenticationService.getClaimFromToken(jwtToken,"user_id");
         }
 
         //Validate token and set authentication if valid
-        if (username != null && roleClaim != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (idClaim != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            User user = this.userService.loadUser(username);
-            String role = roleClaim.asString();
+            Long id = idClaim.asLong();
+            User user = this.userService.getUserById(id);
 
             if (authenticationService.validateToken(jwtToken, user)) {
-
-                //adding role to authentication
-                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority(role));
-
-                //creating user authentication object
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
-                usernamePasswordAuthenticationToken
-                    .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // Setting Authentication in the context, and specifying that the current user is authenticated.
-                // So that Spring Security Configurations works.
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                authenticationService.setUserAuthentication(user);
             }
         }
         chain.doFilter(request, response);

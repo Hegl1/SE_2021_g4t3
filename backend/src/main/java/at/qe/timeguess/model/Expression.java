@@ -11,7 +11,7 @@ public class Expression {
 	@Id
 	@GeneratedValue
 	private long id;
-	private String expression;
+	private String name;
 
 	@OneToOne
 	private Category category;
@@ -20,21 +20,25 @@ public class Expression {
 
 	}
 
-	public Expression(final String expression, final Category category) {
-		this.expression = expression;
+	public Expression(final String name, final Category category) {
+		this.name = name;
 		this.category = category;
 	}
 
-	public String getExpression() {
-		return expression;
+	public Long getId() {
+	    return this.id;
+    }
+
+	public String getName() {
+		return this.name;
 	}
 
-	public void setExpression(final String expression) {
-		this.expression = expression;
+	public void setName(final String name) {
+		this.name = name;
 	}
 
 	public Category getCategory() {
-		return category;
+		return this.category;
 	}
 
 	public void setCategory(final Category category) {

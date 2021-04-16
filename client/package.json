@@ -4,7 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build"
+    "open": "ng s -o",
+    "build": "ng build",
+    "mock-api": "prism mock ../docs/TimeGuess.v1.yaml -h localhost -p 8080"
   },
   "private": true,
   "dependencies": {
