@@ -42,142 +42,150 @@ import java.util.concurrent.locks.*;
 // TODO: use logging instead of System.out/System.err ?
 
 /**
- * Entry point for program to search for Bluetooth devices and communicate with them
+ * Entry point for program to search for Bluetooth devices and communicate with
+ * them
  */
 public final class Main {
-    static boolean running = true;
-    private Main() {
-    }
+	static boolean running = true;
 
-    /**
-     * This program should connect to TimeFlip devices and read the facet characteristic exposed by the devices
-     * over Bluetooth Low Energy.
-     *
-     * @param args the program arguments
-     * @throws InterruptedException if finding devices gets interrupted
-     * @see <a href="https://github.com/DI-GROUP/TimeFlip.Docs/blob/master/Hardware/BLE_device_commutication_protocol_v3.0_en.md" target="_top">BLE device communication protocol v3.0</a>
-     */
-    public static void main(String[] args) throws InterruptedException {
-        final String findDeviceName = "TimeFlip";
-        BluetoothDevice device = connectDevice("TimeFlip");
+	private Main() {
+	}
 
-        Dice dice = new Dice(device);
-        
-        System.out.println("Connection established");
+	/**
+	 * This program should connect to TimeFlip devices and read the facet
+	 * characteristic exposed by the devices over Bluetooth Low Energy.
+	 *
+	 * @param args the program arguments
+	 * @throws InterruptedException if finding devices gets interrupted
+	 * @see <a href=
+	 *      "https://github.com/DI-GROUP/TimeFlip.Docs/blob/master/Hardware/BLE_device_commutication_protocol_v3.0_en.md"
+	 *      target="_top">BLE device communication protocol v3.0</a>
+	 */
+	public static void main(String[] args) throws InterruptedException {
+		final String findDeviceName = "TimeFlip";
+		BluetoothDevice device = connectDevice("TimeFlip");
 
-        Lock lock = new ReentrantLock();
-        Condition cv = lock.newCondition();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                running = false;
-                lock.lock();
-                try {
-                    cv.signalAll();
-                } finally {
-                    lock.unlock();
-                }
-            }
-        });
+		Dice dice = new Dice(device);
 
-        /* TODO
-         * make dice disconnect when program throws an exception during runtime
-         * read facets: handle case when same facet twice in a row
-         * reconnect after disconnecting
-         * calibrate facets (coz they can be random values)
-         */
+		System.out.println("Connection established");
 
-        /* C R E A T E   G A M E   -    S E T U P   D I C E */
+		Lock lock = new ReentrantLock();
+		Condition cv = lock.newCondition();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				running = false;
+				lock.lock();
+				try {
+					cv.signalAll();
+				} finally {
+					lock.unlock();
+				}
+			}
+		});
+		
+		// TODO calibrate facets (coz they can be assigned randomly each time)
+		// TODO read facets: handle case when same facet twice in a row
+		// TODO make dice disconnect when program throws an exception during runtime
+		// TODO find out when dice connection is lost
+		// TODO attempt reconnect after connect is lost
 
-        dice.inputPassword();
-        // TODO redo after every reconnect with TimeFlip dice    
+		/* C R E A T E   G A M E   -   S E T U P   D I C E */
 
-        // dice.getServiceUuids(); // not necessary, just extra debug info
-                
-        int batteryLevel = dice.readBatteryLevel();
-        // TODO send value to backend
-                
-        /* I N G A M E   -   R E A D   F A C E T S */
-                
-        dice.enableFacetsNotifications();
+		dice.inputPassword();
+		// TODO redo after every reconnect with TimeFlip dice
 
-        // TODO ???? make the ValueNotification method "run()" call following code:
-        // delete history to recognize a facet even if it's the same facet again? does it work that way? or maybe accelerometer data helps?         
-        // dice.deleteHistory();
+		// dice.getServiceUuids(); // not necessary, just extra debug info
 
-        // dice.readHistory();
+		int batteryLevel = dice.readBatteryLevel();
+		// TODO send value to backend
 
-        // dice.readAccelerometerData(); // no clue how to use this yet or if it's even useful
-              
-        // get updates while game is running
-        lock.lock();
-        try {
-            while(running) {
-                cv.await();
-            }
-        } finally {
-            lock.unlock();
-        }
-                
-                
-        device.disconnect(); // TODO make sure the device disconnects in program failure cases, too
-        System.out.println("Connection closed");
-            
-        
-    }
+		/* I N G A M E   -   R E A D   F A C E T S */
 
-    /**
-	 * Finds all bluetooth devices with a given device name if such devices are available.
+		dice.enableFacetsNotifications();
+
+		// TODO ???? make the ValueNotification method "run()" call following code:
+		// delete history to recognize a facet even if it's the same facet again? does
+		// it work that way? or maybe accelerometer data helps? probably none of this is
+		// useful at all.
+		// dice.deleteHistory();
+
+		// dice.readHistory();
+
+		// dice.readAccelerometerData();
+		// no clue how to use this yet or if it's even useful
+
+		// get updates while game is running
+		lock.lock();
+		try {
+			while (running) {
+				cv.await();
+			}
+		} finally {
+			lock.unlock();
+		}
+
+		device.disconnect(); // TODO make sure the device disconnects in program failure cases, too
+		System.out.println("Connection closed");
+
+	}
+
+	/**
+	 * Finds all bluetooth devices with a given device name if such devices are
+	 * available.
 	 * 
-     * @param findDeviceName the name of the wanted bluetooth devices
+	 * @param findDeviceName the name of the wanted bluetooth devices
 	 * @return all available bluetooth devices with the given name
 	 */
-    private static Set<BluetoothDevice> findBluetoothDevices(final String findDeviceName) throws InterruptedException {
-        BluetoothManager manager = BluetoothManager.getBluetoothManager();
+	private static Set<BluetoothDevice> findBluetoothDevices(final String findDeviceName) throws InterruptedException {
+		BluetoothManager manager = BluetoothManager.getBluetoothManager();
 
-        final boolean discoveryStarted = manager.startDiscovery();
-        System.out.println("The discovery started: " + (discoveryStarted ? "true" : "false"));
+		final boolean discoveryStarted = manager.startDiscovery();
+		System.out.println("The discovery started: " + (discoveryStarted ? "true" : "false"));
 
-        FindDevicesManager findDevicesManager = new FindDevicesManager(findDeviceName);
-        final boolean findDevicesSuccess = findDevicesManager.findDevices(manager);
+		FindDevicesManager findDevicesManager = new FindDevicesManager(findDeviceName);
+		final boolean findDevicesSuccess = findDevicesManager.findDevices(manager);
 
-        try {
-            manager.stopDiscovery();
-        } catch (BluetoothException e) {
-            System.err.println("Discovery could not be stopped.");
-        }
+		try {
+			manager.stopDiscovery();
+		} catch (BluetoothException e) {
+			System.err.println("Discovery could not be stopped.");
+		}
 
-        System.out.println("All found devices:");
-        manager.getDevices().forEach(d -> System.out.println(d.getAddress() + " - " + d.getName() + " (" + d.getRSSI() + ")"));
+		System.out.println("All found devices:");
+		manager.getDevices()
+				.forEach(d -> System.out.println(d.getAddress() + " - " + d.getName() + " (" + d.getRSSI() + ")"));
 
-        if (!findDevicesSuccess) {
-            System.err.println("No " + findDeviceName + " devices found during discovery.");
-            System.exit(-1);
-        }
+		if (!findDevicesSuccess) {
+			System.err.println("No " + findDeviceName + " devices found during discovery.");
+			System.exit(-1);
+		}
 
-        Set<BluetoothDevice> foundDevices = findDevicesManager.getFoundDevices();
-        System.out.println("Found " + foundDevices.size() + " " + findDeviceName + " device(s).");
+		Set<BluetoothDevice> foundDevices = findDevicesManager.getFoundDevices();
+		System.out.println("Found " + foundDevices.size() + " " + findDeviceName + " device(s).");
 
-        return foundDevices;
-    }
+		return foundDevices;
+	}
 
-    /**
-	 * Connects to a bluetooth device with a given device name if such a device is found.
+	/**
+	 * Connects to a bluetooth device with a given device name if such a device is
+	 * found.
 	 * 
-     * @param findDeviceName the name of the wanted bluetooth device 
-	 * @return a successfully connected bluetooth device with the given device name, null otherwise
+	 * @param findDeviceName the name of the wanted bluetooth device
+	 * @return a successfully connected bluetooth device with the given device name,
+	 *         null otherwise
 	 */
-    private static BluetoothDevice connectDevice(final String findDeviceName) throws InterruptedException {
-        Set<BluetoothDevice> foundDevices = findBluetoothDevices(findDeviceName);
-        for (BluetoothDevice device : foundDevices) {
-            System.out.println("Found " + device.getName() + " device with address " + device.getAddress() + " and RSSI " +
-                    device.getRSSI());
+	private static BluetoothDevice connectDevice(final String findDeviceName) throws InterruptedException {
+		Set<BluetoothDevice> foundDevices = findBluetoothDevices(findDeviceName);
+		for (BluetoothDevice device : foundDevices) {
+			System.out.println("Found " + device.getName() + " device with address " + device.getAddress()
+					+ " and RSSI " + device.getRSSI());
 
-            if (device.connect()) {
-                return device;
-            } else {
-                System.out.println("Connection not established - trying next one");
-            }
-        }
-        return null;
-    }
+			if (device.connect()) {
+				return device;
+			} else {
+				System.out.println("Connection not established - trying next one");
+			}
+		}
+		return null;
+	}
 }
