@@ -12,13 +12,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(final StompEndpointRegistry registry) {
+		// URL that websockets need to register to
 		registry.addEndpoint("/websocket").setAllowedOriginPatterns("*").withSockJS();
 	}
 
 	@Override
 	public void configureMessageBroker(final MessageBrokerRegistry config) {
-		config.enableSimpleBroker("/messagequeue/ingame"); // messages to the clients will be send via /ingame/...
-		config.setApplicationDestinationPrefixes("/ingame"); // path for handling incoming messages
+		// messages from server will be placed at message queues
+		// with the path /messagequeue/ingame/...
+		config.enableSimpleBroker("/messagequeue/ingame");
+		// path for handling incoming messages in corresponding controller
+		config.setApplicationDestinationPrefixes("/ingame");
 	}
-
 }

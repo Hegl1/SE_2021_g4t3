@@ -1,12 +1,12 @@
 package at.qe.timeguess.dto;
 
-public class TestDTO {
+public class TemporaryTestDTO {
 
 	private String from;
 
 	private String text;
 
-	public TestDTO(final String from, final String text) {
+	public TemporaryTestDTO(final String from, final String text) {
 		super();
 		this.from = from;
 		this.text = text;
