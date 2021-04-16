@@ -1,0 +1,1114 @@
+openapi: 3.0.0
+info:
+  title: TimeGuess
+  version: "1.0"
+  contact:
+    url: "https://git.uibk.ac.at/informatik/qe/sepsss21/group4/g4t3"
+    email: t.klotz@student.uibk.ac.at
+    name: Thomas Klotz
+  description: The API for the TimeGuess game
+servers:
+  - url: "http://localhost:8080"
+    description: Dev
+tags:
+  - name: User
+  - name: Statistics
+  - name: Game
+  - name: Expression
+  - name: Category
+  - name: Dice
+paths:
+  "/dice/{id}/update":
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: The dice id
+    post:
+      summary: Update dice position
+      operationId: post-dice-id-update
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Dice position not in between 0-11
+        "404":
+          description: Dice with this id not found
+      description: Updates the backend on the new dice position for the dice with the given id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              description: The dice side
+              maximum: 11
+              minimum: 0
+      tags:
+        - Dice
+      parameters: []
+  /dice/register:
+    get:
+      summary: Retrieve the dice id
+      tags:
+        - Dice
+      operationId: get-dice-register
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The id of the dice
+      description: Registers the dice on the server and retrieves its id
+  /users/login:
+    post:
+      summary: User login
+      operationId: post-user-login
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+                  token:
+                    $ref: "#/components/schemas/JwtToken"
+                required:
+                  - user
+                  - token
+        "401":
+          description: Username or password are wrong
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: max.muster
+                password:
+                  type: string
+                  example: "123"
+              required:
+                - username
+                - password
+      description: Login the user and returns the authentication token for it
+    parameters: []
+  /users/register:
+    post:
+      summary: Register a new user
+      operationId: post-user-register
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+                  token:
+                    $ref: "#/components/schemas/JwtToken"
+                required:
+                  - user
+                  - token
+        "409":
+          description: The username was already taken
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: max.muster
+                password:
+                  type: string
+                  example: "123"
+              required:
+                - username
+                - password
+      description: Registers a new user and returns the authentication token for it
+    parameters: []
+  "/users/{id}":
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Retrieve user information
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Not Found
+      operationId: get-user-id
+      security:
+        - Token: []
+      description: Returns the users information having the given id
+    put:
+      summary: Update user
+      operationId: put-user-id
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Not Found
+        "409":
+          description: The username was already taken
+      tags:
+        - User
+      security:
+        - Token: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_password:
+                  type: string
+                  description: Required if user updating for itself
+                  example: "123"
+                username:
+                  type: string
+                  example: lorem
+                password:
+                  type: string
+                  example: "12"
+                role:
+                  $ref: "#/components/schemas/Role"
+      description: Updates the users credentials/information
+    delete:
+      summary: Delete a user
+      operationId: delete-user-id
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Not Found
+      description: Deletes the user having the given id
+      tags:
+        - User
+      security:
+        - Token: []
+  /users:
+    get:
+      summary: Retrieve all users
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+      operationId: get-user
+      description: Returns a list of all users
+      security:
+        - Token: []
+    parameters: []
+    post:
+      summary: Create a new user
+      operationId: post-users
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: The username was already taken
+      description: Creates a new user
+      security:
+        - Token: []
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: thomas_the_tank
+                password:
+                  type: string
+                  example: passwd
+                role:
+                  $ref: "#/components/schemas/Role"
+              required:
+                - username
+                - password
+                - role
+  "/users/search/{username}":
+    parameters:
+      - schema:
+          type: string
+        name: username
+        in: path
+        required: true
+    get:
+      summary: Search for a username
+      operationId: search-username
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  type: string
+                  example: max.muster
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+        - Token: []
+      tags:
+        - User
+  /games:
+    post:
+      summary: Create a new game
+      operationId: post-games
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: Game code
+                minimum: 0
+                maximum: 99999999
+        "400":
+          description: Bad request
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: The dice was not found
+        "409":
+          description: The dice is already in use
+      security:
+        - Token: []
+      tags:
+        - Game
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dice_code:
+                  type: string
+                category_id:
+                  type: integer
+                  minimum: 0
+                max_score:
+                  type: integer
+                  minimum: 1
+                mapping:
+                  type: array
+                  nullable: true
+                  description: "If null, the default mapping is used"
+                  minItems: 12
+                  maxItems: 12
+                  items:
+                    type: object
+                    properties:
+                      action:
+                        type: string
+                        example: Draw
+                      time:
+                        type: number
+                        description: Time in seconds
+                        minimum: 0
+                      points:
+                        type: number
+                        minimum: 0
+                    required:
+                      - action
+                      - time
+                      - points
+                number_of_teams:
+                  type: integer
+                  minimum: 2
+              required:
+                - dice_code
+                - category_id
+                - max_score
+                - mapping
+                - number_of_teams
+      description: Creates a new game
+    get:
+      summary: Retrieve all running games
+      operationId: get-games
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RunningGame"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+      description: Returns a list of all currently running games
+      tags:
+        - Game
+      security:
+        - Token: []
+  "/games/{code}":
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+          maximum: 99999999
+        name: code
+        in: path
+        required: true
+    get:
+      summary: Retrieve game information
+      operationId: get-games-code
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunningGame"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Not Found
+      description: Retrieves information about a running game having the given code
+      tags:
+        - Game
+      security:
+        - Token: []
+    delete:
+      summary: Delete a running game
+      operationId: delete-games-code
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Not Found
+      tags:
+        - Game
+      description: Deletes a running game having the given code
+      security:
+        - Token: []
+  "/stats/users/{id}":
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Retrieve user statistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Not Found
+      operationId: get-users-id-stats
+      description: Returns the users statistics having the given id
+      tags:
+        - Statistics
+      security:
+        - Token: []
+  /categories:
+    get:
+      summary: Retrieve all categories
+      tags:
+        - Category
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      operationId: get-expressions
+      description: Retrieves all categories
+      security:
+        - Token: []
+    parameters: []
+    post:
+      summary: Create new category
+      operationId: post-categories
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: A category with this name exists already
+      description: Creates a new category with a supplied name
+      tags:
+        - Category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Politics
+              required:
+                - name
+        description: ""
+      security:
+        - Token: []
+  "/categories/{id}":
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+        name: id
+        in: path
+        required: true
+    delete:
+      summary: Delete a category
+      operationId: delete-categories-id
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Not Found
+        "409":
+          description: "Could not be deleted, since already used in a game"
+      tags:
+        - Category
+      description: Deletes a category by id
+      security:
+        - Token: []
+  "/categories/{id}/expressions":
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Retrieve all expressions for a category
+      tags:
+        - Expression
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expression"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Not Found
+      operationId: get-categories-id-expressions
+      description: Returns all expressions for a category having the supplied id
+      security:
+        - Token: []
+    post:
+      summary: Create a new expression for a category
+      operationId: post-categories-id-expressions
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expression"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Not Found
+        "409":
+          description: An expression with this name exists already in this category
+      tags:
+        - Expression
+      description: Creates a new expression for the category having the supplied id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Democracy
+              required:
+                - name
+      security:
+        - Token: []
+  "/expressions/{id}":
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+        name: id
+        in: path
+        required: true
+    delete:
+      summary: Delete an expression
+      operationId: delete-expressions-id
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Not Found
+        "409":
+          description: "Could not be deleted, since already used in a game"
+      tags:
+        - Expression
+      description: Deletes the expression having the given id
+      security:
+        - Token: []
+  "/categories/{id}/expressions/import":
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+        name: id
+        in: path
+        required: true
+    post:
+      summary: Import expressions for a category
+      operationId: post-categories-id-expressions-import
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  $ref: "#/components/schemas/Expression"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Not Found
+      tags:
+        - Expression
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              uniqueItems: true
+              items:
+                type: string
+      description: Imports expressions for the category having the supplied id
+      security:
+        - Token: []
+  /expressions/import:
+    post:
+      summary: Import expressions
+      operationId: post-expressions-import
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    category:
+                      $ref: "#/components/schemas/Category"
+                    expressions:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/Expression"
+                  required:
+                    - category
+                    - expressions
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+      tags:
+        - Expression
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  category:
+                    type: string
+                    example: Politics
+                  expressions:
+                    type: array
+                    uniqueItems: true
+                    items:
+                      type: string
+                required:
+                  - category
+                  - expressions
+      description: Imports expressions for multiple categories. If a categorie not yet exists it will be created
+      security:
+        - Token: []
+  /stats/global:
+    get:
+      summary: Retrieves global stats
+      tags:
+        - Statistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GlobalStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      operationId: get-stats-global
+      description: Retrieves the global stats
+      security:
+        - Token: []
+  /stats/categories:
+    get:
+      summary: Retrieves category stats
+      tags:
+        - Statistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  $ref: "#/components/schemas/CategoryStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      operationId: get-stats-categories
+      description: Retrieves the category stats
+      security:
+        - Token: []
+  /stats/topGames:
+    get:
+      summary: Retrieves stats for the top games
+      tags:
+        - Statistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  $ref: "#/components/schemas/TopGameStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      operationId: get-stats-topGames
+      description: Retrieves the stats for the top n games
+      security:
+        - Token: []
+  "/dice/{id}/notify/battery":
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    post:
+      summary: Update battery status
+      operationId: post-dice-id-battery-low
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+      tags:
+        - Dice
+      description: Tells the server the current battery status
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: number
+              minimum: 0
+              maximum: 100
+              description: The battery percentage
+  "/dice/{id}/notify/connection":
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    post:
+      summary: Update connection status
+      operationId: post-dice-id-connection
+      responses:
+        "200":
+          description: OK
+        "204":
+          description: Dice not in a game
+        "404":
+          description: Not Found
+      tags:
+        - Dice
+      description: Updates the server on the connection status between the raspberry and the TimeFlip dice
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: boolean
+              description: Whether the dice is connected to the raspberry
+components:
+  schemas:
+    Category:
+      title: Category
+      type: object
+      properties:
+        id:
+          type: integer
+          exclusiveMinimum: false
+          minimum: 0
+        name:
+          type: string
+          example: Geography
+      required:
+        - id
+        - name
+    Expression:
+      title: Expression
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 0
+        name:
+          type: string
+          example: Russia
+      required:
+        - id
+        - name
+    User:
+      title: User
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 0
+        username:
+          type: string
+          example: max.muster
+        role:
+          $ref: "#/components/schemas/Role"
+      required:
+        - id
+        - username
+        - role
+    Role:
+      title: Role
+      type: string
+      enum:
+        - ADMIN
+        - GAMEMANAGER
+        - PLAYER
+    JwtToken:
+      title: JWT Token
+      type: string
+      example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjowLCJ1c2VyX3VzZXJuYW1lIjoiYWRtaW4iLCJ1c2VyX3JvbGUiOiJBRE1JTiJ9.INqBvo5b1p-2evTrolDw3bqTH12zKvUEEUMfmY4oNX4
+      pattern: "^Bearer (?:\\w|[-_=])+\\.(?:\\w|[-_=])+\\.?(?:\\w|[-_.+\\/=])*$"
+      description: "The token containing user information in the payload: see User-Schema (prefixed by 'user_')"
+    RunningGame:
+      title: RunningGame
+      type: object
+      properties:
+        code:
+          type: integer
+          minimum: 0
+          maximum: 99999999
+          description: The 8 digit game code
+        max_score:
+          type: integer
+          minimum: 1
+        teams:
+          type: array
+          uniqueItems: true
+          minItems: 2
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: Team Alpha
+                description: The name of the team
+              players:
+                type: array
+                uniqueItems: true
+                items:
+                  $ref: "#/components/schemas/User"
+              score:
+                type: integer
+                description: The achived score of the team so far
+                minimum: 0
+            required:
+              - name
+              - players
+              - score
+        host:
+          $ref: "#/components/schemas/User"
+        category:
+          $ref: "#/components/schemas/Category"
+      required:
+        - code
+        - max_score
+        - teams
+        - host
+        - category
+    UserStats:
+      title: UserStats
+      type: object
+      properties:
+        won_games:
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            description: Played games per category ordered by most won
+            properties:
+              category:
+                $ref: "#/components/schemas/Category"
+              amount:
+                type: integer
+                minimum: 0
+                description: Number of won games
+            required:
+              - category
+              - amount
+        lost_games:
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            description: Played games per category ordered by most lost
+            properties:
+              category:
+                $ref: "#/components/schemas/Category"
+              amount:
+                type: integer
+                minimum: 0
+                description: Number of lost games
+            required:
+              - category
+              - amount
+        most_played_category:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/Category"
+        played_games:
+          type: integer
+          minimum: 0
+        played_with:
+          type: array
+          description: Players who this player has played with
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/User"
+      required:
+        - won_games
+        - lost_games
+        - most_played_category
+        - played_games
+        - played_with
+    GlobalStats:
+      title: GlobalStats
+      type: object
+      properties:
+        totalGames:
+          type: integer
+          minimum: 0
+          description: Number of games played in total
+        number_correct:
+          type: integer
+          minimum: 0
+          description: Number of correct guessed expressions
+        number_incorrect:
+          type: integer
+          description: Number of incorrect guessed expressions
+          minimum: 0
+        mostPlayedCategory:
+          $ref: "#/components/schemas/Category"
+        mostGamesWon:
+          type: array
+          description: Players with the most won games
+          uniqueItems: true
+          minItems: 0
+          items:
+            $ref: "#/components/schemas/User"
+      required:
+        - totalGames
+        - number_correct
+        - number_incorrect
+        - mostPlayedCategory
+        - mostGamesWon
+    TopGameStats:
+      title: TopGameStats
+      type: object
+      properties:
+        teams:
+          type: array
+          items:
+            type: object
+            properties:
+              score:
+                type: integer
+                description: The score of the team
+                minimum: 0
+              number_correct:
+                type: integer
+                minimum: 0
+                description: Number of correct guessed expressions
+              number_incorrect:
+                type: integer
+                minimum: 0
+                description: Number of incorrect guessed expressions
+            required:
+              - score
+              - number_correct
+              - number_incorrect
+        category:
+          $ref: "#/components/schemas/Category"
+        score_per_time:
+          type: integer
+          description: Scored points divided by duration
+          minimum: 0
+        duration:
+          type: number
+          description: The duration of the game in seconds
+          minimum: 0
+      required:
+        - teams
+        - category
+        - score_per_time
+        - duration
+    CategoryStats:
+      title: CategoryStats
+      type: object
+      properties:
+        category:
+          $ref: "#/components/schemas/Category"
+        number_correct:
+          type: integer
+          minimum: 0
+          description: Number of correct guessed expressions
+        number_incorrect:
+          type: integer
+          minimum: 0
+          description: Number of incorrect guessed expressions
+      required:
+        - category
+        - number_correct
+        - number_incorrect
+  responses:
+    Unauthorized:
+      description: There was no authentication provided or it was invalid
+    Forbidden:
+      description: The user has not the rights to perform this action
+  securitySchemes:
+    Token:
+      type: http
+      scheme: bearer

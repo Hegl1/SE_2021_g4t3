@@ -8,6 +8,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Arrays;
 
 /**
  * Configures for which sites no authorization is needed and which classes
@@ -18,18 +21,31 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity()
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	private JwtRequestFilter jwtRequestFilter;
+    @Autowired
+    private JwtRequestFilter jwtRequestFilter;
 
-	@Autowired
-	private JwtAuthenticationHandler authenticationHandler;
+    @Autowired
+    private JwtAuthenticationHandler authenticationHandler;
 
-	@Override
+    @Override
     protected void configure(final HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable().authorizeRequests()
+        httpSecurity.cors().configurationSource(request ->
+        {
+            CorsConfiguration cors = new CorsConfiguration(); //configuration that fixes cors problems
+            cors.setAllowedMethods(
+                Arrays.asList(HttpMethod.DELETE.name(), HttpMethod.GET.name(), HttpMethod.POST.name(),HttpMethod.PUT.name()));
+            cors.applyPermitDefaultValues();
+
+            return cors;
+
+        }).and().csrf().disable().authorizeRequests()
             .antMatchers("/h2-console/**")
             .permitAll()
             .antMatchers(HttpMethod.POST, "/users/login")
+            .permitAll()
+            .antMatchers(HttpMethod.POST, "/users/register")
+            .permitAll()
+            .antMatchers("/websocket/**")
             .permitAll()
             .antMatchers("/dice/**")
             .permitAll()

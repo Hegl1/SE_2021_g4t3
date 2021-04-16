@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController {
 
-    static final long TOKEN_EXPIRES = 1000 * 5 * 24 * 60 * 60L;
-
     @Autowired
     private UserService userService;
 
@@ -32,13 +30,13 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<LoginResult> login(@RequestBody Login login) {
 
-        User retrievedUser = userService.loadUser(login.getUsername());
+        User retrievedUser = userService.getUserByUsername(login.getUsername());
 
         String receivedPassword = login.getPassword();
 
         if (retrievedUser != null && receivedPassword != null) {
             if (passwordEncoder.matches(receivedPassword, retrievedUser.getPassword())) {
-                String token = authenticationService.generateToken(retrievedUser, UserController.TOKEN_EXPIRES);
+                String token = authenticationService.generateTokenWithFixedExpiration(retrievedUser);
                 return new ResponseEntity<>(new LoginResult(retrievedUser,token),HttpStatus.OK);
             }
         }

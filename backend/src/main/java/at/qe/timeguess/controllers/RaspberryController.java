@@ -1,8 +1,5 @@
 package at.qe.timeguess.controllers;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import at.qe.timeguess.dto.Game;
-import at.qe.timeguess.dto.RaspberryDiceUpdate;
-import at.qe.timeguess.dto.RaspberryRegisterResult;
-import at.qe.timeguess.model.RaspberryID;
-import at.qe.timeguess.repositories.RaspberryIDRepository;
-import at.qe.timeguess.services.RandomStringService;
+import at.qe.timeguess.services.RandomCodeService;
+import at.qe.timeguess.services.RaspberryService;
+import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
 
 /**
  * Class that handles communication with raspberries. Also contains a mapping
@@ -31,19 +25,10 @@ public class RaspberryController {
 	private static final int identifyerLength = 8;
 
 	@Autowired
-	private RandomStringService stringGenrator;
+	private RandomCodeService codeGenerator;
 
 	@Autowired
-	private RaspberryIDRepository raspbiRepo;
-
-	/**
-	 * Map that associates raspberries with games.
-	 */
-	private Map<String, Game> gameMappings;
-
-	public RaspberryController() {
-		this.gameMappings = new HashMap<String, Game>();
-	}
+	private RaspberryService raspiService;
 
 	/**
 	 * Method that persists a new raspberry with a random id.
@@ -51,15 +36,9 @@ public class RaspberryController {
 	 * @return ResponseEntity for REST communication(status 200 if successful).
 	 */
 	@GetMapping("/register")
-	public ResponseEntity<RaspberryRegisterResult> registerRaspberry() {
-		String identifier;
-		do {
-			identifier = stringGenrator.generateRandomString(identifyerLength);
-		} while (raspbiRepo.findFirstById(identifier) != null);
-
-		raspbiRepo.save(new RaspberryID(identifier));
-
-		return new ResponseEntity<>(new RaspberryRegisterResult(identifier), HttpStatus.OK);
+	public ResponseEntity<String> registerRaspberry() {
+		String identifier = raspiService.registerRaspberry();
+		return new ResponseEntity<>(identifier, HttpStatus.OK);
 	}
 
 	/**
@@ -68,53 +47,63 @@ public class RaspberryController {
 	 * 
 	 * @param id     id of the raspberry that updates the value.
 	 * @param update DTO that contains the new dice side.
-	 * @return esponseEntity for REST communication(status 200 if successful, 500 if
-	 *         no game is registered)
+	 * @return ResponseEntity for REST communication(status 200 if successful, 404
+	 *         if rasoberry is not found, 400 if update is out of bounds )
 	 */
 	@PostMapping("/{id}/update")
-	public ResponseEntity<Void> updateDice(@PathVariable final String id,
-			@RequestBody final RaspberryDiceUpdate update) {
-		if (update.getSide() < 0 || update.getSide() > 11) {
+	public ResponseEntity<Void> updateDice(@PathVariable final String id, @RequestBody final int update) {
+		if (update < 0 || update > 11) {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		} else {
-			if (raspbiRepo.findFirstById(id) == null) {
-				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-			} else {
-				if (gameMappings.get(id) != null) {
-					gameMappings.get(id).diceUpdate(update.getSide());
-				}
+			try {
+				raspiService.updateDice(id, update);
 				return new ResponseEntity<>(null, HttpStatus.OK);
+			} catch (RaspberryNotFoundException e) {
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			}
 		}
 	}
 
 	/**
-	 * Method that registers a game for a given raspberry id.
+	 * Method that receives updates for dice battery levels.
 	 * 
-	 * @param raspbiId id of the raspberry the game should be associated with.
-	 * @param game     the game that gets registered.
-	 * @return true if successful, false if not.
+	 * @param id           id of the raspberry that updates its battery level.
+	 * @param batteryLevel value of the new battery level
+	 * @return ResponseEntity for REST communication(status 200 if successful, 404
+	 *         if raspberry not registered)
 	 */
-	public boolean registerGame(final String raspbiId, final Game game) {
-		if (gameMappings.containsKey(raspbiId)) {
-			return false;
-		} else {
-			gameMappings.put(raspbiId, game);
-			return true;
+	@PostMapping("/{id}/notify/battery")
+	public ResponseEntity<Void> updateDiceBattery(@PathVariable final String id, @RequestBody final int batteryLevel) {
+		try {
+			raspiService.updateDiceBatteryStatus(id, batteryLevel);
+			return new ResponseEntity<Void>(HttpStatus.OK);
+		} catch (RaspberryNotFoundException e) {
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
 		}
 	}
 
 	/**
-	 * Method to unregister a game of raspberry.
+	 * Method that receives updates for dice connection statuses.
 	 * 
-	 * @param raspbiId Id of the raspberry that is associated with the game to be
-	 *                 unregistered.
+	 * @param id               id of the raspberry that updates its connection
+	 *                         status.
+	 * @param connectionStatus new connection status.
+	 * @return ResponseEntity for REST communication(status 200 if succesfull, 404
+	 *         if raspberry not registered, 204 if dice is not assigned to a game)
 	 */
-	public void unregisterGame(final String raspbiId) {
-		gameMappings.remove(raspbiId);
+	@PostMapping("/{id}/notify/connection")
+	public ResponseEntity<Void> updateDiceConnection(@PathVariable final String id,
+			@RequestBody final boolean connectionStatus) {
+		try {
+			if (raspiService.updateDiceConnectionStatus(id, connectionStatus)) {
+				return new ResponseEntity<Void>(HttpStatus.OK);
+			} else {
+				return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+			}
+		} catch (RaspberryNotFoundException e) {
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+		}
+
 	}
 
-	public Map<String, Game> getGameMappings() {
-		return gameMappings;
-	}
 }

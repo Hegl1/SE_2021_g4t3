@@ -1,0 +1,197 @@
+@import '../../../variables.scss';
+
+$login-background: #4e4e4e;
+$curve-background: darken(mat-color($primary), 5%);
+
+.bg-curve {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  z-index: 0;
+
+  path {
+    fill: $curve-background;
+  }
+}
+
+main {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+
+  max-height: 100%;
+  overflow-y: auto;
+
+  width: 1000px;
+  max-width: calc(100% - 4rem);
+
+  border-radius: 0.5rem;
+  padding: 1rem 0;
+
+  font-size: 0;
+
+  background-color: $login-background;
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.6);
+
+  > div {
+    display: inline-block;
+    width: 50%;
+    padding: 2em 5em;
+    box-sizing: border-box;
+    vertical-align: middle;
+
+    font-size: 1rem;
+    text-align: center;
+
+    &:first-child {
+      border-right: 1px solid #c7c7c7;
+    }
+  }
+
+  .left {
+    h1 {
+      font-size: 3em;
+      margin-bottom: 1.75rem;
+
+      img {
+        display: none;
+      }
+    }
+
+    h2 {
+      font-size: 1.5em;
+      font-weight: normal;
+      margin-bottom: 2.75rem;
+    }
+
+    form {
+      margin-bottom: 2em;
+
+      mat-form-field,
+      mat-slide-toggle,
+      .form_footer {
+        display: block;
+      }
+
+      mat-slide-toggle {
+        margin-bottom: 1.5em;
+      }
+
+      .form_footer {
+        text-align: left;
+
+        button {
+          margin-right: 1em;
+        }
+
+        mat-spinner {
+          vertical-align: middle;
+        }
+
+        > * {
+          display: inline-block;
+        }
+      }
+    }
+
+    p > a.disabled {
+      color: darken($foreground, 20%);
+      cursor: default;
+      pointer-events: none;
+    }
+  }
+
+  .right {
+    img {
+      width: 100%;
+      max-height: 100%;
+      vertical-align: middle;
+    }
+  }
+}
+
+@media screen and (max-width: 900px) {
+  main {
+    .left {
+      width: 100%;
+      border-right: none !important;
+
+      h1 {
+        margin-bottom: 0.75rem;
+
+        img {
+          display: inline-block;
+          height: 1.5em;
+          width: 1.5em;
+          margin-right: 0.25em;
+        }
+
+        img,
+        span {
+          vertical-align: middle;
+        }
+      }
+    }
+    .right {
+      display: none;
+    }
+  }
+}
+
+@media screen and (max-width: 550px) {
+  main {
+    position: initial;
+    transform: unset;
+    width: 100%;
+    max-width: unset;
+
+    background: $background;
+    box-shadow: none;
+    border-radius: 0;
+
+    padding-top: 0;
+
+    > div {
+      padding: 2em;
+    }
+
+    h1 {
+      font-size: 2em !important;
+
+      img {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        display: block !important;
+        margin-bottom: 0.5em;
+        margin-right: 0 !important;
+      }
+    }
+  }
+
+  .bg-curve {
+    position: relative;
+    background-color: $background;
+  }
+
+  .wrapper {
+    background: $background;
+    position: relative;
+    z-index: 1;
+
+    &::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: $curve-background;
+      z-index: -1;
+    }
+  }
+}

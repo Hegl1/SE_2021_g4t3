@@ -13,21 +13,25 @@ public class Category {
 	private Long id;
 
 	@Column(unique = true)
-	private String category;
+	private String name;
 
 	public Category() {
 	}
 
-	public Category(final String category) {
-		this.category = category;
+	public Long getId() {
+		return id;
 	}
 
-	public String getCategory() {
-		return category;
+	public Category(final String name) {
+		this.name = name;
 	}
 
-	public void setCategory(final String category) {
-		this.category = category;
+	public String getName() {
+		return name;
+	}
+
+	public void setName(final String name) {
+		this.name = name;
 	}
 
 }
