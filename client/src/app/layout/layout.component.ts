@@ -51,4 +51,8 @@ export class LayoutComponent {
 
     return this.user.hasRole(parsedRole);
   }
+
+  get username() {
+    return this.user.user?.username;
+  }
 }

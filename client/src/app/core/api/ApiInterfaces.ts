@@ -33,11 +33,16 @@ export interface RunningGame {
 }
 
 export interface UserStats {
-  played_games: {
+  won_games: {
     category: Category;
-    won: number;
-    lost: number;
+    amount: number;
   }[];
+  lost_games: {
+    category: Category;
+    amount: number;
+  }[];
+  most_played_category: Category | null;
+  played_games: number;
   played_with: User[];
 }
 
