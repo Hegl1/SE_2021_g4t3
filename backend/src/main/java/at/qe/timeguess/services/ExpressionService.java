@@ -1,5 +1,6 @@
 package at.qe.timeguess.services;
 
+import at.qe.timeguess.dto.CategoryExpressionDTO;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.repositories.ExpressionRepository;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -23,6 +25,9 @@ public class ExpressionService {
 
     @Autowired
     private ExpressionRepository expressionRepository;
+
+    @Autowired
+    private CategoryService categoryService;
 
     /**
      * Returns a Expression which is searched by an ID
@@ -80,25 +85,58 @@ public class ExpressionService {
         }
         return this.expressionRepository.save(expression);
     }
-/*
-    public Expression importExpressions() {
 
-        // get JSON file
+    /**
+     *  Imports Expressions into the database and assigns them to a given Category
+     *
+     * @param categoryName the name of the Category to which the Expressions get assigned
+     * @param expressionNames the names of the Expressions to be imported
+     * @return the Collection of the imported Expressions
+     */
+    public Collection<Expression> importExpressionsIntoCategory(final String categoryName, final Collection<String> expressionNames) {
 
-        // read out Category
+        Category categoryToImportTo = this.categoryService.getCategoryByName(categoryName);
+        Expression expressionToImport;
+        Collection<Expression> expressionsToImport = new ArrayList<>();
 
-        // create and save Category if it doesn't exist already
+        for(String current : expressionNames) {
+            expressionToImport = new Expression(current, categoryToImportTo);
+            expressionsToImport.add(expressionToImport);
+            try {
+                saveExpression(expressionToImport);
+            } catch (ExpressionAlreadyExists expressionAlreadyExists) {
+                expressionAlreadyExists.printStackTrace();
+            }
+        }
 
-        // read out Expressions
-
-        // save all Expressions
+        return expressionsToImport;
     }
 
+    /**
+     *  Imports Expressions of multiple Categories and creates Categories if required Category does not exist already
+     *
+     * @param categoryExpressionDTOs Pairs of (Category, Expression[]) to get imported
+     * @throws CategoryService.CategoryAlreadyExistsException if the Category to get created already exists
+     */
+    public void importExpressions(final Collection<CategoryExpressionDTO> categoryExpressionDTOs) throws CategoryService.CategoryAlreadyExistsException {
+        String nameOfCategoryToImportTo;
+
+        for(CategoryExpressionDTO current : categoryExpressionDTOs) {
+            nameOfCategoryToImportTo = current.getCategoryName();
+
+            if (this.categoryService.getCategoryByName(nameOfCategoryToImportTo) == null) {
+                Category newCategoryToSave = new Category(nameOfCategoryToImportTo);
+                this.categoryService.saveCategory(newCategoryToSave);
+            }
+
+            this.importExpressionsIntoCategory(nameOfCategoryToImportTo, current.getExpressionNames());
+        }
+    }
+/*
     public void deleteExpression(final Expression expression) {
         this.expressionRepository.delete(expression);
     }
 */
-
     /**
      * Gets thrown when an Expression is tried to be created, which already exists
      */
