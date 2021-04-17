@@ -7,3 +7,12 @@ table {
     padding: 0.5em 0;
   }
 }
+
+p {
+  margin: 2em 0 1em 0;
+}
+
+table td:first-child,
+.played_with_users {
+  font-weight: 500;
+}

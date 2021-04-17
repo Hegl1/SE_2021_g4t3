@@ -25,7 +25,7 @@ public class AuthenticationServiceTest {
     private UserService userService;
 
     @BeforeEach
-    public void init() throws UserService.UsernameNotAvailableException {
+    public void init() throws UserService.UsernameNotAvailableException,UserService.EmptyPasswordException {
         this.admin = userService.getUserById(0L);
         this.admin.setUsername("admin");
         this.admin.setRole(UserRole.ADMIN);
@@ -60,7 +60,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void testOutdatedToken() throws UserService.UsernameNotAvailableException {
+    public void testOutdatedToken() throws UserService.UsernameNotAvailableException,UserService.EmptyPasswordException {
         String token = authenticationService.generateToken(admin, 30000L);
         admin.setUsername("dagerhgdfherh");
         userService.saveUser(admin);
