@@ -242,7 +242,7 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-      operationId: get-user
+      operationId: get-users
       description: Returns a list of all users
       security:
         - Token: []
@@ -295,7 +295,7 @@ paths:
         required: true
     get:
       summary: Search for a username
-      operationId: search-username
+      operationId: get-users-search-username
       responses:
         "200":
           description: OK
@@ -497,7 +497,7 @@ paths:
                   $ref: "#/components/schemas/Category"
         "401":
           $ref: "#/components/responses/Unauthorized"
-      operationId: get-expressions
+      operationId: get-categories
       description: Retrieves all categories
       security:
         - Token: []
@@ -535,6 +535,29 @@ paths:
         description: ""
       security:
         - Token: []
+  /categories/info:
+    get:
+      summary: Retrieve all categories with additional information
+      tags:
+        - Category
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryInfo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+      operationId: get-categories-info
+      description: Retrieves all categories with additional information
+      security:
+        - Token: []
+    parameters: []
   "/categories/{id}":
     parameters:
       - schema:
@@ -871,6 +894,20 @@ components:
       required:
         - id
         - name
+    CategoryInfo:
+      title: CategoryInfo
+      allOf:
+        - $ref: "#/components/schemas/Category"
+        - type: object
+          properties:
+            deletable:
+              type: boolean
+            expressions_amount:
+              type: integer
+              minimum: 0
+          required:
+            - deletable
+            - expressions_amount
     Expression:
       title: Expression
       type: object
