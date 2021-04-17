@@ -38,6 +38,11 @@ public class UserService {
         return userRepository.findFirstByUsername(username);
     }
 
+    /**
+     * Returns the authenticated user of the current request.
+     *
+     * @return null if no user authenticated otherwise the authenticated user of the request
+     */
     public User getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
@@ -47,6 +52,15 @@ public class UserService {
         return null;
     }
 
+    /**
+     * If existing user was edited it saves the new values of the user otherwise it creates a new user.
+     * The method checks if the password has been changed or is new because if that is the case it needs to be
+     * encrypted before the user gets saved.
+     *
+     * @param user
+     * @return null if no user could be saved otherwise the saved user
+     * @throws UsernameNotAvailableException thrown if other user with same username already exists
+     */
     public User saveUser(final User user) throws UsernameNotAvailableException {
         User existingUser = this.userRepository.findFirstByUsername(user.getUsername());
         if (existingUser != null && existingUser.getId() != user.getId()) {
@@ -61,10 +75,15 @@ public class UserService {
 
     }
 
+    /**
+     * Removes all references from the user to completedGameTeams and deletes the user afterwards.
+     *
+     * @param user
+     */
     public void deleteUser(final User user) {
         for (CompletedGameTeam completedGameTeam : completedGameTeamRepository.findByUser(user)) {
             List<User> playerList = completedGameTeam.getPlayers();
-            playerList.set(playerList.indexOf(user),null);
+            playerList.set(playerList.indexOf(user), null);
             this.completedGameTeamRepository.save(completedGameTeam);
         }
 
