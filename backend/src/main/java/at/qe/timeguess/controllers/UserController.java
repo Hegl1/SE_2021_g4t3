@@ -58,6 +58,8 @@ public class UserController {
                 return new ResponseEntity<>(new LoginResult(createdUser, token), HttpStatus.OK);
             } catch (UserService.UsernameNotAvailableException e) {
                 return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+            }  catch (UserService.EmptyPasswordException e2) {
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
@@ -119,6 +121,8 @@ public class UserController {
             userService.saveUser(user);
         } catch (UserService.UsernameNotAvailableException e) {
             return HttpStatus.CONFLICT;
+        } catch (UserService.EmptyPasswordException e2) {
+            return HttpStatus.BAD_REQUEST;
         }
 
         return HttpStatus.OK;
@@ -153,10 +157,17 @@ public class UserController {
                 return new ResponseEntity<>(createdUser, HttpStatus.OK);
             } catch (UserService.UsernameNotAvailableException e) {
                 return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+            } catch (UserService.EmptyPasswordException e2) {
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
+
+    @GetMapping("search/{username}")
+    public List<User> searchUsers(@PathVariable String username) {
+        return this.userService.searchUsers(username);
+    }
 
 }
