@@ -1,5 +1,6 @@
 package at.qe.timeguess.dto;
 
+import at.qe.timeguess.model.User;
 import at.qe.timeguess.model.UserRole;
 
 public class UpdateUserDTO {
@@ -22,6 +23,12 @@ public class UpdateUserDTO {
                 return UserRole.PLAYER;
         }
         return null;
+    }
+
+    public boolean hasChanges(User user) {
+        return (this.username != null && !user.getUsername().equals(this.username))
+            || (this.role != null && !user.getRole().equals(this.role))
+            || this.password != null;
     }
 
     public String getPassword() {

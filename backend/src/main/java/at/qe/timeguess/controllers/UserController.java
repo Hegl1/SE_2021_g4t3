@@ -39,7 +39,7 @@ public class UserController {
         if (retrievedUser != null && receivedPassword != null) {
             if (passwordEncoder.matches(receivedPassword, retrievedUser.getPassword())) {
                 String token = authenticationService.generateTokenWithFixedExpiration(retrievedUser);
-                return new ResponseEntity<>(new LoginResult(retrievedUser,token),HttpStatus.OK);
+                return new ResponseEntity<>(new LoginResult(retrievedUser, token), HttpStatus.OK);
             }
         }
 
@@ -50,12 +50,12 @@ public class UserController {
     public ResponseEntity<LoginResult> register(@RequestBody Login login) {
         String username = login.getUsername();
         String password = login.getPassword();
-        if (username != null && password != null ) {
+        if (username != null && password != null) {
 
             try {
-                User createdUser = userService.saveUser(new User(username,password,UserRole.PLAYER));
+                User createdUser = userService.saveUser(new User(username, password, UserRole.PLAYER));
                 String token = authenticationService.generateTokenWithFixedExpiration(createdUser);
-                return new ResponseEntity<>(new LoginResult(createdUser,token),HttpStatus.OK);
+                return new ResponseEntity<>(new LoginResult(createdUser, token), HttpStatus.OK);
             } catch (UserService.UsernameNotAvailableException e) {
                 return new ResponseEntity<>(null, HttpStatus.CONFLICT);
             }
@@ -65,12 +65,12 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable Long id) {
-       User user = this.userService.getUserById(id);
-       if (user != null) {
-           return new ResponseEntity<>(user,HttpStatus.OK);
-       } else {
-           return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
-       }
+        User user = this.userService.getUserById(id);
+        if (user != null) {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping("/{id}")
@@ -78,38 +78,66 @@ public class UserController {
         User user = this.userService.getUserById(id);
         String username = updateUserDTO.getUsername();
         String password = updateUserDTO.getPassword();
+        String oldPassword = updateUserDTO.getOld_password();
         UserRole role = updateUserDTO.getRole();
-        if (user != null) {
-            try {
-                if (username != null) {
-                    user.setUsername(username);
-                }
-                if (password != null) {
-                    user.setPassword(password);
-                }
-                if (role != null) {
-                    //TODO: check if user is authorized to change role
-                    user.setRole(role);
-                }
-                userService.saveUser(user);
-                return HttpStatus.OK;
-            } catch (UserService.UsernameNotAvailableException e) {
-                return HttpStatus.CONFLICT;
-            }
-        } else {
+
+        User authorizedUser = this.userService.getAuthenticatedUser();
+
+        if (user == null) {
             return HttpStatus.NOT_FOUND;
         }
+
+        //if no changes in user do not update
+        if (!updateUserDTO.hasChanges(user) || passwordEncoder.matches(password, user.getPassword())) {
+            return HttpStatus.OK;
+        }
+
+        if (username != null) {
+            user.setUsername(username);
+        }
+
+        if (role != null) {
+            //user can not change it's own role only admins can changes roles
+            if (authorizedUser.getRole().equals(UserRole.ADMIN)) {
+                user.setRole(role);
+            } else {
+                return HttpStatus.FORBIDDEN;
+            }
+        }
+
+        if (oldPassword != null) {
+            if (passwordEncoder.matches(oldPassword, user.getPassword())) {
+                user.setPassword(password);
+            } else {
+                return HttpStatus.BAD_REQUEST;
+            }
+        } else { //admin does not need to send old password
+            user.setPassword(password);
+        }
+
+        try {
+            userService.saveUser(user);
+        } catch (UserService.UsernameNotAvailableException e) {
+            return HttpStatus.CONFLICT;
+        }
+
+        return HttpStatus.OK;
     }
 
     @DeleteMapping("/{id}")
     public HttpStatus deleteUser(@PathVariable Long id) {
-        //TODO: check if user is authorized and implement
-        return HttpStatus.OK;
+        User userToDelete = this.userService.getUserById(id);
+        if (userToDelete != null) {
+            this.userService.deleteUser(userToDelete);
+            return HttpStatus.OK;
+        } else {
+            return HttpStatus.NOT_FOUND;
+        }
+
     }
 
     @GetMapping
     public List<User> getUsers() {
-        //TODO: only allow for admins
         return this.userService.getAllUsers();
     }
 
@@ -121,8 +149,8 @@ public class UserController {
         if (username != null && password != null && role != null) {
 
             try {
-                User createdUser = userService.saveUser(new User(username,password,role));
-                return new ResponseEntity<>(createdUser,HttpStatus.OK);
+                User createdUser = userService.saveUser(new User(username, password, role));
+                return new ResponseEntity<>(createdUser, HttpStatus.OK);
             } catch (UserService.UsernameNotAvailableException e) {
                 return new ResponseEntity<>(null, HttpStatus.CONFLICT);
             }
