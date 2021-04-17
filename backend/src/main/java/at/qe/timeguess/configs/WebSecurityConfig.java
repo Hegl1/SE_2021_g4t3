@@ -14,9 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Configures for which sites no authorization is needed and which classes
- * handle the authorization. Also configures cors so that there are no problems
- * with frontend.
+ * Configures the security settings of the api.
+ * This includes the encryption of passwords, the authorization for the endpoints with JWT tokens
+ * and the configuration of CORS.
  */
 @Configuration
 @EnableWebSecurity()
