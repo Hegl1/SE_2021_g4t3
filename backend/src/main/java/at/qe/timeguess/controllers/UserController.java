@@ -11,6 +11,7 @@ import at.qe.timeguess.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,12 +86,21 @@ public class UserController {
 
         User authorizedUser = this.userService.getAuthenticatedUser();
 
+        if (!authorizedUser.getRole().equals(UserRole.ADMIN) && authorizedUser.getId() != user.getId()) {
+            return new ResponseEntity(HttpStatus.FORBIDDEN);
+        }
+
         if (user == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
 
         //if no changes in user do not update
-        if (!updateUserDTO.hasChanges(user) || passwordEncoder.matches(password, user.getPassword())) {
+        if (!updateUserDTO.hasChanges(user)) {
+            return new ResponseEntity(HttpStatus.OK);
+        }
+
+        //if trying to set old password as new
+        if (passwordEncoder.matches(password, user.getPassword())) {
             return new ResponseEntity(HttpStatus.OK);
         }
 
@@ -129,6 +139,7 @@ public class UserController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity deleteUser(@PathVariable Long id) {
         User userToDelete = this.userService.getUserById(id);
@@ -141,11 +152,13 @@ public class UserController {
 
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public List<User> getUsers() {
         return this.userService.getAllUsers();
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody CreateUserDTO createUserDTO) {
         String username = createUserDTO.getUsername();
@@ -165,9 +178,8 @@ public class UserController {
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-
     @GetMapping("search/{username}")
-    public List<User> searchUsers(@PathVariable String username) {
+    public List<String> searchUsers(@PathVariable String username) {
         return this.userService.searchUsers(username);
     }
 

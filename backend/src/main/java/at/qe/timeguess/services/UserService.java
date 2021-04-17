@@ -117,7 +117,7 @@ public class UserService {
      * @param searchString
      * @return List of users
      */
-    public List<User> searchUsers(String searchString) {
+    public List<String> searchUsers(String searchString) {
         return userRepository.searchByUsername(searchString);
     }
 
