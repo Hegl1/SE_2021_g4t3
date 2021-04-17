@@ -1,14 +1,18 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { Subscription } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { InputDialogComponent } from 'src/app/components/input-dialog/input-dialog.component';
 import { ApiService } from 'src/app/core/api/api.service';
-import { Category, CategoryInfo } from 'src/app/core/api/ApiInterfaces';
+import { CategoryInfo } from 'src/app/core/api/ApiInterfaces';
+import { ApiResponse } from 'src/app/core/api/ApiResponse';
+import { FileHelper } from 'src/app/core/files/file-helper';
 import { AddExpressionsDialogComponent } from './components/add-expressions-dialog/add-expressions-dialog.component';
+import { SelectCategoryDialogComponent } from './components/select-category-dialog/select-category-dialog.component';
 
 @Component({
   selector: 'tg-expressions',
@@ -21,9 +25,16 @@ export class ExpressionsComponent implements AfterViewInit, OnInit {
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild('importFilePicker') importFilePicker!: ElementRef;
+
+  private _filter: string = '';
 
   loading = false;
+  saving = false;
   error: string | null = null;
+
+  private importFileObservable = new EventEmitter<File>();
+  private importFileSubscriptions: Subscription[] = [];
 
   constructor(private api: ApiService, private dialog: MatDialog, private snackBar: MatSnackBar) {}
 
@@ -34,6 +45,34 @@ export class ExpressionsComponent implements AfterViewInit, OnInit {
   ngAfterViewInit() {
     this.categories.sort = this.sort;
     this.categories.paginator = this.paginator;
+  }
+
+  set filter(filter: string) {
+    this._filter = filter.trim().toLowerCase();
+
+    this.categories.filter = this._filter;
+
+    if (this.categories.paginator) {
+      this.categories.paginator.firstPage();
+    }
+  }
+
+  get filter() {
+    return this._filter;
+  }
+
+  /**
+   * Notifies all subscribers about the new selected file for imports
+   * @param event
+   */
+  setImportFile(event: EventTarget | null) {
+    if (event === null) return;
+
+    let files = (<HTMLInputElement>event).files;
+
+    if (files?.length !== 1) return;
+
+    this.importFileObservable.emit(files[0]);
   }
 
   /**
@@ -57,19 +96,6 @@ export class ExpressionsComponent implements AfterViewInit, OnInit {
   }
 
   /**
-   * Filters the user list
-   * @param event
-   */
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.categories.filter = filterValue.trim().toLowerCase();
-
-    if (this.categories.paginator) {
-      this.categories.paginator.firstPage();
-    }
-  }
-
-  /**
    * Opens an input field for the name of the new category and saves it
    */
   createCategory() {
@@ -83,18 +109,41 @@ export class ExpressionsComponent implements AfterViewInit, OnInit {
       .afterClosed()
       .subscribe(async (value: string | null) => {
         if (value) {
-          this.loading = true;
+          this.saving = true;
 
           let res = await this.api.createCategory(value.trim());
 
-          this.loading = false;
+          this.saving = false;
 
           if (res.isOK()) {
             this.snackBar.open('Category was created successfully!', 'OK', {
               duration: 5000,
             });
 
-            // TODO: open confirm to ask if wants to add expressions
+            // ask user if he want to add expressions
+            if (
+              await this.dialog
+                .open(ConfirmDialogComponent, {
+                  data: {
+                    title: 'Add expressions',
+                    content: 'Do you want to add expressions to the created category?',
+                    btnConfirm: 'Yes',
+                    btnDecline: 'No',
+                  },
+                })
+                .afterClosed()
+                .toPromise()
+            ) {
+              await this.dialog
+                .open(AddExpressionsDialogComponent, {
+                  data: {
+                    category_id: res.value?.id,
+                  },
+                  width: '500px',
+                })
+                .afterClosed()
+                .toPromise();
+            }
 
             await this.reload();
 
@@ -153,11 +202,11 @@ export class ExpressionsComponent implements AfterViewInit, OnInit {
       .afterClosed()
       .subscribe(async (confirmed: boolean) => {
         if (confirmed) {
-          this.loading = true;
+          this.saving = true;
 
           let res = await this.api.deleteCategory(id);
 
-          this.loading = false;
+          this.saving = false;
 
           if (res.isOK()) {
             this.snackBar.open('Category was deleted successfully!', 'OK', {
@@ -173,5 +222,113 @@ export class ExpressionsComponent implements AfterViewInit, OnInit {
           }
         }
       });
+  }
+
+  /**
+   * Opens a file picker to select a .csv or .json file
+   * to import
+   *
+   * @param type whether to import only expressions or categories with expressions
+   */
+  async import(type: 'expressions' | 'categories_and_expressions', category_id: number | null = null) {
+    if (!this.importFilePicker) return;
+
+    this.importFileSubscriptions.forEach((sub) => sub.unsubscribe());
+
+    if (type === 'expressions' && category_id === null) {
+      category_id = await this.dialog.open(SelectCategoryDialogComponent).afterClosed().toPromise();
+
+      if (category_id == null) {
+        return;
+      }
+    }
+
+    let subscription = this.importFileObservable.subscribe(async (file) => {
+      this.saving = true;
+
+      try {
+        let data = await FileHelper.readFile(file);
+
+        let values;
+
+        if (file.name.endsWith('.json')) {
+          values = JSON.parse(data);
+        } else if (file.name.endsWith('.csv')) {
+          let csv = FileHelper.parseCSV(data);
+
+          if (type === 'categories_and_expressions') {
+            let category_mapping: any = {};
+
+            csv.forEach((row) => {
+              if (row.length !== 2) {
+                throw new Error('File format is invalid');
+              }
+
+              if (typeof category_mapping[row[0]] === 'undefined') {
+                category_mapping[row[0]] = {
+                  category: row[0],
+                  expressions: [row[1]],
+                };
+              } else {
+                category_mapping[row[0]].expressions.push(row[1]);
+              }
+            });
+
+            values = Object.values(category_mapping);
+          } else {
+            values = csv.map((row) => row[0]);
+          }
+        } else {
+          throw new Error('Invalid file extension');
+        }
+
+        try {
+          let res: ApiResponse<any>;
+
+          if (type === 'expressions') {
+            res = await this.api.importExpressionsForCategory(category_id!, values);
+          } else {
+            res = await this.api.importExpressions(values);
+          }
+
+          if (res.isOK()) {
+            this.snackBar.open('The expressions where imported successfully!', 'OK', {
+              duration: 5000,
+            });
+
+            this.reload();
+          } else if (res.isNotFound()) {
+            throw new Error('The category was not found');
+          } else {
+            throw new Error();
+          }
+        } catch (e) {
+          this.snackBar.open('Error importing data' + (e.message ? ': ' + e.message : ''), 'OK', {
+            duration: 10000,
+            panelClass: 'action-warn',
+          });
+        }
+      } catch (e) {
+        this.snackBar.open('Error reading file' + (e.message ? ': ' + e.message : ''), 'OK', {
+          duration: 10000,
+          panelClass: 'action-warn',
+        });
+      }
+
+      this.saving = false;
+
+      subscription.unsubscribe();
+    });
+    this.importFileSubscriptions.push(subscription);
+
+    this.importFilePicker.nativeElement.click();
+  }
+
+  /**
+   * Shows a help dialog for importing expressions
+   */
+  showHelpImport() {
+    // TODO: show help
+    throw new Error('Not implemented');
   }
 }

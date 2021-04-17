@@ -232,11 +232,11 @@ export class ApiService {
     );
   }
 
-  importExpressions(category_id: number, expressions: { category: string; expressions: string[] }[]) {
+  importExpressions(expressions: { category: string; expressions: string[] }[]) {
     return this.handleResponse<{ category: Category; expressions: Expression[] }[]>(
       this.http
         .post<{ category: Category; expressions: Expression[] }[]>(
-          `${this.URL}/categories/${category_id}/expressions/import`,
+          `${this.URL}/expressions/import`,
           expressions,
           this.httpOptions
         )
