@@ -106,16 +106,18 @@ public class ExpressionServiceTest {
         Assertions.assertEquals(6, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Deutschland")).size());
         Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Politics")).size());
     }
-/*
+
     @Test
     @DirtiesContext
-    public void testDeleteExpression() {
-        Expression expressionToDelete = this.expressionService.getExpressionById(0L);
-        this.expressionService.deleteExpression(expressionToDelete);
-        Assertions.assertEquals(0, this.expressionService.getAllExpressions().size());
+    public void testDeleteExpression() throws ExpressionService.ExpressionAlreadyExists, ExpressionService.ExpressionDoesNotExistAnymore {
 
+        // TODO: can't delete predefined test data
+        Category category = this.categoryService.getCategoryById(0L);
+        this.expressionService.saveExpression(new Expression("Berlin", category));
+        this.expressionService.deleteExpression(this.expressionService.getExpressionById(1L));
+        Assertions.assertEquals(1, this.expressionService.getAllExpressions().size());
     }
-*/
+
     @Test
     @DirtiesContext
     public void testExpressionAlreadyExistsException() throws ExpressionService.ExpressionAlreadyExists {

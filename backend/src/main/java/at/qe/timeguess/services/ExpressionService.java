@@ -132,11 +132,15 @@ public class ExpressionService {
             this.importExpressionsIntoCategory(nameOfCategoryToImportTo, current.getExpressionNames());
         }
     }
-/*
-    public void deleteExpression(final Expression expression) {
-        this.expressionRepository.delete(expression);
+
+    public void deleteExpression(final Expression expression) throws ExpressionDoesNotExistAnymore {
+        if(expression == null) {
+            throw new ExpressionDoesNotExistAnymore("This Expression does not exist anymore!");
+        } else {
+            this.expressionRepository.delete(expression);
+        }
     }
-*/
+
     /**
      * Gets thrown when an Expression is tried to be created, which already exists
      */
@@ -145,6 +149,18 @@ public class ExpressionService {
         private static final long serialVersionUID = 1L;
 
         public ExpressionAlreadyExists(final String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * Gets thrown when an Expression is tried to be deleted, which does not exist anymore
+     */
+    public class ExpressionDoesNotExistAnymore extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+        public ExpressionDoesNotExistAnymore(final String message) {
             super(message);
         }
     }
