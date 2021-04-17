@@ -1,6 +1,7 @@
 package at.qe.timeguess.dto;
 
 import at.qe.timeguess.model.UserRole;
+import at.qe.timeguess.services.UserService;
 
 public class CreateUserDTO {
     private String username;
@@ -16,14 +17,6 @@ public class CreateUserDTO {
     }
 
     public UserRole getRole() {
-        switch(role) {
-            case "admin":
-                return UserRole.ADMIN;
-            case "gamemanager":
-                return UserRole.GAMEMANAGER;
-            case "player":
-                return UserRole.PLAYER;
-        }
-        return null;
+        return UserService.parseRole(this.role);
     }
 }

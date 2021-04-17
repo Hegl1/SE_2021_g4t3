@@ -1,6 +1,7 @@
 package at.qe.timeguess.services;
 
 import at.qe.timeguess.model.CompletedGameTeam;
+import at.qe.timeguess.model.UserRole;
 import at.qe.timeguess.repositories.CompletedGameTeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -95,6 +96,22 @@ public class UserService {
         this.userRepository.delete(user);
     }
 
+    public static UserRole parseRole(String role) {
+        if (role == null) {
+            return null;
+        }
+        switch(role) {
+            case "ADMIN":
+                return UserRole.ADMIN;
+            case "GAMEMANAGER":
+                return UserRole.GAMEMANAGER;
+            case "PLAYER":
+                return UserRole.PLAYER;
+        }
+
+        return null;
+    }
+
     /**
      * Returns all users where the username contains the searchstring.
      * @param searchString
@@ -121,6 +138,5 @@ public class UserService {
             super(message);
         }
     }
-
 
 }

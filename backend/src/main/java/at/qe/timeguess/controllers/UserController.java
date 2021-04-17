@@ -58,7 +58,7 @@ public class UserController {
                 return new ResponseEntity<>(new LoginResult(createdUser, token), HttpStatus.OK);
             } catch (UserService.UsernameNotAvailableException e) {
                 return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-            }  catch (UserService.EmptyPasswordException e2) {
+            } catch (UserService.EmptyPasswordException e2) {
                 return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
         }
@@ -76,7 +76,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public HttpStatus putUser(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
+    public ResponseEntity<?> putUser(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
         User user = this.userService.getUserById(id);
         String username = updateUserDTO.getUsername();
         String password = updateUserDTO.getPassword();
@@ -86,56 +86,57 @@ public class UserController {
         User authorizedUser = this.userService.getAuthenticatedUser();
 
         if (user == null) {
-            return HttpStatus.NOT_FOUND;
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
 
         //if no changes in user do not update
         if (!updateUserDTO.hasChanges(user) || passwordEncoder.matches(password, user.getPassword())) {
-            return HttpStatus.OK;
+            return new ResponseEntity(HttpStatus.OK);
         }
 
         if (username != null) {
             user.setUsername(username);
         }
 
-        if (role != null) {
+        if (role != null && !user.getRole().equals(role)) {
             //user can not change it's own role only admins can changes roles
             if (authorizedUser.getRole().equals(UserRole.ADMIN)) {
                 user.setRole(role);
             } else {
-                return HttpStatus.FORBIDDEN;
+                return new ResponseEntity(HttpStatus.FORBIDDEN);
             }
         }
 
-        if (oldPassword != null) {
+        //admin does not need to send old password
+        if (authorizedUser.getRole().equals(UserRole.ADMIN)) {
+            user.setPassword(password);
+        } else {
             if (passwordEncoder.matches(oldPassword, user.getPassword())) {
                 user.setPassword(password);
             } else {
-                return HttpStatus.BAD_REQUEST;
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
             }
-        } else { //admin does not need to send old password
-            user.setPassword(password);
         }
 
         try {
             userService.saveUser(user);
         } catch (UserService.UsernameNotAvailableException e) {
-            return HttpStatus.CONFLICT;
+            return new ResponseEntity(HttpStatus.CONFLICT);
         } catch (UserService.EmptyPasswordException e2) {
-            return HttpStatus.BAD_REQUEST;
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
-        return HttpStatus.OK;
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public HttpStatus deleteUser(@PathVariable Long id) {
+    public ResponseEntity deleteUser(@PathVariable Long id) {
         User userToDelete = this.userService.getUserById(id);
         if (userToDelete != null) {
             this.userService.deleteUser(userToDelete);
-            return HttpStatus.OK;
+            return new ResponseEntity(HttpStatus.OK);
         } else {
-            return HttpStatus.NOT_FOUND;
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
 
     }
@@ -154,7 +155,7 @@ public class UserController {
 
             try {
                 User createdUser = userService.saveUser(new User(username, password, role));
-                return new ResponseEntity<>(createdUser, HttpStatus.OK);
+                return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
             } catch (UserService.UsernameNotAvailableException e) {
                 return new ResponseEntity<>(null, HttpStatus.CONFLICT);
             } catch (UserService.EmptyPasswordException e2) {

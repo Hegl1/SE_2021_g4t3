@@ -2,6 +2,7 @@ package at.qe.timeguess.dto;
 
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.model.UserRole;
+import at.qe.timeguess.services.UserService;
 
 public class UpdateUserDTO {
     private String username;
@@ -14,15 +15,7 @@ public class UpdateUserDTO {
     }
 
     public UserRole getRole() {
-        switch(role) {
-            case "admin":
-                return UserRole.ADMIN;
-            case "gamemanager":
-                return UserRole.GAMEMANAGER;
-            case "player":
-                return UserRole.PLAYER;
-        }
-        return null;
+        return UserService.parseRole(this.role);
     }
 
     public boolean hasChanges(User user) {
