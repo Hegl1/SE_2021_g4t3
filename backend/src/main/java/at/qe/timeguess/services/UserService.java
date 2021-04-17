@@ -61,11 +61,16 @@ public class UserService {
      * @return null if no user could be saved otherwise the saved user
      * @throws UsernameNotAvailableException thrown if other user with same username already exists
      */
-    public User saveUser(final User user) throws UsernameNotAvailableException {
+    public User saveUser(final User user) throws UsernameNotAvailableException, EmptyPasswordException {
         User existingUser = this.userRepository.findFirstByUsername(user.getUsername());
         if (existingUser != null && existingUser.getId() != user.getId()) {
             throw new UsernameNotAvailableException("User can't be saved because another user with same username already exists!");
         }
+
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            throw new EmptyPasswordException("User can't be saved because given password is empty!");
+        }
+
         if (existingUser == null || !user.getPassword().equals(existingUser.getPassword())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
@@ -90,6 +95,15 @@ public class UserService {
         this.userRepository.delete(user);
     }
 
+    /**
+     * Returns all users where the username contains the searchstring.
+     * @param searchString
+     * @return List of users
+     */
+    public List<User> searchUsers(String searchString) {
+        return userRepository.searchByUsername(searchString);
+    }
+
     public class UsernameNotAvailableException extends Exception {
 
         private static final long serialVersionUID = 1L;
@@ -98,5 +112,15 @@ public class UserService {
             super(message);
         }
     }
+
+    public class EmptyPasswordException extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+        public EmptyPasswordException(final String message) {
+            super(message);
+        }
+    }
+
 
 }
