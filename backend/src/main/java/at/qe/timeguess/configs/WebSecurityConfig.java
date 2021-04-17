@@ -1,17 +1,16 @@
 package at.qe.timeguess.configs;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Arrays;
 
 /**
  * Configures the security settings of the api.
@@ -22,23 +21,31 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity()
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	private JwtRequestFilter jwtRequestFilter;
+    @Autowired
+    private JwtRequestFilter jwtRequestFilter;
 
-	@Autowired
-	private JwtAuthenticationHandler authenticationHandler;
+    @Autowired
+    private JwtAuthenticationHandler authenticationHandler;
 
-    @Bean
-    public PasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-	@Override
+    @Override
     protected void configure(final HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable().authorizeRequests()
+        httpSecurity.cors().configurationSource(request ->
+        {
+            CorsConfiguration cors = new CorsConfiguration(); //configuration that fixes cors problems
+            cors.setAllowedMethods(
+                Arrays.asList(HttpMethod.DELETE.name(), HttpMethod.GET.name(), HttpMethod.POST.name(),HttpMethod.PUT.name()));
+            cors.applyPermitDefaultValues();
+
+            return cors;
+
+        }).and().csrf().disable().authorizeRequests()
             .antMatchers("/h2-console/**")
             .permitAll()
             .antMatchers(HttpMethod.POST, "/users/login")
+            .permitAll()
+            .antMatchers(HttpMethod.POST, "/users/register")
+            .permitAll()
+            .antMatchers("/websocket/**")
             .permitAll()
             .antMatchers("/dice/**")
             .permitAll()

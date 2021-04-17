@@ -120,16 +120,27 @@ export class LoginComponent implements OnInit {
     this.loading = false;
     this.loginForm.enable();
 
-    if (res.isOK() && res.value !== null) {
-      this.user.login(res.value.token, this.remember?.value);
+    try {
+      if (res.isOK() && res.value !== null) {
+        try {
+          UserService.parseUserFromToken(res.value.token);
+        } catch (e) {
+          console.error(e);
+          throw new Error();
+        }
 
-      this.router.navigateByUrl(this.route.snapshot.queryParams.redirectUrl || '/');
-    } else if (res.isUnauthorized()) {
-      this.error = 'Username or password wrong!';
-    } else if (res.isConflict()) {
-      this.error = 'This username is already taken!';
-    } else {
-      this.error = 'An error occured!';
+        this.user.login(res.value.token, this.remember?.value);
+
+        this.router.navigateByUrl(this.route.snapshot.queryParams.redirectUrl || '/');
+      } else if (res.isUnauthorized()) {
+        throw new Error('Username or password wrong!');
+      } else if (res.isConflict()) {
+        throw new Error('This username is already taken!');
+      } else {
+        throw new Error();
+      }
+    } catch (e) {
+      this.error = e.message || 'An error occured!';
     }
   }
 }
