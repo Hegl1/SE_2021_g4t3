@@ -72,7 +72,7 @@ public class ExpressionServiceTest {
         for(int i = 1; i < 6; i++) {
             expressionNamesToImport.add("Expression " + i);
         }
-        this.expressionService.importExpressionsIntoCategory("Deutschland", expressionNamesToImport);
+        this.expressionService.importExpressionsIntoCategory(0L, expressionNamesToImport);
 
         Category category = this.categoryService.getCategoryByName("Deutschland");
         Collection<Expression> allExpressionsOfCategory = this.expressionService.getAllExpressionsByCategory(category);

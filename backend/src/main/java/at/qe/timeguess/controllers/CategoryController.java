@@ -1,5 +1,6 @@
 package at.qe.timeguess.controllers;
 
+import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,8 @@ public class CategoryController {
     /**
      * Returns a List of all Categories in the database
      *
-     * @return ResponseEntity for REST communication (code 200 if successful)
+     * @return ResponseEntity for REST communication:
+     *      code OK if successful
      */
     @GetMapping("")
     public ResponseEntity<List<Category>> getAllCategories(){
@@ -36,13 +38,17 @@ public class CategoryController {
     /**
      * Creates a new Category
      *
-     * @param category the Category to be created
-     * @return ResponseEntity for REST communication(code 201 if successful,
-     * code 409 if category with this name exists already)
+     * @param nameDTO contains the name of the Category to be created
+     * @return ResponseEntity for REST communication:
+     *      code CREATED  if successful
+     *      code CONFLICT if category with this name exists already
      */
     @PostMapping("")
-    public ResponseEntity<Category> createCategory(@RequestBody final Category category) {
+    public ResponseEntity<Category> createCategory(@RequestBody final NameDTO nameDTO) {
+        Category category = new Category(nameDTO.getName());
+
         try {
+            System.out.println("try to save Category");
             Category newCategory = this.categoryService.saveCategory(category);
             return new ResponseEntity<Category>(newCategory, HttpStatus.CREATED);
         } catch (CategoryService.CategoryAlreadyExistsException e) {
@@ -54,7 +60,10 @@ public class CategoryController {
      * Deletes an existing Category
      *
      * @param id the ID of the Category to be deleted
-     * @return ResponseEntity for REST communication (code
+     * @return ResponseEntity for REST communication:
+     *      code OK         if Category got deleted successfully
+     *      code FORBIDDEN  if a Category is referenced in persisted completed Game
+     *      code NOT_FOUND  if the Category
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Category> deleteCategory(@PathVariable final Long id) {

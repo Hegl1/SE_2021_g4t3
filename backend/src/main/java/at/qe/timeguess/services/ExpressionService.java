@@ -87,15 +87,17 @@ public class ExpressionService {
     }
 
     /**
-     *  Imports Expressions into the database and assigns them to a given Category
+     *  Imports Expressions into the database and assigns them to a given Category,
+     *  if there Expressions to import, which already exist in the database, they get ignored,
+     *  thus no duplicates are being created
      *
-     * @param categoryName the name of the Category to which the Expressions get assigned
+     * @param categoryId the ID of the Category to which the Expressions get assigned
      * @param expressionNames the names of the Expressions to be imported
      * @return the Collection of the imported Expressions
      */
-    public Collection<Expression> importExpressionsIntoCategory(final String categoryName, final Collection<String> expressionNames) {
+    public Collection<Expression> importExpressionsIntoCategory(final Long categoryId, final Collection<String> expressionNames) {
 
-        Category categoryToImportTo = this.categoryService.getCategoryByName(categoryName);
+        Category categoryToImportTo = this.categoryService.getCategoryById(categoryId);
         Expression expressionToImport;
         Collection<Expression> expressionsToImport = new ArrayList<>();
 
@@ -103,9 +105,9 @@ public class ExpressionService {
             expressionToImport = new Expression(current, categoryToImportTo);
             expressionsToImport.add(expressionToImport);
             try {
-                saveExpression(expressionToImport);
-            } catch (ExpressionAlreadyExists expressionAlreadyExists) {
-                expressionAlreadyExists.printStackTrace();
+                this.saveExpression(expressionToImport);
+            } catch (ExpressionAlreadyExists e) {
+                expressionsToImport.remove(expressionToImport);
             }
         }
 
@@ -129,10 +131,17 @@ public class ExpressionService {
                 this.categoryService.saveCategory(newCategoryToSave);
             }
 
-            this.importExpressionsIntoCategory(nameOfCategoryToImportTo, current.getExpressionNames());
+            long categoryId = this.categoryService.getCategoryByName(nameOfCategoryToImportTo).getId();
+            this.importExpressionsIntoCategory(categoryId, current.getExpressionNames());
         }
     }
 
+    /**
+     * Deletes an Expression
+     *
+     * @param expression the Expression to be deleted
+     * @throws ExpressionDoesNotExistAnymore if the Expression to get deleted does not exist anymore
+     */
     public void deleteExpression(final Expression expression) throws ExpressionDoesNotExistAnymore {
         if(expression == null) {
             throw new ExpressionDoesNotExistAnymore("This Expression does not exist anymore!");
