@@ -566,6 +566,25 @@ paths:
         name: id
         in: path
         required: true
+    get:
+      summary: Get a category by id
+      operationId: get-categories-id
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Not Found
+      tags:
+        - Category
+      description: Retrieves a category by id
+      security:
+        - Token: []
     delete:
       summary: Delete a category
       operationId: delete-categories-id
@@ -700,8 +719,6 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-        "404":
-          description: Not Found
       tags:
         - Expression
       requestBody:
