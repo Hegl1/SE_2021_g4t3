@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -16,12 +16,21 @@ import { EditUserDialogComponent } from './components/edit-user-dialog/edit-user
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss'],
 })
-export class UsersComponent implements AfterViewInit, OnInit {
+export class UsersComponent implements OnInit {
   displayedColumns: string[] = ['id', 'username', 'role', 'admin'];
   users: MatTableDataSource<User> = new MatTableDataSource();
 
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort)
+  set matSort(sort: MatSort) {
+    this.users.sort = sort;
+  }
+
+  @ViewChild(MatPaginator)
+  set paginator(paginator: MatPaginator) {
+    this.users.paginator = paginator;
+  }
+
+  private _filter: string = '';
 
   loading = false;
   error: string | null = null;
@@ -37,9 +46,18 @@ export class UsersComponent implements AfterViewInit, OnInit {
     this.reload();
   }
 
-  ngAfterViewInit() {
-    this.users.sort = this.sort;
-    this.users.paginator = this.paginator;
+  set filter(filter: string) {
+    this._filter = filter.trim().toLowerCase();
+
+    this.users.filter = this._filter;
+
+    if (this.users.paginator) {
+      this.users.paginator.firstPage();
+    }
+  }
+
+  get filter() {
+    return this._filter;
   }
 
   /**
@@ -60,19 +78,6 @@ export class UsersComponent implements AfterViewInit, OnInit {
     }
 
     this.loading = false;
-  }
-
-  /**
-   * Filters the user list
-   * @param event
-   */
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.users.filter = filterValue.trim().toLowerCase();
-
-    if (this.users.paginator) {
-      this.users.paginator.firstPage();
-    }
   }
 
   /**

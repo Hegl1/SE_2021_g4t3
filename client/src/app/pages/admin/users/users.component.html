@@ -10,7 +10,10 @@
 <div class="filter">
     <mat-form-field>
         <mat-label>Filter</mat-label>
-        <input matInput placeholder="E.g. max.muster, Admin, ..." (keyup)="applyFilter($event)" />
+        <input matInput placeholder="E.g. max.muster, Admin, ..." [(ngModel)]="filter" [disabled]="loading" />
+        <button mat-button matSuffix mat-icon-button *ngIf="filter" aria-label="Clear" (click)="filter = ''">
+            <mat-icon>close</mat-icon>
+        </button>
     </mat-form-field>
 </div>
 
@@ -47,7 +50,7 @@
 
         <ng-container matColumnDef="paginator">
             <td mat-footer-cell *matFooterCellDef [colSpan]="displayedColumns.length">
-                <mat-paginator [pageSizeOptions]="[10, 25, 100]"></mat-paginator>
+                <mat-paginator [pageSizeOptions]="[10, 25, 100]" [disabled]="loading"></mat-paginator>
             </td>
         </ng-container>
 
