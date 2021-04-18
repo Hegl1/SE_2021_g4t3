@@ -53,7 +53,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testSavingDuplicateUsername()  {
+    public void testSavingDuplicateUsername() {
         User newUser = new User("admin", "passwd", UserRole.PLAYER);
         Assertions.assertThrows(UserService.UsernameNotAvailableException.class, () -> this.userService.saveUser(newUser));
     }
@@ -75,7 +75,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testDeletingUserInTeam()  {
+    public void testDeletingUserInTeam() {
         this.userService.deleteUser(this.admin);
         Assertions.assertNull(this.userService.getUserById(this.admin.getId()));
     }
@@ -144,8 +144,9 @@ public class UserServiceTest {
         userService.saveUser(firstUser);
         userService.saveUser(secondUser);
         userService.saveUser(thirdUser);
-        List<User> foundUsers = userService.searchUsers("fun");
-        Assertions.assertTrue(foundUsers.containsAll(new ArrayList(Arrays.asList(firstUser, secondUser, thirdUser))));
+        List<String> foundUsernames = userService.searchUsers("fun");
+        Assertions.assertTrue(foundUsernames.containsAll(new ArrayList(Arrays.asList(firstUser.getUsername(),
+            secondUser.getUsername(), thirdUser.getUsername()))));
     }
 
 }

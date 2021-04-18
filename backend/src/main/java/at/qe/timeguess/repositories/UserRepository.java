@@ -10,7 +10,7 @@ public interface UserRepository extends AbstractRepository<User, Long> {
 
 	User findFirstByUsername(String username);
 
-    @Query("SELECT u FROM User u WHERE  lower(u.username) LIKE %:username%")
-	List<User> searchByUsername(@Param("username") String searchString);
+    @Query("SELECT u.username FROM User u WHERE  lower(u.username) LIKE %:username%")
+	List<String> searchByUsername(@Param("username") String searchString);
 
 }

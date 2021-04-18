@@ -18,6 +18,7 @@ public class User {
     private String password;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonIgnore
     private Date updateDate;
 
     @Enumerated(EnumType.STRING)
