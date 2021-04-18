@@ -100,3 +100,7 @@ h1 > mat-icon {
 mat-icon.mat-icon-inline {
   vertical-align: middle;
 }
+
+button mat-icon.mat-icon-inline {
+  font-size: 1.5em !important;
+}

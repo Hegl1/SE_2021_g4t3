@@ -23,9 +23,7 @@ export class LayoutComponent {
   }
 
   openSettings() {
-    this.dialog.open(SettingsDialogComponent, {
-      disableClose: true,
-    });
+    this.dialog.open(SettingsDialogComponent);
   }
 
   openProfile() {

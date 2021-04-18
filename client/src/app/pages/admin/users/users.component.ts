@@ -96,16 +96,11 @@ export class UsersComponent implements AfterViewInit, OnInit {
         data: {
           user_id: id,
         },
-        disableClose: true,
       })
       .afterClosed()
-      .subscribe(async (saved) => {
+      .subscribe((saved) => {
         if (saved) {
-          this.snackBar.open(`User was ${id !== null ? 'updated' : 'created'} successfully!`, 'OK', {
-            duration: 5000,
-          });
-
-          await this.reload();
+          this.reload();
         }
       });
   }

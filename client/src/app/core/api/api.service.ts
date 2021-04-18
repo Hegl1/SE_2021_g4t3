@@ -5,6 +5,7 @@ import { UserService } from '../auth/user.service';
 import { ConfigService } from '../config/config.service';
 import {
   Category,
+  CategoryInfo,
   CategoryStats,
   DiceMapping,
   GlobalStats,
@@ -231,11 +232,11 @@ export class ApiService {
     );
   }
 
-  importExpressions(category_id: number, expressions: { category: string; expressions: string[] }[]) {
+  importExpressions(expressions: { category: string; expressions: string[] }[]) {
     return this.handleResponse<{ category: Category; expressions: Expression[] }[]>(
       this.http
         .post<{ category: Category; expressions: Expression[] }[]>(
-          `${this.URL}/categories/${category_id}/expressions/import`,
+          `${this.URL}/expressions/import`,
           expressions,
           this.httpOptions
         )
@@ -252,6 +253,18 @@ export class ApiService {
   getAllCategories() {
     return this.handleResponse<Category[]>(
       this.http.get<Category[]>(`${this.URL}/categories`, this.httpOptions).toPromise()
+    );
+  }
+
+  getAllCategoriesInfo() {
+    return this.handleResponse<CategoryInfo[]>(
+      this.http.get<CategoryInfo[]>(`${this.URL}/categories/info`, this.httpOptions).toPromise()
+    );
+  }
+
+  getCategory(id: number) {
+    return this.handleResponse<Category>(
+      this.http.get<Category>(`${this.URL}/categories/${id}`, this.httpOptions).toPromise()
     );
   }
 

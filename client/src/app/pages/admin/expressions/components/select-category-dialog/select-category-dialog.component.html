@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Select category</h2>
+
+<mat-dialog-content>
+    <mat-form-field color="primary" appearance="outline" style="width: 100%">
+        <mat-label>Category</mat-label>
+        <mat-select [(ngModel)]="category" [disabled]="loading">
+            <mat-select-trigger>
+                {{ category ? category.name : '' }}
+            </mat-select-trigger>
+
+            <mat-option *ngFor="let cat of categories" [value]="cat">
+                {{ cat.name | text }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button [mat-dialog-close]="null">Cancel</button>
+    <button mat-button [mat-dialog-close]="category_id" color="primary" [disabled]="category_id === null || loading">
+        OK
+    </button>
+</mat-dialog-actions>
