@@ -41,13 +41,16 @@ export class LayoutComponent {
    * @returns true, if the user has the permissions for the role
    */
   userHasRole(role: 'admin' | 'gamemanager' | 'player') {
-    switch (role) {
-      case 'admin':
-        return this.user.hasRole(Role.Admin);
-      case 'gamemanager':
-        return this.user.hasRole(Role.Gamemanager);
-      case 'player':
-        return this.user.hasRole(Role.Player);
+    let parsedRole = UserService.parseRole(role);
+
+    if (parsedRole == null) {
+      return false;
     }
+
+    return this.user.hasRole(parsedRole);
+  }
+
+  get username() {
+    return this.user.user?.username;
   }
 }

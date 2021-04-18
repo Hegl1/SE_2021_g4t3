@@ -1,29 +1,48 @@
-<h2 mat-dialog-title><mat-icon color="primary" [inline]="true">account_circle</mat-icon><span>username</span></h2>
+<h2 mat-dialog-title>
+    <mat-icon color="primary" [inline]="true">account_circle</mat-icon>
+    <span>{{ user?.username || 'Loading ...' }}</span>
+    <mat-icon
+        *ngIf="user !== null && user.role !== 'PLAYER'"
+        [inline]="true"
+        style="font-size: 1em !important; margin-left: 0.5em"
+        >{{ user.role | roleIcon }}</mat-icon
+    >
+</h2>
 
-<mat-dialog-content>
+<mat-dialog-content *ngIf="!loading && userStats !== null; else loading_container">
     <table>
         <tr>
             <td>Played games:</td>
-            <td>0</td>
-        </tr>
-        <tr>
-            <td>Guessed words:</td>
-            <td>0</td>
-        </tr>
-        <tr>
-            <td>Wrong words:</td>
-            <td>0</td>
-        </tr>
-        <tr>
-            <td>Most played category:</td>
-            <td>-</td>
+            <td>{{ userStats.played_games }}</td>
         </tr>
         <tr>
             <td>Won games:</td>
-            <td>0</td>
+            <td>{{ wonGames }}</td>
+        </tr>
+        <tr>
+            <td>Lost games:</td>
+            <td>{{ lostGames }}</td>
+        </tr>
+        <tr>
+            <td>Most played category:</td>
+            <td>{{ userStats.most_played_category !== null ? userStats.most_played_category.name : '-' }}</td>
+        </tr>
+        <tr>
+            <td>Most won games in category:</td>
+            <td>{{ userStats.won_games.length > 0 ? userStats.won_games[0].category.name : '-' }}</td>
         </tr>
     </table>
+
+    <ng-container *ngIf="userStats.played_with.length > 0">
+        <p class="played_with_users">Played with:</p>
+
+        <span>{{ getPlayedWithString() }}</span>
+    </ng-container>
 </mat-dialog-content>
+
+<ng-template #loading_container>
+    <mat-spinner diameter="32" style="margin: 1em auto"></mat-spinner>
+</ng-template>
 
 <mat-dialog-actions align="end">
     <button mat-flat-button mat-dialog-close>OK</button>

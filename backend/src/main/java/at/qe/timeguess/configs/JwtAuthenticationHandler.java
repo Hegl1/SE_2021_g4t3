@@ -20,6 +20,6 @@ public class JwtAuthenticationHandler implements AuthenticationEntryPoint, Seria
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
 
-        response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 }

@@ -5,12 +5,13 @@ import { UserService } from '../auth/user.service';
 import { ConfigService } from '../config/config.service';
 import {
   Category,
-  CategoryStat,
+  CategoryInfo,
+  CategoryStats,
   DiceMapping,
   GlobalStats,
   Role,
   RunningGame,
-  TopGamesStat,
+  TopGameStats,
   User,
   UserStats,
 } from './ApiInterfaces';
@@ -72,6 +73,8 @@ export class ApiService {
         if (status == 401 && this.user.isLoggedin) {
           // TODO: fetch new token
           this.user.logoutReason('unauthorized');
+        } else if (status == 403 && this.user.isLoggedin) {
+          // TODO: inform user that he is not allowed to perform this action
         }
 
         return new ApiResponse<T>(e.status);
@@ -115,14 +118,14 @@ export class ApiService {
     return this.handleResponse<User[]>(this.http.get<User[]>(`${this.URL}/users`, this.httpOptions).toPromise());
   }
 
-  updateUser(id: number, values: { old_password: string; username?: string; password?: string; role?: Role }) {
+  updateUser(id: number, values: { old_password?: string; username?: string; password?: string; role?: Role }) {
     return this.handleResponse<{}>(this.http.put<{}>(`${this.URL}/users/${id}`, values, this.httpOptions).toPromise());
   }
 
-  createUser(username: string, password: string) {
+  createUser(username: string, password: string, role: Role) {
     return this.handleResponse<User>(
       this.http
-        .post<User>(`${this.URL}/users`, { username: username, password: password }, this.httpOptions)
+        .post<User>(`${this.URL}/users`, { username: username, password: password, role: role }, this.httpOptions)
         .toPromise()
     );
   }
@@ -146,14 +149,14 @@ export class ApiService {
   }
 
   getCategoryStats() {
-    return this.handleResponse<CategoryStat[]>(
-      this.http.get<CategoryStat[]>(`${this.URL}/stats/categories`, this.httpOptions).toPromise()
+    return this.handleResponse<CategoryStats[]>(
+      this.http.get<CategoryStats[]>(`${this.URL}/stats/categories`, this.httpOptions).toPromise()
     );
   }
 
   getTopGamesStats() {
-    return this.handleResponse<TopGamesStat[]>(
-      this.http.get<TopGamesStat[]>(`${this.URL}/stats/topGames`, this.httpOptions).toPromise()
+    return this.handleResponse<TopGameStats[]>(
+      this.http.get<TopGameStats[]>(`${this.URL}/stats/topGames`, this.httpOptions).toPromise()
     );
   }
 
@@ -229,11 +232,11 @@ export class ApiService {
     );
   }
 
-  importExpressions(category_id: number, expressions: { category: string; expressions: string[] }[]) {
+  importExpressions(expressions: { category: string; expressions: string[] }[]) {
     return this.handleResponse<{ category: Category; expressions: Expression[] }[]>(
       this.http
         .post<{ category: Category; expressions: Expression[] }[]>(
-          `${this.URL}/categories/${category_id}/expressions/import`,
+          `${this.URL}/expressions/import`,
           expressions,
           this.httpOptions
         )
@@ -250,6 +253,18 @@ export class ApiService {
   getAllCategories() {
     return this.handleResponse<Category[]>(
       this.http.get<Category[]>(`${this.URL}/categories`, this.httpOptions).toPromise()
+    );
+  }
+
+  getAllCategoriesInfo() {
+    return this.handleResponse<CategoryInfo[]>(
+      this.http.get<CategoryInfo[]>(`${this.URL}/categories/info`, this.httpOptions).toPromise()
+    );
+  }
+
+  getCategory(id: number) {
+    return this.handleResponse<Category>(
+      this.http.get<Category>(`${this.URL}/categories/${id}`, this.httpOptions).toPromise()
     );
   }
 

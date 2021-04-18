@@ -1,0 +1,22 @@
+.actions {
+  > *:not(:last-child) {
+    margin-right: 1em;
+  }
+}
+
+.filter {
+  margin-top: 2em;
+}
+
+.table_container {
+  max-height: 72vh;
+  overflow: auto;
+
+  table {
+    width: 100%;
+
+    .mat-footer-row > td {
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+  }
+}
