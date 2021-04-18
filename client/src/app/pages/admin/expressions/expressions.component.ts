@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -13,18 +13,27 @@ import { ApiResponse } from 'src/app/core/api/ApiResponse';
 import { FileHelper } from 'src/app/core/files/file-helper';
 import { AddExpressionsDialogComponent } from './components/add-expressions-dialog/add-expressions-dialog.component';
 import { SelectCategoryDialogComponent } from './components/select-category-dialog/select-category-dialog.component';
+import { ShowExpressionsOverlayComponent } from './components/show-expressions-overlay/show-expressions-overlay.component';
 
 @Component({
   selector: 'tg-expressions',
   templateUrl: './expressions.component.html',
   styleUrls: ['./expressions.component.scss'],
 })
-export class ExpressionsComponent implements AfterViewInit, OnInit {
+export class ExpressionsComponent implements OnInit {
   displayedColumns: string[] = ['id', 'name', 'expressions', 'admin'];
   categories: MatTableDataSource<CategoryInfo> = new MatTableDataSource();
 
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort)
+  set matSort(sort: MatSort) {
+    this.categories.sort = sort;
+  }
+
+  @ViewChild(MatPaginator)
+  set paginator(paginator: MatPaginator) {
+    this.categories.paginator = paginator;
+  }
+
   @ViewChild('importFilePicker') importFilePicker!: ElementRef;
 
   private _filter: string = '';
@@ -40,11 +49,6 @@ export class ExpressionsComponent implements AfterViewInit, OnInit {
 
   ngOnInit() {
     this.reload();
-  }
-
-  ngAfterViewInit() {
-    this.categories.sort = this.sort;
-    this.categories.paginator = this.paginator;
   }
 
   set filter(filter: string) {
@@ -322,6 +326,22 @@ export class ExpressionsComponent implements AfterViewInit, OnInit {
     this.importFileSubscriptions.push(subscription);
 
     this.importFilePicker.nativeElement.click();
+  }
+
+  async showExpressions(category_id: number) {
+    if (
+      await this.dialog
+        .open(ShowExpressionsOverlayComponent, {
+          data: {
+            category_id: category_id,
+          },
+          width: '550px',
+        })
+        .afterClosed()
+        .toPromise()
+    ) {
+      await this.reload();
+    }
   }
 
   /**

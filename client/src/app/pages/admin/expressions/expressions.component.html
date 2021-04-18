@@ -119,7 +119,7 @@
 
 <mat-menu #adminMenu="matMenu">
     <ng-template matMenuContent let-category="category">
-        <button mat-menu-item>
+        <button mat-menu-item (click)="showExpressions(category.id)">
             <mat-icon>visibility</mat-icon>
             <span>Show expressions</span>
         </button>

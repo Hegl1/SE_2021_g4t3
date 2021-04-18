@@ -23,6 +23,7 @@ import { LogoutComponent } from './pages/logout/logout.component';
 import { InputDialogComponent } from './components/input-dialog/input-dialog.component';
 import { AddExpressionsDialogComponent } from './pages/admin/expressions/components/add-expressions-dialog/add-expressions-dialog.component';
 import { SelectCategoryDialogComponent } from './pages/admin/expressions/components/select-category-dialog/select-category-dialog.component';
+import { ShowExpressionsOverlayComponent } from './pages/admin/expressions/components/show-expressions-overlay/show-expressions-overlay.component';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();
@@ -48,6 +49,7 @@ export function setupConfig(service: ConfigService) {
     InputDialogComponent,
     AddExpressionsDialogComponent,
     SelectCategoryDialogComponent,
+    ShowExpressionsOverlayComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, HttpClientModule],
   providers: [

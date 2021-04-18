@@ -262,6 +262,12 @@ export class ApiService {
     );
   }
 
+  getCategory(id: number) {
+    return this.handleResponse<Category>(
+      this.http.get<Category>(`${this.URL}/categories/${id}`, this.httpOptions).toPromise()
+    );
+  }
+
   createCategory(name: string) {
     return this.handleResponse<Category>(
       this.http
