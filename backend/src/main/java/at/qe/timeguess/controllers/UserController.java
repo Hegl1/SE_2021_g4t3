@@ -56,7 +56,7 @@ public class UserController {
             try {
                 User createdUser = userService.saveUser(new User(username, password, UserRole.PLAYER));
                 String token = authenticationService.generateTokenWithFixedExpiration(createdUser);
-                return new ResponseEntity<>(new LoginResult(createdUser, token), HttpStatus.OK);
+                return new ResponseEntity<>(new LoginResult(createdUser, token), HttpStatus.CREATED);
             } catch (UserService.UsernameNotAvailableException e) {
                 return new ResponseEntity<>(null, HttpStatus.CONFLICT);
             } catch (UserService.EmptyPasswordException e2) {
@@ -86,9 +86,7 @@ public class UserController {
 
         User authorizedUser = this.userService.getAuthenticatedUser();
 
-        if (!authorizedUser.getRole().equals(UserRole.ADMIN) && authorizedUser.getId() != user.getId()) {
-            return new ResponseEntity(HttpStatus.FORBIDDEN);
-        }
+        boolean isAdmin = authorizedUser.getRole().equals(UserRole.ADMIN);
 
         if (user == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
@@ -99,9 +97,11 @@ public class UserController {
             return new ResponseEntity(HttpStatus.OK);
         }
 
-        //if trying to set old password as new
-        if (passwordEncoder.matches(password, user.getPassword())) {
-            return new ResponseEntity(HttpStatus.OK);
+        if (!isAdmin) {
+            if (authorizedUser.getId() != user.getId() || oldPassword == null ||
+                passwordEncoder.matches(oldPassword, user.getPassword())) {
+                return new ResponseEntity(HttpStatus.FORBIDDEN);
+            }
         }
 
         if (username != null) {
@@ -110,22 +110,15 @@ public class UserController {
 
         if (role != null && !user.getRole().equals(role)) {
             //user can not change it's own role only admins can changes roles
-            if (authorizedUser.getRole().equals(UserRole.ADMIN)) {
+            if (isAdmin) {
                 user.setRole(role);
             } else {
                 return new ResponseEntity(HttpStatus.FORBIDDEN);
             }
         }
 
-        //admin does not need to send old password
-        if (authorizedUser.getRole().equals(UserRole.ADMIN)) {
+        if (password != null && !passwordEncoder.matches(password, user.getPassword())) {
             user.setPassword(password);
-        } else {
-            if (passwordEncoder.matches(oldPassword, user.getPassword())) {
-                user.setPassword(password);
-            } else {
-                return new ResponseEntity(HttpStatus.BAD_REQUEST);
-            }
         }
 
         try {
