@@ -99,11 +99,11 @@ public class ExpressionController {
      *
      * @param categoryId the ID of the Category to which the Expressions are assigned to
      * @param expressionNames the List of names of the Expressions
-     * @return ResponseEntity for REST communication (
-     *      code 200 if Expressions got imported successfully)
+     * @return ResponseEntity for REST communication:
+     *      code 200 if Expressions got imported successfully
      */
     @PostMapping("categories/{id}/expressions/import")
-    public ResponseEntity<List<Expression>> importExpressionsIntoCategory(final Long categoryId, final List<String> expressionNames) {
+    public ResponseEntity<List<Expression>> importExpressionsIntoCategory(final Long categoryId, @RequestBody final List<String> expressionNames) {
         List<Expression> importedExpressions = new LinkedList<>(this.expressionService.importExpressionsIntoCategory(categoryId, expressionNames));
         return new ResponseEntity<>(importedExpressions, HttpStatus.CREATED);
     }

@@ -48,7 +48,6 @@ public class CategoryController {
         Category category = new Category(nameDTO.getName());
 
         try {
-            System.out.println("try to save Category");
             Category newCategory = this.categoryService.saveCategory(category);
             return new ResponseEntity<Category>(newCategory, HttpStatus.CREATED);
         } catch (CategoryService.CategoryAlreadyExistsException e) {

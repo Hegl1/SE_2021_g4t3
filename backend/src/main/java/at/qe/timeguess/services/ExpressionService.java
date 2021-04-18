@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * This class represents the Service with which Expressions get managed.
@@ -97,20 +98,27 @@ public class ExpressionService {
      */
     public Collection<Expression> importExpressionsIntoCategory(final Long categoryId, final Collection<String> expressionNames) {
 
+        System.out.println("-1");
         Category categoryToImportTo = this.categoryService.getCategoryById(categoryId);
         Expression expressionToImport;
-        Collection<Expression> expressionsToImport = new ArrayList<>();
+        List<Expression> expressionsToImport = new ArrayList<>();
 
+        System.out.println("0");
         for(String current : expressionNames) {
+
+            System.out.println("1");
             expressionToImport = new Expression(current, categoryToImportTo);
             expressionsToImport.add(expressionToImport);
             try {
+
+                System.out.println("2");
                 this.saveExpression(expressionToImport);
-            } catch (ExpressionAlreadyExists e) {
-                expressionsToImport.remove(expressionToImport);
+            } catch (ExpressionAlreadyExists ignored) {
+
             }
         }
 
+        System.out.println("3");
         return expressionsToImport;
     }
 
