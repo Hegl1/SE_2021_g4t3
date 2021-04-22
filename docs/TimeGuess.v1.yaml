@@ -454,6 +454,30 @@ paths:
       description: Deletes a running game having the given code
       security:
         - Token: []
+  "/games/{code}/exists":
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+          maximum: 99999999
+        name: code
+        in: path
+        required: true
+    get:
+      summary: Checks whether a game exists
+      operationId: get-games-code-exists
+      responses:
+        "204":
+          description: No content
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Not Found
+      description: Checks whether a game exists or not
+      tags:
+        - Game
+      security:
+        - Token: []
   "/stats/users/{id}":
     parameters:
       - schema:
