@@ -28,7 +28,7 @@ export class UserService {
     if (save) {
       localStorage.setItem(StorageNames.Token, token);
     } else {
-      document.cookie = StorageNames.Token + '=' + token;
+      document.cookie = `${StorageNames.Token}=${token}; samesite=strict; path=/`;
     }
 
     this.loadToken();
@@ -80,7 +80,7 @@ export class UserService {
   private remove() {
     localStorage.removeItem(StorageNames.Token);
 
-    document.cookie = StorageNames.Token + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+    document.cookie = `${StorageNames.Token}=; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
 
     this._user = this._token = null;
   }
