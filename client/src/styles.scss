@@ -91,10 +91,13 @@ mat-dialog-container *[mat-dialog-title] {
   }
 }
 
-h1 > mat-icon {
-  font-size: 1em;
-  vertical-align: middle;
-  margin-right: 0.5em;
+h1,
+h2 {
+  > mat-icon {
+    font-size: 1em;
+    vertical-align: middle;
+    margin-right: 0.5em;
+  }
 }
 
 mat-icon.mat-icon-inline {
@@ -103,4 +106,10 @@ mat-icon.mat-icon-inline {
 
 button mat-icon.mat-icon-inline {
   font-size: 1.5em !important;
+}
+
+mat-icon.mat-card-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
 }

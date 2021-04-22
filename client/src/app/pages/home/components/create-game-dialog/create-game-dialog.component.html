@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>
+    <mat-icon color="primary" [inline]="true">add_circle_outline</mat-icon><span>Setup a new game</span>
+</h2>
+
+<mat-dialog-content>
+    <mat-spinner diameter="32" *ngIf="loading" style="margin: 0 auto"></mat-spinner>
+
+    <form [formGroup]="createForm" *ngIf="!loading">
+        <mat-form-field appearance="outline" color="primary">
+            <mat-label>Number of teams</mat-label>
+            <input matInput type="number" formControlName="number_teams" />
+            <mat-error *ngIf="getFormError('number_teams') != null">{{ getFormError('number_teams') }}</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" color="primary">
+            <mat-label>Maximum score</mat-label>
+            <input matInput type="number" formControlName="maximum_score" />
+            <mat-error *ngIf="getFormError('maximum_score') != null">{{ getFormError('maximum_score') }}</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" color="primary">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="category">
+                <mat-option *ngFor="let category of categories" [value]="category.id">
+                    {{ category.name }}
+                </mat-option>
+            </mat-select>
+            <mat-error *ngIf="getFormError('category') != null">{{ getFormError('category') }}</mat-error>
+        </mat-form-field>
+
+        <h3>TimeFlip configuration</h3>
+        <h4>
+            Connection <button mat-icon-button (click)="showHelpConnection()"><mat-icon>help_outline</mat-icon></button>
+        </h4>
+        <mat-form-field
+            appearance="outline"
+            color="primary"
+            style="display: inline-block; vertical-align: sub; margin-right: 1em"
+        >
+            <mat-label>TimeFlip code</mat-label>
+            <input matInput type="text" formControlName="timeflip_code" />
+            <mat-error *ngIf="getFormError('timeflip_code') != null">{{ getFormError('timeflip_code') }}</mat-error>
+        </mat-form-field>
+        <button mat-raised-button (click)="checkTimeFlip()" color="primary">Check availability</button>
+
+        <h4>
+            Mapping <button mat-icon-button (click)="showHelpMapping()"><mat-icon>help_outline</mat-icon></button>
+        </h4>
+    </form>
+    <p *ngIf="error" class="error warn">{{ error }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <mat-spinner *ngIf="saving" color="primary" diameter="20" style="margin-right: 1rem"></mat-spinner>
+    <button mat-flat-button mat-dialog-close [mat-dialog-close]="null" [disabled]="saving">Cancel</button>
+    <button mat-flat-button (click)="save()" color="primary" [disabled]="saving || loading">Create</button>
+</mat-dialog-actions>

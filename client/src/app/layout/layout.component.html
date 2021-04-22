@@ -18,6 +18,12 @@
                 </mat-nav-list>
             </div>
 
+            <div class="home">
+                <mat-nav-list>
+                    <a mat-list-item routerLink="/home" routerLinkActive="active"> <mat-icon>home</mat-icon> Home </a>
+                </mat-nav-list>
+            </div>
+
             <div class="admin" *ngIf="userHasRole('gamemanager')">
                 <mat-nav-list>
                     <div mat-subheader>Games</div>

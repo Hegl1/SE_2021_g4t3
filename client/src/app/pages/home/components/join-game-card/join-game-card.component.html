@@ -1,0 +1,17 @@
+<mat-card class="joinCard">
+    <h2><mat-icon [inline]="true">person_add</mat-icon>Join existing game</h2>
+
+    <mat-form-field appearance="outline" color="primary">
+        <mat-label>Code</mat-label>
+        <input
+            matInput
+            type="text"
+            [(ngModel)]="input"
+            (keyup)="updateJoinCode()"
+            [disabled]="loading"
+            placeholder="00-11-22-33"
+        />
+        <mat-spinner matSuffix *ngIf="loading" diameter="24"></mat-spinner>
+        <mat-icon matSuffix *ngIf="!loading" [color]="icon.color">{{ icon.value }}</mat-icon>
+    </mat-form-field>
+</mat-card>

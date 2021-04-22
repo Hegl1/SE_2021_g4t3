@@ -1,1 +1,8 @@
-<p>home works!</p>
+<h1><mat-icon [inline]="true">gamepad</mat-icon>Game</h1>
+
+<div class="game_section">
+    <tg-join-game-card (joinGameCode)="joinGameCode($event)"></tg-join-game-card>
+    <tg-create-game-card (joinGameCode)="joinGameCode($event)"></tg-create-game-card>
+</div>
+
+<h1><mat-icon [inline]="true">leaderboard</mat-icon>Statistics</h1>
