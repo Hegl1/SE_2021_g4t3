@@ -32,8 +32,6 @@ export class ProfileDialogComponent implements OnInit {
 
     let res = await Promise.all([this.api.getUser(this.data.user_id), this.api.getUserStats(this.data.user_id)]);
 
-    this.loading = false;
-
     if (!res[0].isOK() || !res[1].isOK()) {
       this.snackBar.open('Error loading user-information!', 'OK', {
         panelClass: 'action-warn',
@@ -42,6 +40,8 @@ export class ProfileDialogComponent implements OnInit {
       this.dialogRef.close();
       return;
     }
+
+    this.loading = false;
 
     this.user = res[0].value;
     this.userStats = res[1].value;
