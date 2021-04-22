@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 const URL = 'assets/config.json';
 
@@ -9,7 +10,7 @@ const URL = 'assets/config.json';
 export class ConfigService {
   private data = {};
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
 
   /**
    * Get a value from the config
@@ -39,6 +40,13 @@ export class ConfigService {
    * Loads the config file
    */
   async load() {
-    this.data = await this.http.get<{}>(URL).toPromise();
+    try {
+      this.data = await this.http.get<{}>(URL).toPromise();
+    } catch (e) {
+      console.error('Could not load config! Fallback to default values.', e.message);
+      this.snackBar.open('Could not load config-file. Did you create it?', 'OK', {
+        panelClass: 'action-warn',
+      });
+    }
   }
 }
