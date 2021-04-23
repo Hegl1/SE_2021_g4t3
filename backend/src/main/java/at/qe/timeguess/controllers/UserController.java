@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Class that handles the user endpoint of the API. It takes care of the authentication and registration of users and
+ * handles creating, modifying, searching and deleting users.
+ */
 @RequestMapping("/users")
 @RestController
 public class UserController {
@@ -30,6 +34,12 @@ public class UserController {
     @Autowired
     private AuthenticationService authenticationService;
 
+    /**
+     * Method that returns a JWT Token needed for authorization upon successful login.
+     * @param login DTO that contains username and password
+     * @return ResponseEntity: Status 401 when wrong credenentials are entered, Status 200 with LoginResult DTO when
+     * login was successful
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Login login) {
 
@@ -47,6 +57,11 @@ public class UserController {
         return new ResponseEntity<>("Username or password are wrong", HttpStatus.UNAUTHORIZED);
     }
 
+    /**
+     * Method that registers a new user and assigns the role player to it
+     * @param login DTO that contains username and password
+     * @return ResponseEntity: 201 if user could be created, 409 if a user with the same username already exists
+     */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Login login) {
         String username = login.getUsername();
@@ -66,6 +81,11 @@ public class UserController {
         return new ResponseEntity<>("Username and Password required", HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Returns the user with the given id.
+     * @param id number that represents the id of a user
+     * @return 200 and User entity without password and timestamp on success, 404 when user couldn't be found
+     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getUser(@PathVariable Long id) {
         User user = this.userService.getUserById(id);
@@ -76,6 +96,16 @@ public class UserController {
         }
     }
 
+    /**
+     * Method that changes a user if the authenticated user has the right permissions to modify a user and
+     * modify it's role. Only admins can change other users than themselves and are to only ones allowed to change the role of a user.
+     * A non admin user can only change his password and username and needs to verify himself with his current password.
+     * @param id number that represents the id of a user
+     * @param updateUserDTO DTO that contains the changed values of the user and its current password
+     * @ return ResponseEntity: 200 when user could be changed successfully, 400 wrong old password or empty password was given
+     *                      403 when the user hadn't the permissions to change a user, 404 user with specified user id doesn't
+     *                      exist, 409 if new username is the same as a username of an existing user
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> putUser(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
         User user = this.userService.getUserById(id);
@@ -137,6 +167,11 @@ public class UserController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    /**
+     * Method that deletes a user with the specified id. Only admins are allowed to delete users.
+     * @param id number that represent the id of the to be deleted user
+     * @return ResponseEntity: 200 if user could be deleted, 404 if user couldn't be found
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity deleteUser(@PathVariable Long id) {
@@ -150,12 +185,22 @@ public class UserController {
 
     }
 
+    /**
+     * Returns a list of all users. Only admins are allowed to call this method.
+     * @return list of users
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public List<User> getUsers() {
         return this.userService.getAllUsers();
     }
 
+    /**
+     * Creates a user with the specified username, password and role. Only admins are allowed to create users.
+     * @param createUserDTO DTO that contains username, password and role
+     * @return ResponseEntity: 201 if user could be created, 400 if missing parameters or empty password, 409 if there
+     * already exists a user with the same password
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody CreateUserDTO createUserDTO) {
@@ -176,6 +221,11 @@ public class UserController {
         return new ResponseEntity<>("User needs username, password and role", HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Method searches users by username  based on the given search parameter.
+     * @param username string that is used to seach usernames
+     * @return a list of usernames that match search pattern
+     */
     @GetMapping("search/{username}")
     public List<String> searchUsers(@PathVariable String username) {
         return this.userService.searchUsers(username);

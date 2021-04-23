@@ -44,7 +44,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         Claim idClaim = null;
         String jwtToken = null;
-        Claim roleClaim = null;
 
         // Removing Bearer from token
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer")) {

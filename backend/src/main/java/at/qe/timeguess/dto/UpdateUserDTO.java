@@ -4,6 +4,10 @@ import at.qe.timeguess.model.User;
 import at.qe.timeguess.model.UserRole;
 import at.qe.timeguess.services.UserService;
 
+/**
+ * Class used to send updated values of a user. Not possible because entity does not have
+ * a field for the old password. This is needed for security reasons.
+ */
 public class UpdateUserDTO {
     private String username;
     private String password;

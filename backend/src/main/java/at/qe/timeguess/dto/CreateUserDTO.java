@@ -3,6 +3,10 @@ package at.qe.timeguess.dto;
 import at.qe.timeguess.model.UserRole;
 import at.qe.timeguess.services.UserService;
 
+/**
+ * Class used to send user data when creating a user.
+ * Needed because entities should not be send on post requests for security reasons.
+ */
 public class CreateUserDTO {
     private String username;
     private String password;
