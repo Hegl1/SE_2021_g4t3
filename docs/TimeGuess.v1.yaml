@@ -224,6 +224,33 @@ paths:
         - User
       security:
         - Token: []
+  "/users/{id}/ingame":
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Checks whether the user is currently in an active game
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+      operationId: get-user-id-ingame
+      security:
+        - Token: []
+      description: Returns whether the user is currently in an active game or not
   /users:
     get:
       summary: Retrieve all users
@@ -452,6 +479,30 @@ paths:
       tags:
         - Game
       description: Deletes a running game having the given code
+      security:
+        - Token: []
+  "/games/{code}/exists":
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+          maximum: 99999999
+        name: code
+        in: path
+        required: true
+    get:
+      summary: Checks whether a game exists
+      operationId: get-games-code-exists
+      responses:
+        "204":
+          description: No content
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Not Found
+      description: Checks whether a game exists or not
+      tags:
+        - Game
       security:
         - Token: []
   "/stats/users/{id}":
@@ -895,6 +946,28 @@ paths:
             schema:
               type: boolean
               description: Whether the dice is connected to the raspberry
+  "/dice/{id}/available":
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Check availability status
+      operationId: get-dice-id-available
+      responses:
+        "204":
+          description: OK
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: Not available
+        "404":
+          description: Not found
+      tags:
+        - Dice
+      description: Checks whether the dice is known and is not used in a game
 components:
   schemas:
     Category:
