@@ -10,6 +10,13 @@ public class UpdateUserDTO {
     private String old_password;
     private String role;
 
+    public UpdateUserDTO(String username, String password, String old_password, String role) {
+        this.username = username;
+        this.password = password;
+        this.old_password = old_password;
+        this.role = role;
+    }
+
     public String getUsername() {
         return username;
     }

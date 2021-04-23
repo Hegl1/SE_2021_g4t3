@@ -31,7 +31,7 @@ public class UserController {
     private AuthenticationService authenticationService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResult> login(@RequestBody Login login) {
+    public ResponseEntity<?> login(@RequestBody Login login) {
 
         User retrievedUser = userService.getUserByUsername(login.getUsername());
 
@@ -44,11 +44,11 @@ public class UserController {
             }
         }
 
-        return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>("Username or password are wrong", HttpStatus.UNAUTHORIZED);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<LoginResult> register(@RequestBody Login login) {
+    public ResponseEntity<?> register(@RequestBody Login login) {
         String username = login.getUsername();
         String password = login.getPassword();
         if (username != null && password != null) {
@@ -58,21 +58,21 @@ public class UserController {
                 String token = authenticationService.generateTokenWithFixedExpiration(createdUser);
                 return new ResponseEntity<>(new LoginResult(createdUser, token), HttpStatus.CREATED);
             } catch (UserService.UsernameNotAvailableException e) {
-                return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+                return new ResponseEntity<>("The username was already taken", HttpStatus.CONFLICT);
             } catch (UserService.EmptyPasswordException e2) {
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Sent password is empty", HttpStatus.BAD_REQUEST);
             }
         }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Username and Password required", HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
+    public ResponseEntity<?> getUser(@PathVariable Long id) {
         User user = this.userService.getUserById(id);
         if (user != null) {
             return new ResponseEntity<>(user, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Not Found", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -86,10 +86,14 @@ public class UserController {
 
         User authorizedUser = this.userService.getAuthenticatedUser();
 
+        if (authorizedUser == null) {
+            return new ResponseEntity("There was no authentication provided or it was invalid", HttpStatus.UNAUTHORIZED);
+        }
+
         boolean isAdmin = authorizedUser.getRole().equals(UserRole.ADMIN);
 
         if (user == null) {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity("Not Found", HttpStatus.NOT_FOUND);
         }
 
         //if no changes in user do not update
@@ -98,9 +102,10 @@ public class UserController {
         }
 
         if (!isAdmin) {
-            if (authorizedUser.getId() != user.getId() || oldPassword == null ||
-                passwordEncoder.matches(oldPassword, user.getPassword())) {
-                return new ResponseEntity(HttpStatus.FORBIDDEN);
+            if (authorizedUser.getId() != user.getId()) {
+                return new ResponseEntity("The user has not the rights to perform this action", HttpStatus.FORBIDDEN);
+            } else if (oldPassword == null || !passwordEncoder.matches(oldPassword, user.getPassword())) {
+                return new ResponseEntity("The supplied current password is not correct", HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -113,7 +118,7 @@ public class UserController {
             if (isAdmin) {
                 user.setRole(role);
             } else {
-                return new ResponseEntity(HttpStatus.FORBIDDEN);
+                return new ResponseEntity("The user has not the rights to perform this action", HttpStatus.FORBIDDEN);
             }
         }
 
@@ -124,9 +129,9 @@ public class UserController {
         try {
             userService.saveUser(user);
         } catch (UserService.UsernameNotAvailableException e) {
-            return new ResponseEntity(HttpStatus.CONFLICT);
+            return new ResponseEntity("The username was already taken", HttpStatus.CONFLICT);
         } catch (UserService.EmptyPasswordException e2) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Sent password is empty", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity(HttpStatus.OK);
@@ -153,7 +158,7 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody CreateUserDTO createUserDTO) {
+    public ResponseEntity<?> createUser(@RequestBody CreateUserDTO createUserDTO) {
         String username = createUserDTO.getUsername();
         String password = createUserDTO.getPassword();
         UserRole role = createUserDTO.getRole();
@@ -163,12 +168,12 @@ public class UserController {
                 User createdUser = userService.saveUser(new User(username, password, role));
                 return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
             } catch (UserService.UsernameNotAvailableException e) {
-                return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+                return new ResponseEntity<>("The username was already taken", HttpStatus.CONFLICT);
             } catch (UserService.EmptyPasswordException e2) {
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Sent password is empty", HttpStatus.BAD_REQUEST);
             }
         }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("User needs username, password and role", HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("search/{username}")
