@@ -8,13 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import at.qe.timeguess.gamelogic.Dice;
+import at.qe.timeguess.gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game.GameCreationException;
+import at.qe.timeguess.gamelogic.Game.GameNotContinuableException;
+import at.qe.timeguess.gamelogic.Game.TeamIndexOutOfBoundsException;
+import at.qe.timeguess.gamelogic.Game.UserStateException;
+import at.qe.timeguess.gamelogic.Team;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException;
 import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
-import at.qe.timeguess.gamelogic.Dice;
-import at.qe.timeguess.gamelogic.Game;
-import at.qe.timeguess.gamelogic.Game.GameCreationException;
 
 /**
  * Class that holds and manages all games.
@@ -114,33 +118,72 @@ public class LobbyService {
 	 * @param gameCode code of the running game. If there is no running game with
 	 *                 this code, nothing happens.
 	 * @param user
+	 * @throws GameNotFoundException
+	 * @throws UserStateException
 	 */
-	public void joinGame(final int gameCode, final User user) {
+	public void joinGame(final int gameCode, final User user) throws GameNotFoundException, UserStateException {
 		if (runningGames.containsKey(gameCode)) {
 			runningGames.get(gameCode).joinGame(user);
+		} else {
+			throw new GameNotFoundException();
 		}
 	}
 
-	/**
-	 * Method that forcefully closes a game and removes it from the index.
-	 *
-	 * @param gameCode code of the game to close.
-	 */
-	// TODO check for user user roles
-	public void deleteRunningGame(final int gameCode) {
+	public void joinTeam(final int gameCode, final User user, final Integer teamIndex)
+			throws GameNotFoundException, TeamIndexOutOfBoundsException {
+
 		if (runningGames.containsKey(gameCode)) {
-			runningGames.get(gameCode).forceClose();
-			closeFinishedGame(gameCode);
+			Game game = runningGames.get(gameCode);
+			Team team = game.getTeamByIndex(teamIndex);
+			game.joinTeam(team, user);
+		} else {
+			throw new GameNotFoundException();
+		}
+	}
+
+	public void leaveTeam(final int gameCode, final User user) throws GameNotFoundException {
+		if (runningGames.containsKey(gameCode)) {
+			runningGames.get(gameCode).leaveTeam(user);
+		} else {
+			throw new GameNotFoundException();
+		}
+	}
+
+	public void leaveGame(final int gameCode, final User user)
+			throws GameNotContinuableException, GameNotFoundException {
+		if (runningGames.containsKey(gameCode)) {
+			runningGames.get(gameCode).leaveGame(user);
+		} else {
+			throw new GameNotFoundException();
+		}
+	}
+
+	public void updateReadyStatus(final int gameCode, final User user, final Boolean isReady) {
+		if (runningGames.containsKey(gameCode)) {
+			runningGames.get(gameCode).updateReadyStatus(user, isReady);
 		}
 	}
 
 	/**
 	 * Removes a game from the index. Not to be used to forcefully close a game.
 	 *
-	 * @param gameCode
+	 * @param gameCode code of running game
 	 */
 	public void closeFinishedGame(final int gameCode) {
 		if (runningGames.containsKey(gameCode)) {
+			raspberryService.unregisterGame(runningGames.get(gameCode).getRaspberryId());
+			runningGames.remove(gameCode);
+		}
+	}
+
+	/**
+	 * Forcefully elimantes a game from the index.
+	 * 
+	 * @param gameCode code of running game
+	 */
+	public void abortRunningGame(final int gameCode) {
+		if (runningGames.containsKey(gameCode)) {
+			runningGames.get(gameCode).forceClose();
 			raspberryService.unregisterGame(runningGames.get(gameCode).getRaspberryId());
 			runningGames.remove(gameCode);
 		}
@@ -163,6 +206,28 @@ public class LobbyService {
 	 */
 	public Game getGame(final int gamecode) {
 		return runningGames.get(gamecode);
+	}
+
+	/**
+	 * Checks whether a user is assigned to a game
+	 * 
+	 * @param user the user to check for
+	 * @return true if user is assigned, false otherwise
+	 */
+	public boolean isUserInGame(final User user) {
+		for (Game current : runningGames.values()) {
+			if (current.isInGame(user)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public class GameNotFoundException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
 	}
 
 }
