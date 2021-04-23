@@ -3,9 +3,7 @@
 </h2>
 
 <mat-dialog-content>
-    <mat-spinner diameter="32" *ngIf="loading" style="margin: 0 auto"></mat-spinner>
-
-    <form [formGroup]="createForm" *ngIf="!loading">
+    <form [formGroup]="createForm">
         <mat-form-field appearance="outline" color="primary">
             <mat-label>Number of teams</mat-label>
             <input matInput type="number" formControlName="number_teams" />
@@ -23,6 +21,7 @@
                     {{ category.name }}
                 </mat-option>
             </mat-select>
+            <mat-spinner matSuffix diameter="24" *ngIf="categories === null"></mat-spinner>
             <mat-error *ngIf="getFormError('category') != null">{{ getFormError('category') }}</mat-error>
         </mat-form-field>
 
@@ -36,14 +35,49 @@
             style="display: inline-block; vertical-align: sub; margin-right: 1em"
         >
             <mat-label>TimeFlip code</mat-label>
-            <input matInput type="text" formControlName="timeflip_code" />
-            <mat-error *ngIf="getFormError('timeflip_code') != null">{{ getFormError('timeflip_code') }}</mat-error>
+            <input matInput type="text" formControlName="dice_code" [matAutocomplete]="auto" />
+
+            <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let option of diceHistory" [value]="option">
+                    {{ option }}
+                </mat-option>
+            </mat-autocomplete>
+
+            <mat-spinner matSuffix diameter="24" *ngIf="loading_dice"></mat-spinner>
+            <mat-icon matSuffix *ngIf="!loading_dice" [color]="dice_icon.color">{{ dice_icon.value }}</mat-icon>
+
+            <mat-error *ngIf="getFormError('dice_code') != null">{{ getFormError('dice_code') }}</mat-error>
         </mat-form-field>
-        <button mat-raised-button (click)="checkTimeFlip()" color="primary">Check availability</button>
+        <button
+            mat-raised-button
+            (click)="checkDice()"
+            color="primary"
+            type="button"
+            [disabled]="loading_dice || !dice_code?.value"
+        >
+            Check availability
+        </button>
 
         <h4>
             Mapping <button mat-icon-button (click)="showHelpMapping()"><mat-icon>help_outline</mat-icon></button>
         </h4>
+        <mat-form-field
+            appearance="outline"
+            color="primary"
+            style="display: inline-block; vertical-align: sub; margin-right: 1em"
+        >
+            <mat-label>Mapping</mat-label>
+            <mat-select formControlName="dice_mapping" placeholder="Default mapping">
+                <mat-option [value]="DEFAULT_MAPPING_NAME"> Default mapping </mat-option>
+                <mat-option *ngFor="let mapping of diceMappingsNames" [value]="mapping">
+                    {{ mapping }}
+                </mat-option>
+            </mat-select>
+
+            <mat-spinner matSuffix diameter="24" *ngIf="loading_mapping"></mat-spinner>
+            <mat-icon matSuffix *ngIf="!loading_mapping">sell</mat-icon>
+        </mat-form-field>
+        <button mat-mini-fab color="primary" type="button" (click)="addDiceMapping()"><mat-icon>add</mat-icon></button>
     </form>
     <p *ngIf="error" class="error warn">{{ error }}</p>
 </mat-dialog-content>
@@ -51,5 +85,5 @@
 <mat-dialog-actions align="end">
     <mat-spinner *ngIf="saving" color="primary" diameter="20" style="margin-right: 1rem"></mat-spinner>
     <button mat-flat-button mat-dialog-close [mat-dialog-close]="null" [disabled]="saving">Cancel</button>
-    <button mat-flat-button (click)="save()" color="primary" [disabled]="saving || loading">Create</button>
+    <button mat-flat-button (click)="save()" color="primary" [disabled]="saving || loading_dice">Create</button>
 </mat-dialog-actions>

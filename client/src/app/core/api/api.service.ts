@@ -289,4 +289,10 @@ export class ApiService {
   deleteCategory(id: number) {
     return this.handleResponse<{}>(this.http.delete<{}>(`${this.URL}/categories/${id}`, this.httpOptions).toPromise());
   }
+
+  // Dice
+
+  getDiceAvailable(id: string) {
+    return this.handleResponse<{}>(this.http.get<{}>(`${this.URL}/dice/${id}/available`, this.httpOptions).toPromise());
+  }
 }

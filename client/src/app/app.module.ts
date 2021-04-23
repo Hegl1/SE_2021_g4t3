@@ -26,7 +26,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { LogoutComponent } from './pages/logout/logout.component';
 import { JoinGameCardComponent } from './pages/home/components/join-game-card/join-game-card.component';
 import { CreateGameCardComponent } from './pages/home/components/create-game-card/create-game-card.component';
-import { CreateGameDialogComponent } from './pages/home/components/create-game-dialog/create-game-dialog.component';
+import { CreateGameDialogComponent } from './pages/home/components/create-game-card/components/create-game-dialog/create-game-dialog.component';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();

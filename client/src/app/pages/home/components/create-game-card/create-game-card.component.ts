@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { CreateGameDialogComponent } from '../create-game-dialog/create-game-dialog.component';
+import { CreateGameDialogComponent } from './components/create-game-dialog/create-game-dialog.component';
 
 @Component({
   selector: 'tg-create-game-card',
@@ -21,7 +21,7 @@ export class CreateGameCardComponent {
       .open(CreateGameDialogComponent)
       .afterClosed()
       .subscribe((code) => {
-        if (code) {
+        if (code != null) {
           this.joinGameCode.emit(code);
         }
       });

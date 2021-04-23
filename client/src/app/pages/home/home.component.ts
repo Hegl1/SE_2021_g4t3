@@ -14,6 +14,6 @@ export class HomeComponent {
    */
   joinGameCode(code: number) {
     // TODO: connect user to game
-    console.log('Connect user to game');
+    console.log('Connect user to game: ' + code);
   }
 }
