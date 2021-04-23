@@ -14,6 +14,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import at.qe.timeguess.gamelogic.Dice;
 import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.gamelogic.Game.GameCreationException;
+import at.qe.timeguess.gamelogic.Game.GameNotContinuableException;
 import at.qe.timeguess.gamelogic.Game.TeamIndexOutOfBoundsException;
 import at.qe.timeguess.gamelogic.Game.UserStateException;
 import at.qe.timeguess.model.Category;
@@ -85,19 +86,60 @@ public class LobbyServiceTest {
 	@Test
 	@WithMockUser(username = "admin")
 	public void testJoinTeam() throws RaspberryAlreadyInUseException, GameCreationException, RaspberryNotFoundException,
-			GameNotFoundException, TeamIndexOutOfBoundsException {
+			GameNotFoundException, TeamIndexOutOfBoundsException, UserStateException {
 		Game testGame = lobbyService.createGame(10, 2, new Category("Geography"), RASPIID);
-		lobbyService.joinTeam(testGame.getGameCode(), new User(), 0);
+		User testUser = new User();
+		lobbyService.joinGame(testGame.getGameCode(), testUser);
+		lobbyService.joinTeam(testGame.getGameCode(), testUser, 0);
 		assertEquals(testGame.getTeamByIndex(0).getPlayers().size(), 1);
+		assertEquals(testGame.getUnassignedUsers().size(), 1);
+		assertThrows(TeamIndexOutOfBoundsException.class,
+				() -> lobbyService.joinTeam(testGame.getGameCode(), testUser, 9));
 		lobbyService.closeFinishedGame(testGame.getGameCode());
 
 	}
 
-	public void testLeaveTeam() {
+	@Test
+	@WithMockUser(username = "admin")
+	public void testLeaveTeam() throws GameNotFoundException, UserStateException, TeamIndexOutOfBoundsException,
+			RaspberryAlreadyInUseException, GameCreationException, RaspberryNotFoundException {
+		Game testGame = lobbyService.createGame(10, 2, new Category("Geography"), RASPIID);
+		User testUser = new User();
+		lobbyService.joinGame(testGame.getGameCode(), testUser);
+		lobbyService.joinTeam(testGame.getGameCode(), testUser, 0);
+		lobbyService.joinTeam(testGame.getGameCode(), testUser, 1);
+		assertEquals(testGame.getTeamByIndex(0).getPlayers().size(), 0);
+		assertEquals(testGame.getTeamByIndex(1).getPlayers().size(), 1);
+		assertEquals(testGame.getUnassignedUsers().size(), 1);
+		lobbyService.leaveTeam(testGame.getGameCode(), testUser);
+		assertEquals(testGame.getTeamByIndex(1).getPlayers().size(), 0);
+		assertEquals(testGame.getUnassignedUsers().size(), 2);
+		assertThrows(GameNotFoundException.class, () -> lobbyService.leaveTeam(30, testUser));
+		lobbyService.closeFinishedGame(testGame.getGameCode());
 
 	}
 
-	public void testLeaveGame() {
+	@Test
+	@WithMockUser(username = "admin")
+	public void testLeaveGame() throws RaspberryAlreadyInUseException, GameCreationException,
+			RaspberryNotFoundException, GameNotFoundException, UserStateException, GameNotContinuableException {
+		Game testGame = lobbyService.createGame(10, 2, new Category("Geography"), RASPIID);
+		User testUser = new User();
+		lobbyService.joinGame(testGame.getGameCode(), testUser);
+		lobbyService.leaveGame(testGame.getGameCode(), testUser);
+		assertEquals(testGame.getUnassignedUsers().size(), 1);
+		lobbyService.closeFinishedGame(testGame.getGameCode());
+	}
+
+	@Test
+	@WithMockUser(username = "admin")
+	public void testIsUserInGame() throws RaspberryAlreadyInUseException, GameCreationException,
+			RaspberryNotFoundException, GameNotFoundException, UserStateException {
+		Game testGame = lobbyService.createGame(10, 2, new Category("Geography"), RASPIID);
+		User testUser = new User();
+		lobbyService.joinGame(testGame.getGameCode(), testUser);
+		assertEquals(lobbyService.isUserInGame(testUser), true);
+		lobbyService.closeFinishedGame(testGame.getGameCode());
 
 	}
 

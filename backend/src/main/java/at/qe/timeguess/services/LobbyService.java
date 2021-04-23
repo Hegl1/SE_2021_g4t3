@@ -158,10 +158,16 @@ public class LobbyService {
 		}
 	}
 
+	public void updateReadyStatus(final int gameCode, final User user, final Boolean isReady) {
+		if (runningGames.containsKey(gameCode)) {
+			runningGames.get(gameCode).updateReadyStatus(user, isReady);
+		}
+	}
+
 	/**
 	 * Removes a game from the index. Not to be used to forcefully close a game.
 	 *
-	 * @param gameCode
+	 * @param gameCode code of running game
 	 */
 	public void closeFinishedGame(final int gameCode) {
 		if (runningGames.containsKey(gameCode)) {
@@ -170,6 +176,11 @@ public class LobbyService {
 		}
 	}
 
+	/**
+	 * Forcefully elimantes a game from the index.
+	 * 
+	 * @param gameCode code of running game
+	 */
 	public void abortRunningGame(final int gameCode) {
 		if (runningGames.containsKey(gameCode)) {
 			runningGames.get(gameCode).forceClose();
