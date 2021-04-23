@@ -56,6 +56,7 @@ public class Game {
 		}
 		this.dice = new Dice();
 		this.raspberryId = raspberryId;
+		dice.setRaspberryConnected(true);
 	}
 
 	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
@@ -63,6 +64,44 @@ public class Game {
 		this(code, maxPoints, numberOfTeams, category, host, raspberryId);
 		this.dice = dice;
 		dice.setRaspberryConnected(true);
+	}
+
+	/**
+	 * Method to assign a new user to the game.
+	 *
+	 * @param player user that wants to join the game.
+	 */
+	public void joinGame(final User player) {
+		unassignedUsers.add(player);
+		// TODO broadcast message
+	}
+
+	public void joinTeam(final Team team, final User player) {
+		leaveTeam(player);
+		team.joinTeam(player);
+		// TODO broadcast message
+	}
+
+	public void leaveTeam(final User player) {
+		for (Team current : teams) {
+			if (current.isInTeam(player)) {
+				current.leaveTeam(player);
+				break;
+			}
+		}
+		unassignedUsers.add(player);
+		// TODO broadcast message
+	}
+
+	public void leaveGame(final User player) {
+		if (player.equals(host)) {
+			forceClose();
+		} else {
+			leaveTeam(player);
+			unassignedUsers.remove(player);
+			// TODO boradcast message
+		}
+
 	}
 
 	/**
@@ -108,15 +147,6 @@ public class Game {
 	public void updateDiceConnection(final boolean isConnected) {
 		this.dice.setRaspberryConnected(isConnected);
 		// TODO implement proper action with game logic
-	}
-
-	/**
-	 * Method to assign a new user to the game.
-	 *
-	 * @param player user that wants to join the game.
-	 */
-	public void joinGame(final User player) {
-		unassignedUsers.add(player);
 	}
 
 	public int getGameCode() {
