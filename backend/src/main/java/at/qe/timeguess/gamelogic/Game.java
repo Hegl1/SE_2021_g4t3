@@ -365,7 +365,7 @@ public class Game {
 				break;
 			}
 		}
-		return unassigneds || devices || teamSizes;
+		return unassigneds && devices && teamSizes;
 	}
 
 	/**
