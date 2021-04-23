@@ -70,12 +70,24 @@ public class User {
         this.role = role;
     }
 
+    /**
+     * if two user have the same username, password, role and updateDate they are equal
+     * @param o user to compare
+     * @return boolean that states if users are equal
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(updateDate, user.updateDate) && role == user.role;
+        boolean sameUpdateDate = false;
+        //because repository returns Timestamp object and User objects return Date objects we need to compare the long timestamps of the dates
+        if (updateDate != null && user.updateDate != null) {
+            sameUpdateDate = Objects.equals(updateDate.getTime(), user.updateDate.getTime());
+        } else if(updateDate == null && user.updateDate == null){
+            sameUpdateDate = true;
+        }
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && role == user.role && sameUpdateDate;
     }
 
     @Override
