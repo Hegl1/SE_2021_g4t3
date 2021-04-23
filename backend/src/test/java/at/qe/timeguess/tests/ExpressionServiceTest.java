@@ -40,7 +40,7 @@ public class ExpressionServiceTest {
     @Test
     public void testGetAllExpressions() {
         Collection<Expression> allExpressions = this.expressionService.getAllExpressions();
-        Assertions.assertEquals(1, allExpressions.size());
+        Assertions.assertEquals(5, allExpressions.size());
         Assertions.assertTrue(allExpressions.stream().anyMatch(expression -> expression.getName().equals("Bundestag")));
     }
 
@@ -48,20 +48,31 @@ public class ExpressionServiceTest {
     public void testGetAllExpressionsByCategory() {
         Category category = this.categoryService.getCategoryById(0L);
         Collection<Expression> allExpressionsOfCategory = this.expressionService.getAllExpressionsByCategory(category);
-        Assertions.assertEquals(1, allExpressionsOfCategory.size());
+        Assertions.assertEquals(5, allExpressionsOfCategory.size());
         Assertions.assertTrue(allExpressionsOfCategory.stream().anyMatch(expression -> expression.getName().equals("Bundestag")));
     }
+
+
+    @Test
+    public void getRandomExpressionByCategory() {
+        Category category = this.categoryService.getCategoryById(0L);
+        Expression randomExpression = this.expressionService.getRandomExpressionByCategory(category);
+        Collection<Expression> allExpressionsByCategory = this.expressionService.getAllExpressionsByCategory(category);
+
+        Assertions.assertTrue(allExpressionsByCategory.stream().anyMatch(expression -> expression.getName().equals(randomExpression.getName())));
+    }
+
 
     @Test
     @DirtiesContext
     public void testSaveExpression() throws ExpressionService.ExpressionAlreadyExists {
         Category category = this.categoryService.getCategoryById(0L);
-        Expression expressionToSave = new Expression("Berlin", category);
+        Expression expressionToSave = new Expression("Ballermann", category);
         this.expressionService.saveExpression(expressionToSave);
 
         Collection<Expression> allExpressionsOfCategory = this.expressionService.getAllExpressionsByCategory(category);
-        Assertions.assertEquals(2, allExpressionsOfCategory.size());
-        Assertions.assertTrue(allExpressionsOfCategory.stream().anyMatch(expression -> expression.getName().equals("Berlin")));
+        Assertions.assertEquals(6, allExpressionsOfCategory.size());
+        Assertions.assertTrue(allExpressionsOfCategory.stream().anyMatch(expression -> expression.getName().equals("Ballermann")));
     }
 
     @Test
@@ -76,7 +87,7 @@ public class ExpressionServiceTest {
 
         Category category = this.categoryService.getCategoryByName("Deutschland");
         Collection<Expression> allExpressionsOfCategory = this.expressionService.getAllExpressionsByCategory(category);
-        Assertions.assertEquals(6, allExpressionsOfCategory.size());
+        Assertions.assertEquals(10, allExpressionsOfCategory.size());
     }
 
     @Test
@@ -103,7 +114,7 @@ public class ExpressionServiceTest {
         this.expressionService.importExpressions(categoryExpressionDTOs);
 
         Assertions.assertEquals(2, this.categoryService.getAllCategories().size());
-        Assertions.assertEquals(6, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Deutschland")).size());
+        Assertions.assertEquals(10, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Deutschland")).size());
         Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Politics")).size());
     }
 
@@ -113,9 +124,9 @@ public class ExpressionServiceTest {
 
         // TODO: can't delete predefined test data
         Category category = this.categoryService.getCategoryById(0L);
-        this.expressionService.saveExpression(new Expression("Berlin", category));
+        this.expressionService.saveExpression(new Expression("Ballermann", category));
         this.expressionService.deleteExpression(this.expressionService.getExpressionById(1L));
-        Assertions.assertEquals(1, this.expressionService.getAllExpressions().size());
+        Assertions.assertEquals(5, this.expressionService.getAllExpressions().size());
     }
 
     @Test

@@ -71,6 +71,24 @@ public class ExpressionService {
     }
 
     /**
+     * Return a random Expression of a Category
+     *
+     * @param category the Category from which an Expression gets returned
+     * @return a random Expression of a Category
+     */
+    public Expression getRandomExpressionByCategory(final Category category) {
+        Collection<Expression> allExpressionsByCategory = this.getAllExpressionsByCategory(category);
+        int random = (int) (Math.random() * allExpressionsByCategory.size());
+
+        for(Expression current: allExpressionsByCategory) {
+            if(--random < 0) {
+                return current;
+            }
+        }
+        throw new AssertionError();
+    }
+
+    /**
      * Saves an Expression in the database
      *
      * @param expression the Expression to be saved

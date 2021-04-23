@@ -53,7 +53,7 @@ public class CategoryServiceTest {
         Category categoryToSave = new Category("Politics");
         this.categoryService.saveCategory(categoryToSave);
 
-        Category categoryToDelete = this.categoryService.getCategoryById(1L);
+        Category categoryToDelete = this.categoryService.getCategoryById(11L);
         this.categoryService.deleteCategory(categoryToDelete);
 
         Collection<Category> allCategories = this.categoryService.getAllCategories();
