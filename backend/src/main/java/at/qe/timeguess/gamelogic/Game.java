@@ -22,22 +22,27 @@ public class Game {
 	@Autowired
 	private WebsocketController webSocketController;
 
-	private Map<User, Boolean> readyPlayers;
+	// general game information
 	private int gameCode;
+	private String raspberryId;
+	private Dice dice;
 	private int maxPoints;
 	private int numberOfTeams;
 	private Category category;
 	private User host;
-	private List<User> unassignedUsers;
 	private boolean active;
+	private List<Team> teams;
+
+	// setup phase
+	private Map<User, Boolean> readyPlayers;
+	private List<User> unassignedUsers;
+	private List<User> usersWithDevices;
+
+	// ingame phase
 	private int currentTeam;
 	private int startTeam;
-	private List<User> usersWithDevices;
-	private List<Team> teams;
 	private List<Expression> usedExpressions;
 	private Expression currentExpression;
-	private Dice dice;
-	private String raspberryId;
 
 	// TODO maybe delete, revisit later
 	public Game(final int code) {
@@ -86,7 +91,7 @@ public class Game {
 	 */
 	public void joinGame(final User player) throws UserStateException {
 		if (!isInGame(player)) {
-			addToReadyMap(player, false);
+			addToReadyMapIfNotAlreadyExists(player, false);
 			usersWithDevices.add(player);
 			unassignedUsers.add(player);
 		} else {
@@ -108,7 +113,9 @@ public class Game {
 			if (unassignedUsers.contains(player)) {
 				unassignedUsers.remove(player);
 			}
-			addToReadyMap(player, true);
+			// if the player was did not have a ready state before, he has been added by
+			// host
+			addToReadyMapIfNotAlreadyExists(player, true);
 			team.joinTeam(player);
 		} else {
 			webSocketController.sendHostIsReadyErrorToFrontend(player.getUsername());
@@ -169,6 +176,7 @@ public class Game {
 	public void updateReadyStatus(final User user, final Boolean isReady) {
 		// TODO test readying logic with frontend
 		if (user.equals(host) && isReady.equals(false)) {
+			// hosts sets ready to false
 			for (User current : usersWithDevices) {
 				readyPlayers.put(current, false);
 				webSocketController.updateReadyInFrontend(gameCode, new PlayerReadyDTO(current.getUsername(), false));
@@ -176,11 +184,19 @@ public class Game {
 
 		}
 		if (user.equals(host) && !checkGameStartable()) {
+			// host trys to set ready to true, but not startable
 			webSocketController.sendHostNotReadyableToFrontend(host.getUsername());
 		} else {
+			// set ready of player
 			readyPlayers.put(user, isReady);
 			webSocketController.updateReadyInFrontend(gameCode, new PlayerReadyDTO(user.getUsername(), isReady));
+			checkAllPlayersReadyAndStartGame();
 		}
+	}
+
+	private void startGame() {
+		active = true;
+		// TODO proper starting action and communication with frontend
 	}
 
 	/**
@@ -267,6 +283,17 @@ public class Game {
 		return this.maxPoints;
 	}
 
+	private void checkAllPlayersReadyAndStartGame() {
+		if (readyPlayers.get(host)) {
+			for (User user : readyPlayers.keySet()) {
+				if (!readyPlayers.get(user)) {
+					return;
+				}
+			}
+		}
+		startGame();
+	}
+
 	public List<User> getUsersWithDevices() {
 		return this.usersWithDevices;
 	}
@@ -347,7 +374,7 @@ public class Game {
 	 * @param player      player to add
 	 * @param readyStatus status to add the player with
 	 */
-	private void addToReadyMap(final User player, final boolean readyStatus) {
+	private void addToReadyMapIfNotAlreadyExists(final User player, final boolean readyStatus) {
 		if (!readyPlayers.containsKey(player)) {
 			readyPlayers.put(player, readyStatus);
 		}
