@@ -116,27 +116,20 @@ public class ExpressionService {
      */
     public Collection<Expression> importExpressionsIntoCategory(final Long categoryId, final Collection<String> expressionNames) {
 
-        System.out.println("-1");
         Category categoryToImportTo = this.categoryService.getCategoryById(categoryId);
         Expression expressionToImport;
         List<Expression> expressionsToImport = new ArrayList<>();
 
-        System.out.println("0");
         for(String current : expressionNames) {
 
-            System.out.println("1");
             expressionToImport = new Expression(current, categoryToImportTo);
             expressionsToImport.add(expressionToImport);
             try {
-
-                System.out.println("2");
                 this.saveExpression(expressionToImport);
             } catch (ExpressionAlreadyExists ignored) {
 
             }
         }
-
-        System.out.println("3");
         return expressionsToImport;
     }
 

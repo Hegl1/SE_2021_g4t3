@@ -52,16 +52,23 @@ public class ExpressionServiceTest {
         Assertions.assertTrue(allExpressionsOfCategory.stream().anyMatch(expression -> expression.getName().equals("Bundestag")));
     }
 
+    @Test
+    public void testIsDeletable() throws CategoryService.CategoryAlreadyExistsException {
+        Category notDeletableCategory = this.categoryService.getCategoryById(0L);
+        Category deletableCategory = this.categoryService.saveCategory(new Category("Politics"));
+
+        Assertions.assertFalse(this.categoryService.isDeletable(notDeletableCategory));
+        Assertions.assertTrue(this.categoryService.isDeletable(deletableCategory));
+    }
 
     @Test
-    public void getRandomExpressionByCategory() {
+    public void testGetRandomExpressionByCategory() {
         Category category = this.categoryService.getCategoryById(0L);
         Expression randomExpression = this.expressionService.getRandomExpressionByCategory(category);
         Collection<Expression> allExpressionsByCategory = this.expressionService.getAllExpressionsByCategory(category);
 
         Assertions.assertTrue(allExpressionsByCategory.stream().anyMatch(expression -> expression.getName().equals(randomExpression.getName())));
     }
-
 
     @Test
     @DirtiesContext
@@ -131,7 +138,7 @@ public class ExpressionServiceTest {
 
     @Test
     @DirtiesContext
-    public void testExpressionAlreadyExistsException() throws ExpressionService.ExpressionAlreadyExists {
+    public void testExpressionAlreadyExistsException() {
         Category category = this.categoryService.getCategoryById(0L);
         Expression expressionToSave = new Expression("Bundestag", category);
         Assertions.assertThrows(ExpressionService.ExpressionAlreadyExists.class, () -> this.expressionService.saveExpression(expressionToSave));

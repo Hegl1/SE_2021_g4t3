@@ -1,10 +1,12 @@
 package at.qe.timeguess.controllers;
 
+import at.qe.timeguess.dto.ExpressionDTO;
 import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.services.CategoryService;
 import at.qe.timeguess.services.ExpressionService;
+import javassist.expr.Expr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +39,18 @@ public class ExpressionController {
      *      code NOT_FOUND  if there are no Expressions
      */
     @GetMapping("/categories/{id}/expressions")
-    public ResponseEntity<List<Expression>> getAllExpressionsOfCategory(final Long categoryId){
+    public ResponseEntity<List<ExpressionDTO>> getAllExpressionsOfCategory(final Long categoryId) {
+
         Category category = this.categoryService.getCategoryById(categoryId);
         List<Expression> allExpressions = new LinkedList<>(this.expressionService.getAllExpressionsByCategory(category));
 
         if(allExpressions.size() > 0) {
-            return new ResponseEntity<>(allExpressions, HttpStatus.OK);
+
+            List<ExpressionDTO> allExpressionDTOs = new LinkedList<>();
+            for(Expression current : allExpressions) {
+                allExpressionDTOs.add(new ExpressionDTO(current.getId(), current.getName()));
+            }
+            return new ResponseEntity<>(allExpressionDTOs, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -100,7 +108,7 @@ public class ExpressionController {
      * @param categoryId the ID of the Category to which the Expressions are assigned to
      * @param expressionNames the List of names of the Expressions
      * @return ResponseEntity for REST communication:
-     *      code 200 if Expressions got imported successfully
+     *      code CREATED if Expressions got imported successfully
      */
     @PostMapping("categories/{id}/expressions/import")
     public ResponseEntity<List<Expression>> importExpressionsIntoCategory(final Long categoryId, @RequestBody final List<String> expressionNames) {

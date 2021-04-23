@@ -1,8 +1,13 @@
 package at.qe.timeguess.controllers;
 
+import at.qe.timeguess.dto.CategoryInfoDTO;
 import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
+import at.qe.timeguess.model.CompletedGame;
+import at.qe.timeguess.model.Expression;
+import at.qe.timeguess.repositories.CompletedGameRepository;
 import at.qe.timeguess.services.CategoryService;
+import at.qe.timeguess.services.ExpressionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +28,12 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private ExpressionService expressionService;
+
+    @Autowired
+    private CompletedGameRepository completedGameRepository;
+
     /**
      * Returns a List of all Categories in the database
      *
@@ -33,6 +44,52 @@ public class CategoryController {
     public ResponseEntity<List<Category>> getAllCategories(){
         List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
         return new ResponseEntity<List<Category>>(allCategories, HttpStatus.OK);
+    }
+
+    /**
+     * Retrieves all Categories with information regarding its id, name, deletableness and its amount of Expressions
+     *
+     * @return ResponseEntity for REST communication:
+     *      code OK if successful
+     */
+    @GetMapping("/info")
+    public ResponseEntity<List<CategoryInfoDTO>> getAllCategoriesWithInfo() {
+
+        Collection<Category> allCategories = this.categoryService.getAllCategories();
+        List<CategoryInfoDTO> allCategoriesWithInfo = new LinkedList<>();
+
+        for(Category current : allCategories) {
+
+            CategoryInfoDTO categoryInfoDTO = new CategoryInfoDTO(
+                current.getId(),
+                current.getName(),
+                this.categoryService.isDeletable(current),
+                this.expressionService.getAllExpressionsByCategory(current).size()
+            );
+
+            allCategoriesWithInfo.add(categoryInfoDTO);
+        }
+
+        return new ResponseEntity<List<CategoryInfoDTO>>(allCategoriesWithInfo, HttpStatus.OK);
+    }
+
+    /**
+     * Returns a Category by its ID
+     *
+     * @param id the ID of the Category to be acquired
+     * @return ResponseEntity for REST communication:
+     *      code OK        if successful
+     *      code NOT_FOUND if the category was not found
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<Category> getCategoryById(final Long id) {
+        Category category = this.categoryService.getCategoryById(id);
+
+        if(category != null) {
+            return new ResponseEntity<Category>(category, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<Category>(HttpStatus.NOT_FOUND);
+        }
     }
 
     /**
