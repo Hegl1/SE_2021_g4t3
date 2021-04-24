@@ -78,7 +78,7 @@ export class UserService {
    * Removes the stored user and token from storage and cookies
    */
   private remove() {
-    localStorage.removeItem(StorageNames.Token);
+    Object.values(StorageNames).forEach((storageName) => localStorage.removeItem(storageName));
 
     document.cookie = `${StorageNames.Token}=; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
 

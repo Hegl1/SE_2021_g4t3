@@ -1,0 +1,20 @@
+.game_section {
+  > * {
+    display: inline-block;
+    margin-bottom: 2em;
+
+    width: fit-content;
+
+    &:not(:last-child) {
+      margin-right: 4em;
+      vertical-align: top;
+    }
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .game_section > * {
+    width: 100%;
+    margin-right: 0 !important;
+  }
+}
