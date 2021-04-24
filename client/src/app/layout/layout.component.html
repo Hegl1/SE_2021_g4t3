@@ -14,7 +14,13 @@
         <nav>
             <div class="user">
                 <mat-nav-list>
-                    <a mat-list-item (click)="openProfile()"> <mat-icon>account_circle</mat-icon> username </a>
+                    <a mat-list-item (click)="openProfile()"> <mat-icon>account_circle</mat-icon> {{ username }} </a>
+                </mat-nav-list>
+            </div>
+
+            <div class="home">
+                <mat-nav-list>
+                    <a mat-list-item routerLink="/home" routerLinkActive="active"> <mat-icon>home</mat-icon> Home </a>
                 </mat-nav-list>
             </div>
 

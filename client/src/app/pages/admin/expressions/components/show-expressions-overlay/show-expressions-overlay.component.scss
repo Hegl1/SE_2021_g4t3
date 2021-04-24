@@ -1,0 +1,23 @@
+mat-dialog-content {
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
+}
+
+.actions {
+  mat-form-field {
+    margin-right: 1em;
+  }
+}
+
+.table_container {
+  max-height: 50vh;
+  overflow: auto;
+
+  table {
+    width: 100%;
+
+    .mat-footer-row > td {
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+  }
+}

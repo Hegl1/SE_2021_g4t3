@@ -53,6 +53,10 @@ public class Team {
 		this.score += points;
 	}
 
+	public boolean isInTeam(final User player) {
+		return players.contains(player);
+	}
+
 	public int getScore() {
 		return score;
 	}

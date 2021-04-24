@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>Add expressions</h2>
+
+<mat-dialog-content>
+    <mat-form-field color="primary" appearance="outline" style="width: 100%">
+        <mat-label>Expressions</mat-label>
+        <mat-chip-list #chipList [disabled]="saving">
+            <mat-chip
+                *ngFor="let expression of expressions"
+                [removable]="true"
+                (removed)="removeExpression(expression)"
+            >
+                {{ expression }}
+                <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            <input
+                placeholder="Add expression..."
+                [matChipInputFor]="chipList"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                [matChipInputAddOnBlur]="true"
+                (matChipInputTokenEnd)="addExpression($event)"
+                [disabled]="saving"
+            />
+        </mat-chip-list>
+    </mat-form-field>
+    <p *ngIf="error" class="error warn">{{ error }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <mat-spinner *ngIf="saving" color="primary" diameter="20" style="margin-right: 1rem"></mat-spinner>
+    <button mat-button [mat-dialog-close]="null" [disabled]="saving">Cancel</button>
+    <button mat-button (click)="save()" color="primary" [disabled]="expressions.length === 0 || saving">Save</button>
+</mat-dialog-actions>

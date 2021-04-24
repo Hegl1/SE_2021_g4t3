@@ -3,12 +3,15 @@ package at.qe.timeguess.tests;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.model.UserRole;
 import at.qe.timeguess.services.AuthenticationService;
+import at.qe.timeguess.services.UserService;
 import com.auth0.jwt.interfaces.Claim;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @SpringBootTest
 public class AuthenticationServiceTest {
@@ -18,9 +21,15 @@ public class AuthenticationServiceTest {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Autowired
+    private UserService userService;
+
     @BeforeEach
-    public void init() {
-        this.admin = new User("admin", "passwd", UserRole.ADMIN);
+    public void init() throws UserService.UsernameNotAvailableException,UserService.EmptyPasswordException {
+        this.admin = userService.getUserById(0L);
+        this.admin.setUsername("admin");
+        this.admin.setRole(UserRole.ADMIN);
+        this.userService.saveUser(this.admin);
     }
 
     @Test
@@ -46,17 +55,32 @@ public class AuthenticationServiceTest {
     public void testRetrieveClaims() {
         User other = new User("player","", UserRole.PLAYER);
         String token = authenticationService.generateToken(other, 30000L);
-        Claim claim = authenticationService.getClaimFromToken(token.substring(7), "role");
+        Claim claim = authenticationService.getClaimFromToken(token.substring(7), "user_role");
         Assertions.assertEquals("PLAYER", claim.asString());
     }
 
     @Test
-    public void testSubjectFromToken() {
-        User other = new User("gamer","passwd",
-            UserRole.GAMEMANAGER);
+    public void testOutdatedToken() throws UserService.UsernameNotAvailableException,UserService.EmptyPasswordException {
         String token = authenticationService.generateToken(admin, 30000L);
-        String token2 = authenticationService.generateToken(other, 30000L);
-        Assertions.assertEquals(admin.getUsername(), authenticationService.getSubject(token.substring(7)));
-        Assertions.assertEquals(other.getUsername(), authenticationService.getSubject(token2.substring(7)));
+        admin.setUsername("dagerhgdfherh");
+        userService.saveUser(admin);
+        Assertions.assertFalse(authenticationService.validateToken(token.substring(7), this.admin));
+        token = authenticationService.generateToken(admin, 30000L);
+        Assertions.assertTrue(authenticationService.validateToken(token.substring(7), this.admin));
     }
+
+    @Test
+    public void testTokenWithFixedExpiration() {
+        String token = authenticationService.generateTokenWithFixedExpiration(this.admin);
+        Assertions.assertTrue(authenticationService.validateToken(token.substring(7), this.admin));
+    }
+
+    @Test
+    public void testSetAuthenticatedUser() {
+        authenticationService.setUserAuthentication(this.admin);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Assertions.assertEquals(this.admin,userService.getUserByUsername(auth.getName()));
+    }
+
+
 }

@@ -10,6 +10,14 @@ import { UserService } from './user.service';
 export class AuthGuard implements CanActivate {
   constructor(private user: UserService, private router: Router, private snackBar: MatSnackBar) {}
 
+  /**
+   * Returns whether the currently authenticated user is allowed to request this route
+   * If the user is not allowed, it will be redirected to the home page and shown an error
+   *
+   * @param route
+   * @param state
+   * @returns whether the user is allowed to request this route
+   */
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     const redirectUrl = state.url;
 

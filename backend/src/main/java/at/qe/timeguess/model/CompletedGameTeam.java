@@ -4,10 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 
 @Entity
 public class CompletedGameTeam {
@@ -20,7 +17,7 @@ public class CompletedGameTeam {
 	private int numberOfGuessedExpressions;
 	private int numberOfWrongExpressions;
 
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	private List<User> players;
 
 	public CompletedGameTeam() {
@@ -41,7 +38,11 @@ public class CompletedGameTeam {
 		this.players.addAll(players);
 	}
 
-	public boolean addPlayer(final User player) {
+    public long getId() {
+        return id;
+    }
+
+    public boolean addPlayer(final User player) {
 		return players.add(player);
 	}
 

@@ -3,15 +3,20 @@ export interface Category {
   name: string;
 }
 
+export interface CategoryInfo extends Category {
+  deletable: boolean;
+  expressions_amount: number;
+}
+
 export interface Expression {
   id: number;
   name: string;
 }
 
 export enum Role {
-  Admin = 'admin',
-  Gamemanager = 'gamemanager',
-  Player = 'player',
+  Admin = 'ADMIN',
+  Gamemanager = 'GAMEMANAGER',
+  Player = 'PLAYER',
 }
 
 export interface User {
@@ -33,11 +38,16 @@ export interface RunningGame {
 }
 
 export interface UserStats {
-  played_games: {
+  won_games: {
     category: Category;
-    won: number;
-    lost: number;
+    amount: number;
   }[];
+  lost_games: {
+    category: Category;
+    amount: number;
+  }[];
+  most_played_category: Category | null;
+  played_games: number;
   played_with: User[];
 }
 
@@ -49,7 +59,7 @@ export interface GlobalStats {
   mostGamesWon: User[];
 }
 
-export interface TopGamesStat {
+export interface TopGameStats {
   teams: {
     score: number;
     number_correct: number;
@@ -60,7 +70,7 @@ export interface TopGamesStat {
   duration: number;
 }
 
-export interface CategoryStat {
+export interface CategoryStats {
   category: Category;
   number_correct: number;
   number_incorrect: number;

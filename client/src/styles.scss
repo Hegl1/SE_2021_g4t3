@@ -26,6 +26,41 @@ body {
   color: $foreground;
 }
 
+a,
+.link {
+  color: $link;
+  text-decoration: underline;
+  cursor: pointer;
+  outline: transparent;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: normal !important;
+}
+
+.primary {
+  color: mat-color($primary) !important;
+}
+.bg-primary {
+  background: mat-color($primary) !important;
+}
+
+.accent {
+  color: mat-color($accent) !important;
+}
+.bg-accent {
+  background: mat-color($accent) !important;
+}
+
+.warn {
+  color: mat-color($warn) !important;
+}
+.bg-warn {
+  background: mat-color($warn) !important;
+}
+
 mat-dialog-container *[mat-dialog-title] {
   mat-icon,
   span {
@@ -56,31 +91,25 @@ mat-dialog-container *[mat-dialog-title] {
   }
 }
 
-a,
-.link {
-  color: $link;
-  text-decoration: underline;
-  cursor: pointer;
-  outline: transparent;
+h1,
+h2 {
+  > mat-icon {
+    font-size: 1em;
+    vertical-align: middle;
+    margin-right: 0.5em;
+  }
 }
 
-.primary {
-  color: mat-color($primary) !important;
-}
-.bg-primary {
-  background: mat-color($primary) !important;
+mat-icon.mat-icon-inline {
+  vertical-align: middle;
 }
 
-.accent {
-  color: mat-color($accent) !important;
-}
-.bg-accent {
-  background: mat-color($accent) !important;
+button mat-icon.mat-icon-inline {
+  font-size: 1.5em !important;
 }
 
-.warn {
-  color: mat-color($warn) !important;
-}
-.bg-warn {
-  background: mat-color($warn) !important;
+mat-icon.mat-card-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
 }

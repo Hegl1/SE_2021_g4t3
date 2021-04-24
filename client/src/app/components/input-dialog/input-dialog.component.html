@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+
+<mat-dialog-content>
+    <mat-form-field color="primary" appearance="outline" style="width: 100%">
+        <input
+            matInput
+            [(ngModel)]="value"
+            [placeholder]="data.label || ''"
+            (keyup.enter)="save._elementRef.nativeElement.click()"
+        />
+    </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button [mat-dialog-close]="null">{{ btnDecline }}</button>
+    <button
+        mat-button
+        [mat-dialog-close]="value"
+        color="primary"
+        #save
+        [disabled]="value === null || value.length === 0"
+    >
+        {{ btnConfirm }}
+    </button>
+</mat-dialog-actions>

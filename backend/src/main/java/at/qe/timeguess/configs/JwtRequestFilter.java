@@ -14,13 +14,7 @@ import at.qe.timeguess.services.AuthenticationService;
 import at.qe.timeguess.services.UserService;
 import com.auth0.jwt.interfaces.Claim;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -42,49 +36,29 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @Bean
-    public PasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException {
 
         final String requestTokenHeader = request.getHeader("Authorization");
 
-        String username = null;
+        Claim idClaim = null;
         String jwtToken = null;
-        Claim roleClaim = null;
 
         // Removing Bearer from token
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer")) {
             jwtToken = requestTokenHeader.substring(7);
-            username = authenticationService.getSubject(jwtToken);
-            roleClaim = authenticationService.getClaimFromToken(jwtToken, "role");
+            idClaim = authenticationService.getClaimFromToken(jwtToken, "user_id");
         }
 
         //Validate token and set authentication if valid
-        if (username != null && roleClaim != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (idClaim != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            User user = this.userService.loadUser(username);
-            String role = roleClaim.asString();
+            Long id = idClaim.asLong();
+            User user = this.userService.getUserById(id);
 
             if (authenticationService.validateToken(jwtToken, user)) {
-
-                //adding role to authentication
-                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority(role));
-
-                //creating user authentication object
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
-                usernamePasswordAuthenticationToken
-                    .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // Setting Authentication in the context, and specifying that the current user is authenticated.
-                // So that Spring Security Configurations works.
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                authenticationService.setUserAuthentication(user);
             }
         }
         chain.doFilter(request, response);
