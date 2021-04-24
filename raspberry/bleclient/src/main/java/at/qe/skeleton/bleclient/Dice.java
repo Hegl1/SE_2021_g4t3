@@ -30,7 +30,7 @@ public final class Dice {
 	public Dice(BluetoothDevice device) {
 		this.device = device;
 		this.backendCommunicator = new BackendCommunicator();
-		this.id = "TODO"; // TODO call backendCommunicator to get correct id
+		this.id = this.backendCommunicator.getDiceId();
 	}
 
 	/**
@@ -72,7 +72,7 @@ public final class Dice {
 			BluetoothGattCharacteristic batteryLevelCharacteristic = batteryService
 					.find(batteryLevelCharacteristicUuid);
 			byte[] batteryLevel = batteryLevelCharacteristic.readValue();
-			int batteryLevelValue = Byte.toUnsignedInt(batteryLevel[0]);;
+			int batteryLevelValue = Byte.toUnsignedInt(batteryLevel[0]);
 			System.out.println("Battery level: " + batteryLevelValue);
 			backendCommunicator.postBatteryStatus(batteryLevelValue);
 			return true;
@@ -108,7 +108,7 @@ public final class Dice {
 		if (facetsCharacteristic != null) {
 			// System.out.println("facets characteristic is available");
 			try {
-				facetsCharacteristic.enableValueNotifications(new ValueNotification());
+				facetsCharacteristic.enableValueNotifications(new ValueNotification(this.backendCommunicator));
 				System.out.println("notifications should be turned on now");
 				return true;
 			} catch (Exception e) {
