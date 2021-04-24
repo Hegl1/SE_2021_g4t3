@@ -1,5 +1,6 @@
 package at.qe.timeguess.controllers;
 
+import at.qe.timeguess.dto.CategoryExpressionDTO;
 import at.qe.timeguess.dto.ExpressionDTO;
 import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.CollationElementIterator;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +32,7 @@ public class ExpressionController {
     @Autowired
     private CategoryService categoryService;
 
+    // TODO: get it to work with initial data (getting code NOT_FOUND currently)
     /**
      * Returns a List of all Expressions in a Category
      *
@@ -56,6 +59,7 @@ public class ExpressionController {
         }
     }
 
+    // TODO: get it to work with initial data (getting code NOT_FOUND currently)
     /**
      * Creates and saves a new Expression into the database
      *
@@ -67,14 +71,14 @@ public class ExpressionController {
      *      code CONFLICT   if Expression already exists
      */
     @PostMapping("/categories/{id}/expressions")
-    public ResponseEntity<Expression> createExpression(final Long categoryId, @RequestBody final NameDTO nameDTO){
+    public ResponseEntity<ExpressionDTO> createExpression(final Long categoryId, @RequestBody final NameDTO nameDTO) {
+
         Category category = this.categoryService.getCategoryById(categoryId);
-        Expression expression = new Expression(nameDTO.getName(), category);
 
         if(category != null) {
             try {
-                this.expressionService.saveExpression(expression);
-                return new ResponseEntity<>(expression, HttpStatus.OK);
+                ExpressionDTO expressionDTO = this.expressionService.saveExpression(categoryId, nameDTO);
+                return new ResponseEntity<>(expressionDTO, HttpStatus.OK);
             } catch (ExpressionService.ExpressionAlreadyExists e) {
                 return new ResponseEntity<>(HttpStatus.CONFLICT);
             }
@@ -83,6 +87,7 @@ public class ExpressionController {
         }
     }
 
+    // TODO: get it work with initial data (getting code NOT_FOUND currently)
     /**
      * Deletes an existing Expression
      *
@@ -111,8 +116,15 @@ public class ExpressionController {
      *      code CREATED if Expressions got imported successfully
      */
     @PostMapping("categories/{id}/expressions/import")
-    public ResponseEntity<List<Expression>> importExpressionsIntoCategory(final Long categoryId, @RequestBody final List<String> expressionNames) {
-        List<Expression> importedExpressions = new LinkedList<>(this.expressionService.importExpressionsIntoCategory(categoryId, expressionNames));
-        return new ResponseEntity<>(importedExpressions, HttpStatus.CREATED);
+    public ResponseEntity<List<ExpressionDTO>> importExpressionsIntoCategory(final Long categoryId, @RequestBody final List<String> expressionNames) {
+        List<ExpressionDTO> expressionDTOs = null;
+        try {
+            expressionDTOs = this.expressionService.importExpressionsIntoCategory(categoryId, expressionNames);
+        } catch (ExpressionService.ExpressionAlreadyExists expressionAlreadyExists) {
+            expressionAlreadyExists.printStackTrace();
+        }
+        return new ResponseEntity<>(expressionDTOs, HttpStatus.CREATED);
     }
+
+    // TODO: add importExpressions method
 }

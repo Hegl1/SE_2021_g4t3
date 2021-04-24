@@ -1,6 +1,8 @@
 package at.qe.timeguess.services;
 
 import at.qe.timeguess.dto.CategoryExpressionDTO;
+import at.qe.timeguess.dto.ExpressionDTO;
+import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.repositories.ExpressionRepository;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -91,18 +94,22 @@ public class ExpressionService {
     /**
      * Saves an Expression in the database
      *
-     * @param expression the Expression to be saved
-     * @return the saved Expression
+     * @param categoryId the ID of the Category to which the Expression gets assigned
+     * @param nameDTO contains the name of the Expression
+     * @return an ExpressionDTO with the information of the saved Expression
      * @throws ExpressionAlreadyExists if the Expression already exists in the Category
      */
-    public Expression saveExpression(final Expression expression) throws ExpressionAlreadyExists {
+    public ExpressionDTO saveExpression(final Long categoryId, final NameDTO nameDTO) throws ExpressionAlreadyExists {
 
-        Collection<Expression> allExpressionsOfCategory = getAllExpressionsByCategory(expression.getCategory());
+        Category category = this.categoryService.getCategoryById(categoryId);
+        Collection<Expression> allExpressionsOfCategory = getAllExpressionsByCategory(category);
 
-        if(allExpressionsOfCategory.stream().anyMatch(e -> e.getName().equals(expression.getName()))) {
+        if(allExpressionsOfCategory.stream().anyMatch(e -> e.getName().equals(nameDTO.getName()))) {
             throw new ExpressionAlreadyExists("This Expression already exists in this Category!");
         }
-        return this.expressionRepository.save(expression);
+
+        Expression expression = this.expressionRepository.save(new Expression(nameDTO.getName(), category));
+        return new ExpressionDTO(expression.getId(), expression.getName());
     }
 
     /**
@@ -114,23 +121,18 @@ public class ExpressionService {
      * @param expressionNames the names of the Expressions to be imported
      * @return the Collection of the imported Expressions
      */
-    public Collection<Expression> importExpressionsIntoCategory(final Long categoryId, final Collection<String> expressionNames) {
+    public List<ExpressionDTO> importExpressionsIntoCategory(final Long categoryId, final Collection<String> expressionNames) throws ExpressionAlreadyExists {
 
-        Category categoryToImportTo = this.categoryService.getCategoryById(categoryId);
-        Expression expressionToImport;
-        List<Expression> expressionsToImport = new ArrayList<>();
+        Category category = this.categoryService.getCategoryById(categoryId);
+        List<ExpressionDTO> expressionDTOs = new LinkedList<>();
 
         for(String current : expressionNames) {
-
-            expressionToImport = new Expression(current, categoryToImportTo);
-            expressionsToImport.add(expressionToImport);
-            try {
-                this.saveExpression(expressionToImport);
-            } catch (ExpressionAlreadyExists ignored) {
-
-            }
+            NameDTO nameDTO = new NameDTO(current);
+            ExpressionDTO expressionDTO = this.saveExpression(categoryId, nameDTO);
+            expressionDTOs.add(expressionDTO);
         }
-        return expressionsToImport;
+
+        return expressionDTOs;
     }
 
     /**
@@ -139,7 +141,7 @@ public class ExpressionService {
      * @param categoryExpressionDTOs Pairs of (Category, Expression[]) to get imported
      * @throws CategoryService.CategoryAlreadyExistsException if the Category to get created already exists
      */
-    public void importExpressions(final Collection<CategoryExpressionDTO> categoryExpressionDTOs) throws CategoryService.CategoryAlreadyExistsException {
+    public void importExpressions(final Collection<CategoryExpressionDTO> categoryExpressionDTOs) throws CategoryService.CategoryAlreadyExistsException, ExpressionAlreadyExists {
         String nameOfCategoryToImportTo;
 
         for(CategoryExpressionDTO current : categoryExpressionDTOs) {

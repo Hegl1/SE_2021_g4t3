@@ -73,6 +73,7 @@ public class CategoryController {
         return new ResponseEntity<List<CategoryInfoDTO>>(allCategoriesWithInfo, HttpStatus.OK);
     }
 
+    // TODO: get it to work with initial data (getting code NOT_FOUND currently)
     /**
      * Returns a Category by its ID
      *

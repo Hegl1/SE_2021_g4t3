@@ -1,6 +1,7 @@
 package at.qe.timeguess.tests;
 
 import at.qe.timeguess.dto.CategoryExpressionDTO;
+import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.services.CategoryService;
@@ -73,18 +74,18 @@ public class ExpressionServiceTest {
     @Test
     @DirtiesContext
     public void testSaveExpression() throws ExpressionService.ExpressionAlreadyExists {
-        Category category = this.categoryService.getCategoryById(0L);
-        Expression expressionToSave = new Expression("Ballermann", category);
-        this.expressionService.saveExpression(expressionToSave);
 
-        Collection<Expression> allExpressionsOfCategory = this.expressionService.getAllExpressionsByCategory(category);
+        NameDTO nameDTO = new NameDTO("Ballermann");
+        this.expressionService.saveExpression(0L, nameDTO);
+        Collection<Expression> allExpressionsOfCategory = this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L));
+
         Assertions.assertEquals(6, allExpressionsOfCategory.size());
         Assertions.assertTrue(allExpressionsOfCategory.stream().anyMatch(expression -> expression.getName().equals("Ballermann")));
     }
 
     @Test
     @DirtiesContext
-    public void testImportExpressionsByCategory() {
+    public void testImportExpressionsByCategory() throws ExpressionService.ExpressionAlreadyExists {
         Collection<String> expressionNamesToImport = new ArrayList<>();
 
         for(int i = 1; i < 6; i++) {
@@ -99,7 +100,7 @@ public class ExpressionServiceTest {
 
     @Test
     @DirtiesContext
-    void testImportExpressions() throws CategoryService.CategoryAlreadyExistsException {
+    void testImportExpressions() throws CategoryService.CategoryAlreadyExistsException, ExpressionService.ExpressionAlreadyExists {
         Collection<CategoryExpressionDTO> categoryExpressionDTOs = new ArrayList<>();
 
         String categoryName1 = "Deutschland";
@@ -130,8 +131,8 @@ public class ExpressionServiceTest {
     public void testDeleteExpression() throws ExpressionService.ExpressionAlreadyExists, ExpressionService.ExpressionDoesNotExistAnymore {
 
         // TODO: can't delete predefined test data
-        Category category = this.categoryService.getCategoryById(0L);
-        this.expressionService.saveExpression(new Expression("Ballermann", category));
+        NameDTO nameDTO = new NameDTO("Ballermann");
+        this.expressionService.saveExpression(0L, nameDTO);
         this.expressionService.deleteExpression(this.expressionService.getExpressionById(1L));
         Assertions.assertEquals(5, this.expressionService.getAllExpressions().size());
     }
@@ -139,8 +140,7 @@ public class ExpressionServiceTest {
     @Test
     @DirtiesContext
     public void testExpressionAlreadyExistsException() {
-        Category category = this.categoryService.getCategoryById(0L);
-        Expression expressionToSave = new Expression("Bundestag", category);
-        Assertions.assertThrows(ExpressionService.ExpressionAlreadyExists.class, () -> this.expressionService.saveExpression(expressionToSave));
+        NameDTO nameDTO = new NameDTO("Bundestag");
+        Assertions.assertThrows(ExpressionService.ExpressionAlreadyExists.class, () -> this.expressionService.saveExpression(0L, nameDTO));
     }
 }
