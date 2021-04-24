@@ -228,4 +228,20 @@ public final class Dice {
 		}
 		return false;
 	}
+
+	public boolean setCalibrationVersion() {
+		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
+		BluetoothGattCharacteristic calibrationVersionCharacteristic = timeFlipService
+				.find(calibrationVersionCharacteristicUuid);
+		if (calibrationVersionCharacteristic != null) {
+			byte[] calibrationConfig = { 0x31, 0x31, 0x31, 0x31}; 
+			// random example just to see if that fixes anything - it doesn't. battery change fucks up everything
+			calibrationVersionCharacteristic.writeValue(calibrationConfig);
+			System.out.println("TimeFlip calibration input done");
+			return true;
+		} else {
+			System.out.println("calibration version characteristic is not available");
+		}
+		return false;
+	}
 }

@@ -99,6 +99,9 @@ public final class Main {
 
 		dice.readCalibrationVersion(); // totally useless?
 		// TODO manual mapping for each facet needed. with help of GUI? oh lord...
+		dice.setCalibrationVersion();
+		dice.readCalibrationVersion();
+		// doesn't work. after battery change it's random/different again, even if i set a value for the calibration version
 
 		/* I N G A M E   -   R E A D   F A C E T S */
 
