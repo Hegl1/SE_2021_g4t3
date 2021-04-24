@@ -84,8 +84,8 @@ public final class Main {
 		// TODO calibrate facets (coz they can be assigned randomly each time)
 		// TODO read facets: handle case when same facet twice in a row
 		// TODO make dice disconnect when program throws an exception during runtime
-		// TODO find out when dice connection is lost
-		// TODO attempt reconnect after connect is lost
+		// TODO find out when dice connection is lost, notify backend!
+		// TODO attempt reconnect after connect is lost, notify backend!
 
 		/* C R E A T E   G A M E   -   S E T U P   D I C E */
 
@@ -96,6 +96,9 @@ public final class Main {
 
 		dice.readBatteryLevel();
 		// TODO check the battery level regularly
+
+		dice.readCalibrationVersion(); // totally useless?
+		// TODO manual mapping for each facet needed. with help of GUI? oh lord...
 
 		/* I N G A M E   -   R E A D   F A C E T S */
 
