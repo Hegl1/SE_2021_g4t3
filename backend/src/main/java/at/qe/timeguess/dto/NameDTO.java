@@ -5,7 +5,6 @@ public class NameDTO {
     private String name;
 
     public NameDTO() {
-
     }
 
     public NameDTO(final String name) {

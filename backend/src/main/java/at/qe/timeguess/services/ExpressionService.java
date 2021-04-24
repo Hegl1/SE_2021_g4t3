@@ -1,6 +1,7 @@
 package at.qe.timeguess.services;
 
 import at.qe.timeguess.dto.CategoryExpressionDTO;
+import at.qe.timeguess.dto.CategoryExpressionIDsDTO;
 import at.qe.timeguess.dto.ExpressionDTO;
 import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -141,20 +141,28 @@ public class ExpressionService {
      * @param categoryExpressionDTOs Pairs of (Category, Expression[]) to get imported
      * @throws CategoryService.CategoryAlreadyExistsException if the Category to get created already exists
      */
-    public void importExpressions(final Collection<CategoryExpressionDTO> categoryExpressionDTOs) throws CategoryService.CategoryAlreadyExistsException, ExpressionAlreadyExists {
-        String nameOfCategoryToImportTo;
+    public List<CategoryExpressionIDsDTO> importExpressions(final Collection<CategoryExpressionDTO> categoryExpressionDTOs) throws CategoryService.CategoryAlreadyExistsException, ExpressionAlreadyExists {
 
-        for(CategoryExpressionDTO current : categoryExpressionDTOs) {
-            nameOfCategoryToImportTo = current.getCategoryName();
+        Category category;
+        List<String> expressionNames = new LinkedList<>();
+        List<ExpressionDTO> expressionDTOs = new LinkedList<>();
+        List<CategoryExpressionIDsDTO> categoryExpressionIDsDTOs = new LinkedList<>();
 
-            if (this.categoryService.getCategoryByName(nameOfCategoryToImportTo) == null) {
-                Category newCategoryToSave = new Category(nameOfCategoryToImportTo);
-                this.categoryService.saveCategory(newCategoryToSave);
+        for (CategoryExpressionDTO current : categoryExpressionDTOs) {
+
+            category = this.categoryService.getCategoryByName(current.getCategory());
+            if(category == null) {
+                category = this.categoryService.saveCategory(new Category(current.getCategory()));
             }
 
-            long categoryId = this.categoryService.getCategoryByName(nameOfCategoryToImportTo).getId();
-            this.importExpressionsIntoCategory(categoryId, current.getExpressionNames());
+            System.out.println(current.getExpressions());
+            expressionNames.addAll(current.getExpressions());
+
+            expressionDTOs = this.importExpressionsIntoCategory(category.getId(), expressionNames);
+            categoryExpressionIDsDTOs.add(new CategoryExpressionIDsDTO(category, expressionDTOs));
         }
+
+        return categoryExpressionIDsDTOs;
     }
 
     /**

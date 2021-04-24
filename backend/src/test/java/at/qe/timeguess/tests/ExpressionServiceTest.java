@@ -14,6 +14,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @SpringBootTest
 public class ExpressionServiceTest {
@@ -103,27 +104,18 @@ public class ExpressionServiceTest {
     void testImportExpressions() throws CategoryService.CategoryAlreadyExistsException, ExpressionService.ExpressionAlreadyExists {
         Collection<CategoryExpressionDTO> categoryExpressionDTOs = new ArrayList<>();
 
-        String categoryName1 = "Deutschland";
-        String categoryName2 = "Politics";
-        Collection<String> expressionNames1 = new ArrayList<>();
-        Collection<String> expressionNames2 = new ArrayList<>();
+        List<String> expressionNames = new ArrayList<>();
 
         for(int i = 1; i < 6; i++) {
-            expressionNames1.add("Expression " + i);
-            expressionNames2.add("Term " + i);
+            expressionNames.add("Expression " + i);
         }
 
-        CategoryExpressionDTO categoryExpressionDTO1 = new CategoryExpressionDTO(categoryName1, expressionNames1);
-        CategoryExpressionDTO categoryExpressionDTO2 = new CategoryExpressionDTO(categoryName2, expressionNames2);
-
-        categoryExpressionDTOs.add(categoryExpressionDTO1);
-        categoryExpressionDTOs.add(categoryExpressionDTO2);
-
+        CategoryExpressionDTO categoryExpressionDTO = new CategoryExpressionDTO("Deutschland", expressionNames);
+        categoryExpressionDTOs.add(categoryExpressionDTO);
         this.expressionService.importExpressions(categoryExpressionDTOs);
 
-        Assertions.assertEquals(2, this.categoryService.getAllCategories().size());
+        Assertions.assertEquals(1, this.categoryService.getAllCategories().size());
         Assertions.assertEquals(10, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Deutschland")).size());
-        Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Politics")).size());
     }
 
     @Test
