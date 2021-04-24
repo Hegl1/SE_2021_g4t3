@@ -1,6 +1,6 @@
 package at.qe.timeguess.tests;
 
-import at.qe.timeguess.dto.CategoryExpressionDTO;
+import at.qe.timeguess.dto.CategoryExpressionAsStringsDTO;
 import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.Expression;
@@ -102,7 +102,7 @@ public class ExpressionServiceTest {
     @Test
     @DirtiesContext
     void testImportExpressions() throws CategoryService.CategoryAlreadyExistsException, ExpressionService.ExpressionAlreadyExists {
-        Collection<CategoryExpressionDTO> categoryExpressionDTOs = new ArrayList<>();
+        Collection<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOS = new ArrayList<>();
 
         List<String> expressionNames = new ArrayList<>();
 
@@ -110,9 +110,9 @@ public class ExpressionServiceTest {
             expressionNames.add("Expression " + i);
         }
 
-        CategoryExpressionDTO categoryExpressionDTO = new CategoryExpressionDTO("Deutschland", expressionNames);
-        categoryExpressionDTOs.add(categoryExpressionDTO);
-        this.expressionService.importExpressions(categoryExpressionDTOs);
+        CategoryExpressionAsStringsDTO categoryExpressionAsStringsDTO = new CategoryExpressionAsStringsDTO("Deutschland", expressionNames);
+        categoryExpressionAsStringsDTOS.add(categoryExpressionAsStringsDTO);
+        this.expressionService.importExpressions(categoryExpressionAsStringsDTOS);
 
         Assertions.assertEquals(1, this.categoryService.getAllCategories().size());
         Assertions.assertEquals(10, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Deutschland")).size());

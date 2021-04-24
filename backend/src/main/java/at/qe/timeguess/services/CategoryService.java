@@ -75,7 +75,6 @@ public class CategoryService {
      * @throws CategoryAlreadyExistsException if a Category to save already exists
      */
     public Category saveCategory(final Category category) throws CategoryAlreadyExistsException{
-
         if(this.getCategoryByName(category.getName()) != null) {
             throw new CategoryAlreadyExistsException("This Category already exists!");
         }
@@ -89,7 +88,6 @@ public class CategoryService {
      * @throws CategoryIsReferencedInCompletedGamesException if the Category to be deleted is referenced in the persisted completed games
      */
     public void deleteCategory(final Category category) throws CategoryIsReferencedInCompletedGamesException {
-
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
 
         if(allCompletedGames.stream().anyMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName()))) {

@@ -2,25 +2,24 @@ package at.qe.timeguess.dto;
 
 import at.qe.timeguess.model.Category;
 
-import java.util.Collection;
 import java.util.List;
 
 public class CategoryExpressionDTO {
 
-    private String category;
-    private List<String> expressions;
+    private Category category;
+    private List<ExpressionDTO> expressions;
 
-    public CategoryExpressionDTO(final String category, final List<String> expressions) {
+    public CategoryExpressionDTO(Category category, List<ExpressionDTO> expressions) {
         super();
         this.category = category;
         this.expressions = expressions;
     }
 
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public Collection<String> getExpressions() {
+    public List<ExpressionDTO> getExpressions() {
         return expressions;
     }
 }

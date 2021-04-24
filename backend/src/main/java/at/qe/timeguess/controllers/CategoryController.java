@@ -54,22 +54,18 @@ public class CategoryController {
      */
     @GetMapping("/info")
     public ResponseEntity<List<CategoryInfoDTO>> getAllCategoriesWithInfo() {
-
         Collection<Category> allCategories = this.categoryService.getAllCategories();
         List<CategoryInfoDTO> allCategoriesWithInfo = new LinkedList<>();
 
         for(Category current : allCategories) {
-
             CategoryInfoDTO categoryInfoDTO = new CategoryInfoDTO(
                 current.getId(),
                 current.getName(),
                 this.categoryService.isDeletable(current),
                 this.expressionService.getAllExpressionsByCategory(current).size()
             );
-
             allCategoriesWithInfo.add(categoryInfoDTO);
         }
-
         return new ResponseEntity<List<CategoryInfoDTO>>(allCategoriesWithInfo, HttpStatus.OK);
     }
 

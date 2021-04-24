@@ -1,21 +1,18 @@
 package at.qe.timeguess.controllers;
 
+import at.qe.timeguess.dto.CategoryExpressionAsStringsDTO;
 import at.qe.timeguess.dto.CategoryExpressionDTO;
-import at.qe.timeguess.dto.CategoryExpressionIDsDTO;
 import at.qe.timeguess.dto.ExpressionDTO;
 import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.services.CategoryService;
 import at.qe.timeguess.services.ExpressionService;
-import javassist.expr.Expr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.CollationElementIterator;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,7 +41,6 @@ public class ExpressionController {
      */
     @GetMapping("/categories/{id}/expressions")
     public ResponseEntity<List<ExpressionDTO>> getAllExpressionsOfCategory(final Long categoryId) {
-
         Category category = this.categoryService.getCategoryById(categoryId);
         List<Expression> allExpressions = new LinkedList<>(this.expressionService.getAllExpressionsByCategory(category));
 
@@ -73,7 +69,6 @@ public class ExpressionController {
      */
     @PostMapping("/categories/{id}/expressions")
     public ResponseEntity<ExpressionDTO> createExpression(final Long categoryId, @RequestBody final NameDTO nameDTO) {
-
         Category category = this.categoryService.getCategoryById(categoryId);
 
         if(category != null) {
@@ -100,6 +95,7 @@ public class ExpressionController {
     @DeleteMapping("/expressions/{id}")
     public ResponseEntity<Expression> deleteExpression(final Long id) {
         Expression expression = this.expressionService.getExpressionById(id);
+
         try {
             this.expressionService.deleteExpression(expression);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -119,6 +115,7 @@ public class ExpressionController {
     @PostMapping("/categories/{id}/expressions/import")
     public ResponseEntity<List<ExpressionDTO>> importExpressionsIntoCategory(final Long categoryId, @RequestBody final List<String> expressionNames) {
         List<ExpressionDTO> expressionDTOs = null;
+
         try {
             expressionDTOs = this.expressionService.importExpressionsIntoCategory(categoryId, expressionNames);
         } catch (ExpressionService.ExpressionAlreadyExists ignored) {
@@ -130,21 +127,19 @@ public class ExpressionController {
     /**
      * Imports several Expressions and assigns them to different Categories
      *
-     * @param categoryExpressionDTOs contains the Categories and Expressions to import
+     * @param categoryExpressionAsStringsDTOS contains the Categories and Expressions to import
      * @return ResponseEntity for REST communication:
      *      code CREATED if Categories and Expressions got imported successfully
      */
     @PostMapping("/expressions/import")
-    public ResponseEntity<List<CategoryExpressionIDsDTO>> importExpressions(@RequestBody final List<CategoryExpressionDTO> categoryExpressionDTOs) {
-
-        List<CategoryExpressionIDsDTO> importedCategoriesAndExpressions = new LinkedList<>();
+    public ResponseEntity<List<CategoryExpressionDTO>> importExpressions(@RequestBody final List<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOS) {
+        List<CategoryExpressionDTO> importedCategoriesAndExpressions = new LinkedList<>();
 
         try {
-            importedCategoriesAndExpressions.addAll(this.expressionService.importExpressions(categoryExpressionDTOs));
+            importedCategoriesAndExpressions.addAll(this.expressionService.importExpressions(categoryExpressionAsStringsDTOS));
         } catch (CategoryService.CategoryAlreadyExistsException | ExpressionService.ExpressionAlreadyExists ignored) {
 
         }
-
         return new ResponseEntity<>(importedCategoriesAndExpressions, HttpStatus.CREATED);
     }
 }
