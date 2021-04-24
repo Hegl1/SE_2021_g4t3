@@ -57,6 +57,17 @@ public class CategoryService {
     }
 
     /**
+     * Checks if a Category is deletable, based on occurrences in completed Games
+     *
+     * @param category the Category for which is checked if it is deletable
+     * @return true or false, whether the Category is deletable
+     */
+    public boolean isDeletable(Category category) {
+        Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
+        return allCompletedGames.stream().noneMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName()));
+    }
+
+    /**
      * Saves a new Category for Expressions
      *
      * @param category the Category to save
@@ -64,7 +75,6 @@ public class CategoryService {
      * @throws CategoryAlreadyExistsException if a Category to save already exists
      */
     public Category saveCategory(final Category category) throws CategoryAlreadyExistsException{
-
         if(this.getCategoryByName(category.getName()) != null) {
             throw new CategoryAlreadyExistsException("This Category already exists!");
         }
@@ -78,7 +88,6 @@ public class CategoryService {
      * @throws CategoryIsReferencedInCompletedGamesException if the Category to be deleted is referenced in the persisted completed games
      */
     public void deleteCategory(final Category category) throws CategoryIsReferencedInCompletedGamesException {
-
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
 
         if(allCompletedGames.stream().anyMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName()))) {

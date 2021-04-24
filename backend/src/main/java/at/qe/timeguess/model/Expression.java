@@ -1,15 +1,13 @@
 package at.qe.timeguess.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 @Entity
 public class Expression {
 
 	@Id
-	@GeneratedValue
+    @SequenceGenerator(name = "expression_sequence", initialValue = 11)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "expression_sequence")
 	private long id;
 	private String name;
 
