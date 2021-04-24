@@ -11,9 +11,11 @@ import java.io.*;
 public final class BackendCommunicator {
 	private String urlPrefix;
 	private String diceId;
+	private String diceIdFileName;
 
 	public BackendCommunicator() {
 		this.urlPrefix = "http://192.168.0.220:8080/dice";
+		this.diceIdFileName = "timeGuessDiceId.txt";
 		this.diceId = getDiceId();
 	}
 
@@ -27,15 +29,61 @@ public final class BackendCommunicator {
 	 * @return the dice ID
 	 */
 	public String getDiceId() {
-		if (this.diceId == null) { 		
-			// TODO if id not found in file:
-			String urlString = urlPrefix + "/register";
-			String newDiceId = sendGetRequest(urlString);
-			this.diceId = newDiceId;
-			System.out.println("Dice Id = " + diceId);
-			// TODO save into file
+		if (this.diceId == null) { 
+			String savedDiceId = readIdFromFile();
+			if (savedDiceId == null) {
+				String urlString = urlPrefix + "/register";
+				String newDiceId = sendGetRequest(urlString);
+				this.diceId = newDiceId;
+				System.out.println("new dice Id = " + newDiceId);
+				saveIdToFile(newDiceId);
+			} else {
+				this.diceId = savedDiceId;
+			}
 		}
 		return this.diceId;
+	}
+
+	/**
+	 * Reads the already registered raspberry/dice ID from a file if that file exists.
+	 * 
+	 * @return the registered ID if a file with an ID exists, null otherwise
+	 */
+	private String readIdFromFile() {	
+		File file = new File(this.diceIdFileName);
+		if (file.exists()) {
+			System.out.println("ID file exists");
+			try { 
+				BufferedReader reader = new BufferedReader(new FileReader(file));
+    			String savedDiceId = reader.readLine();
+   				reader.close();
+				System.out.println("ID successfully read from file");
+				return savedDiceId;
+			} catch (IOException e) {
+				System.out.println("ID couldn't be read from file");
+				return null;
+			}		
+		} else {
+			System.out.println("ID file doesn't exist");
+			return null;
+		}	
+	}
+
+	/**
+	 * Saves the newly registered raspberry/dice ID into a file.
+	 * 
+	 * @param newDiceId the ID to be saved
+	 */
+	private void saveIdToFile(String newDiceId) {
+		try {
+			File file = new File(this.diceIdFileName);
+    		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+    		writer.write(newDiceId);
+    		writer.close();
+			System.out.println("ID saved to file");
+		} catch (IOException e) {
+			System.out.println("dice ID couldn't be saved to file");
+		}
 	}
 
 	/**
