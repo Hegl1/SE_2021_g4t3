@@ -67,8 +67,6 @@ public final class Main {
 
 		Dice dice = new Dice(device);
 
-		System.out.println("Connection established");
-
 		Lock lock = new ReentrantLock();
 		Condition cv = lock.newCondition();
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -181,6 +179,7 @@ public final class Main {
 					+ " and RSSI " + device.getRSSI());
 
 			if (device.connect()) {
+				System.out.println("Connection established");
 				return device;
 			} else {
 				System.out.println("Connection not established - trying next one");

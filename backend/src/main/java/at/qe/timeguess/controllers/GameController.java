@@ -19,15 +19,15 @@ import at.qe.timeguess.dto.CreateGame;
 import at.qe.timeguess.dto.GameDTO;
 import at.qe.timeguess.dto.TeamDTO;
 import at.qe.timeguess.dto.UserDTO;
+import at.qe.timeguess.gamelogic.Dice;
+import at.qe.timeguess.gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game.GameCreationException;
+import at.qe.timeguess.gamelogic.Team;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.repositories.CategoryRepository;
 import at.qe.timeguess.services.LobbyService;
 import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
-import at.qe.timeguess.gamelogic.Dice;
-import at.qe.timeguess.gamelogic.Game;
-import at.qe.timeguess.gamelogic.Game.GameCreationException;
-import at.qe.timeguess.gamelogic.Team;
 
 /**
  * Class that controls creating, viewing and deleting games via REST.
@@ -127,7 +127,7 @@ public class GameController {
 		if (lobbyService.getGame(code) == null) {
 			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
 		} else {
-			lobbyService.deleteRunningGame(code);
+			lobbyService.abortRunningGame(code);
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
 	}

@@ -167,7 +167,7 @@ export class ApiService {
     category_id: number,
     max_score: number,
     number_of_teams: number,
-    mapping: DiceMapping[]
+    mapping: DiceMapping[] | null
   ) {
     return this.handleResponse<number>(
       this.http
@@ -196,6 +196,10 @@ export class ApiService {
     return this.handleResponse<RunningGame>(
       this.http.get<RunningGame>(`${this.URL}/games/${code}`, this.httpOptions).toPromise()
     );
+  }
+
+  getGameExists(code: number) {
+    return this.handleResponse<{}>(this.http.get<{}>(`${this.URL}/games/${code}/exists`, this.httpOptions).toPromise());
   }
 
   deleteGame(code: number) {
@@ -284,5 +288,11 @@ export class ApiService {
 
   deleteCategory(id: number) {
     return this.handleResponse<{}>(this.http.delete<{}>(`${this.URL}/categories/${id}`, this.httpOptions).toPromise());
+  }
+
+  // Dice
+
+  getDiceAvailable(id: string) {
+    return this.handleResponse<{}>(this.http.get<{}>(`${this.URL}/dice/${id}/available`, this.httpOptions).toPromise());
   }
 }

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Role, User } from '../api/ApiInterfaces';
 import StorageNames from '../StorageNames';
@@ -10,7 +11,7 @@ export class UserService {
   private _user: User | null = null;
   private _token: string | null = null;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private dialog: MatDialog) {
     this.loadToken();
   }
 
@@ -27,7 +28,7 @@ export class UserService {
     if (save) {
       localStorage.setItem(StorageNames.Token, token);
     } else {
-      document.cookie = StorageNames.Token + '=' + token;
+      document.cookie = `${StorageNames.Token}=${token}; samesite=strict; path=/`;
     }
 
     this.loadToken();
@@ -77,9 +78,9 @@ export class UserService {
    * Removes the stored user and token from storage and cookies
    */
   private remove() {
-    localStorage.removeItem(StorageNames.Token);
+    Object.values(StorageNames).forEach((storageName) => localStorage.removeItem(storageName));
 
-    document.cookie = StorageNames.Token + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+    document.cookie = `${StorageNames.Token}=; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
 
     this._user = this._token = null;
   }
@@ -134,23 +135,23 @@ export class UserService {
   /**
    * Logsout the user and removes him from storage and cookies
    *
-   * @param redirect whether to redirect the user to the login page afterwards
+   * @param redirect_path the path to redirect the user to, after the logout (or no redirect if null)
    */
-  async logout(redirect: boolean = true) {
+  logout(redirect_path: string | null = '/login') {
     this.remove();
 
-    if (redirect) this.router.navigateByUrl('/login');
+    this.dialog.closeAll();
+
+    if (redirect_path !== null) this.router.navigateByUrl(redirect_path);
   }
 
   /**
    * Logsout the user, removes him from storage and cookies and redirects him to the login page with a set reason
    *
-   * @param redirect whether to redirect the user to the login page afterwards
+   * @param reason the reason for the logout
    */
-  async logoutReason(reason: string) {
-    this.logout(false);
-
-    this.router.navigateByUrl(`/login?reason=${reason}`);
+  logoutReason(reason: string) {
+    this.logout(`/login?reason=${reason}`);
   }
 
   /**
