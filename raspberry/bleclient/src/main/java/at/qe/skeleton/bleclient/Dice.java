@@ -23,6 +23,7 @@ public final class Dice {
 	private static final String facetsCharacteristicUuid = "f1196f52-71a4-11e6-bdf4-0800200c9a66";
 	private static final String commandResultOutputCharacteristicUuid = "f1196f53-71a4-11e6-bdf4-0800200c9a66";
 	private static final String commandCharacteristicUuid = "f1196f54-71a4-11e6-bdf4-0800200c9a66";
+	private static final String calibrationVersionCharacteristicUuid = "f1196f56-71a4-11e6-bdf4-0800200c9a66";
 	private static final String passwordCharacteristicUuid = "f1196f57-71a4-11e6-bdf4-0800200c9a66";
 
 	private static final byte[] passwordConfig = { 0x30, 0x30, 0x30, 0x30, 0x30, 0x30 };
@@ -206,6 +207,40 @@ public final class Dice {
 			return true;
 		} else {
 			// System.out.println("accelerometer data characteristic is not available");
+		}
+		return false;
+	}
+
+	public boolean readCalibrationVersion() {
+		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
+		BluetoothGattCharacteristic calibrationVersionCharacteristic = timeFlipService
+				.find(calibrationVersionCharacteristicUuid);
+		if (calibrationVersionCharacteristic != null) {
+			System.out.println("calibration version characteristic is available");
+			byte[] result = calibrationVersionCharacteristic.readValue();
+			for (byte b : result) {
+				System.out.print(String.format("%02x ", b));
+			}
+			System.out.println("");
+			return true;
+		} else {
+			System.out.println("calibration version characteristic is not available");
+		}
+		return false;
+	}
+
+	public boolean setCalibrationVersion() {
+		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
+		BluetoothGattCharacteristic calibrationVersionCharacteristic = timeFlipService
+				.find(calibrationVersionCharacteristicUuid);
+		if (calibrationVersionCharacteristic != null) {
+			byte[] calibrationConfig = { 0x31, 0x31, 0x31, 0x31}; 
+			// random example just to see if that fixes anything - it doesn't. battery change fucks up everything
+			calibrationVersionCharacteristic.writeValue(calibrationConfig);
+			System.out.println("TimeFlip calibration input done");
+			return true;
+		} else {
+			System.out.println("calibration version characteristic is not available");
 		}
 		return false;
 	}

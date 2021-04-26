@@ -34,9 +34,13 @@ public final class BackendCommunicator {
 			if (savedDiceId == null) {
 				String urlString = urlPrefix + "/register";
 				String newDiceId = sendGetRequest(urlString);
-				this.diceId = newDiceId;
-				System.out.println("new dice Id = " + newDiceId);
-				saveIdToFile(newDiceId);
+				if (newDiceId == null) {
+					System.out.println("couldn't get an ID from the central backend");
+				} else {
+					this.diceId = newDiceId;
+					System.out.println("new dice Id = " + newDiceId);
+					saveIdToFile(newDiceId);
+				}
 			} else {
 				this.diceId = savedDiceId;
 			}
@@ -163,7 +167,7 @@ public final class BackendCommunicator {
 			} 
 			con.disconnect();
 		} catch (Exception e) {
-			System.out.println("POST request failed. exception caught.");
+			System.out.println("POST request failed. exception caught. please check if central backend is running properly.");
 			// TODO catch all possible exceptions?
 			// this might just be a temporary catch phrase
 		}
@@ -205,11 +209,9 @@ public final class BackendCommunicator {
 			}
 			con.disconnect();
 		} catch (Exception e) {
-			System.out.println("GET request failed. exception caught.");
+			System.out.println("GET request failed. exception caught. please check if central backend is running properly.");
 			// TODO catch all possible exceptions?
 			// this might just be a temporary catch phrase
-			// i only use this for getting the diceId. only possible response code is 200
-			// -> can this even fail while server is running?
 		}
 		return null;
 	}
