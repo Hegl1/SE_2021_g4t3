@@ -79,7 +79,7 @@ public class CategoryController {
      *      code NOT_FOUND if the category was not found
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(final Long id) {
+    public ResponseEntity<Category> getCategoryById(@PathVariable final Long id) {
         Category category = this.categoryService.getCategoryById(id);
 
         if(category != null) {

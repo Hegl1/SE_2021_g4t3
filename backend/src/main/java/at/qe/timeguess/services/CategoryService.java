@@ -1,5 +1,6 @@
 package at.qe.timeguess.services;
 
+import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.CompletedGame;
 import at.qe.timeguess.repositories.CategoryRepository;
@@ -26,6 +27,9 @@ public class CategoryService {
 
     @Autowired
     private CompletedGameRepository completedGameRepository;
+
+    @Autowired
+    private LobbyService lobbyService;
 
     /**
      * Returns all Categories
@@ -89,8 +93,11 @@ public class CategoryService {
      */
     public void deleteCategory(final Category category) throws CategoryIsReferencedInCompletedGamesException {
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
+        Collection<Game> allRunningGames = this.lobbyService.getAllRunningGames();
 
-        if(allCompletedGames.stream().anyMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName()))) {
+        if(allRunningGames.stream().anyMatch(runningGame -> runningGame.getCategory().getId().equals(category.getId())))
+
+        if(allCompletedGames.stream().anyMatch(completedGame -> completedGame.getCategory().getId().equals(category.getId()))) {
             throw new CategoryIsReferencedInCompletedGamesException("This Category can not be deleted, because it is referenced in a completed game!");
         }
         this.categoryRepository.delete(category);

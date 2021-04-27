@@ -4,8 +4,11 @@ import at.qe.timeguess.dto.CategoryExpressionAsStringsDTO;
 import at.qe.timeguess.dto.CategoryExpressionDTO;
 import at.qe.timeguess.dto.ExpressionDTO;
 import at.qe.timeguess.dto.NameDTO;
+import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.model.Category;
+import at.qe.timeguess.model.CompletedGame;
 import at.qe.timeguess.model.Expression;
+import at.qe.timeguess.repositories.CompletedGameRepository;
 import at.qe.timeguess.repositories.ExpressionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class represents the Service with which Expressions get managed.
@@ -31,7 +35,13 @@ public class ExpressionService {
     private ExpressionRepository expressionRepository;
 
     @Autowired
+    private CompletedGameRepository completedGameRepository;
+
+    @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private LobbyService lobbyService;
 
     /**
      * Returns a Expression which is searched by an ID
@@ -110,6 +120,7 @@ public class ExpressionService {
         return new ExpressionDTO(expression.getId(), expression.getName());
     }
 
+    // TODO: Expressions do not get a Category assigned
     /**
      *  Imports Expressions into the database and assigns them to a given Category,
      *  if there Expressions to import, which already exist in the database, they get ignored,
@@ -162,10 +173,26 @@ public class ExpressionService {
      * @param expression the Expression to be deleted
      * @throws ExpressionDoesNotExistAnymore if the Expression to get deleted does not exist anymore
      */
-    public void deleteExpression(final Expression expression) throws ExpressionDoesNotExistAnymore {
+    public void deleteExpression(final Expression expression) throws ExpressionDoesNotExistAnymore, ExpressionReferencedInGame {
         if(expression == null) {
             throw new ExpressionDoesNotExistAnymore("This Expression does not exist anymore!");
         } else {
+            Category category = expression.getCategory();
+            Collection<Game> allRunningGames = this.lobbyService.getAllRunningGames();
+            Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
+
+            for(Game current : allRunningGames) {
+                if(current.getCategory() == category) {
+                    throw new ExpressionReferencedInGame("The Category of this Expression is referenced in a Game!");
+                }
+            }
+
+            for(CompletedGame current : allCompletedGames) {
+                if(current.getCategory() == category) {
+                    throw new ExpressionReferencedInGame("The Category of this Expression is referenced in a Game!");
+                }
+            }
+
             this.expressionRepository.delete(expression);
         }
     }
@@ -190,6 +217,17 @@ public class ExpressionService {
         private static final long serialVersionUID = 1L;
 
         public ExpressionDoesNotExistAnymore(final String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * Gets thrown when an Expression is tried to be deleted, which referenced in a completed game
+     */
+    public class ExpressionReferencedInGame extends Exception {
+        private static final long serialVersionUID = 1L;
+
+        public ExpressionReferencedInGame(final String message) {
             super(message);
         }
     }
