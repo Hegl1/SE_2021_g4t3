@@ -1,4 +1,5 @@
-.game_section {
+.game_section,
+.statistics_section {
   > * {
     display: inline-block;
     margin-bottom: 2em;
@@ -13,8 +14,11 @@
 }
 
 @media screen and (max-width: 440px) {
-  .game_section > * {
-    width: 100%;
-    margin-right: 0 !important;
+  .game_section,
+  .statistics_section {
+    > * {
+      width: 100%;
+      margin-right: 0 !important;
+    }
   }
 }

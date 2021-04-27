@@ -1,0 +1,15 @@
+.table_container {
+  max-height: 20em;
+  overflow: auto;
+
+  table {
+    td,
+    th {
+      padding: 0 0.5em;
+
+      &:not(:first-child) {
+        text-align: center;
+      }
+    }
+  }
+}
