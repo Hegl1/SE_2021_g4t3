@@ -11,6 +11,7 @@ import {
   GlobalStats,
   Role,
   RunningGame,
+  RunningGameState,
   TopGameStats,
   User,
   UserStats,
@@ -202,8 +203,57 @@ export class ApiService {
     return this.handleResponse<{}>(this.http.get<{}>(`${this.URL}/games/${code}/exists`, this.httpOptions).toPromise());
   }
 
+  joinGame(code: number) {
+    return this.handleResponse<{}>(
+      this.http.post<{}>(`${this.URL}/games/${code}/join`, null, this.httpOptions).toPromise()
+    );
+  }
+
   deleteGame(code: number) {
     return this.handleResponse<{}>(this.http.delete<{}>(`${this.URL}/games/${code}`, this.httpOptions).toPromise());
+  }
+
+  // Ingame
+
+  getIngame() {
+    return this.handleResponse<boolean>(this.http.get<boolean>(`${this.URL}/ingame`, this.httpOptions).toPromise());
+  }
+
+  getIngameState() {
+    return this.handleResponse<RunningGameState>(
+      this.http.get<RunningGameState>(`${this.URL}/ingame/fetch`, this.httpOptions).toPromise()
+    );
+  }
+
+  setIngameReady(state: boolean) {
+    return this.handleResponse<{}>(this.http.post<{}>(`${this.URL}/ingame/ready`, state, this.httpOptions).toPromise());
+  }
+
+  joinIngameTeam(team: number) {
+    return this.handleResponse<{}>(
+      this.http.post<{}>(`${this.URL}/ingame/teams/${team}/join`, null, this.httpOptions).toPromise()
+    );
+  }
+
+  addIngamePlayerToTeam(team: number, username: string, password: string) {
+    return this.handleResponse<{}>(
+      this.http
+        .post<{}>(
+          `${this.URL}/ingame/teams/${team}/players`,
+          {
+            username: username,
+            password: password,
+          },
+          this.httpOptions
+        )
+        .toPromise()
+    );
+  }
+
+  confirmIngame(confirmation: 'CORRECT' | 'WRONG' | 'INVALID') {
+    return this.handleResponse<{}>(
+      this.http.post<{}>(`${this.URL}/ingame/confirm`, confirmation, this.httpOptions).toPromise()
+    );
   }
 
   // Expression

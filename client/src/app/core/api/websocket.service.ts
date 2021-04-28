@@ -37,6 +37,8 @@ export class WebsocketService {
     return this;
   }
 
+  // TODO: add function to close websocket
+
   /**
    * Subscribes to the supplied message queue, calling the callback
    * with the content of a new message every time

@@ -37,6 +37,31 @@ export interface RunningGame {
   category: Category;
 }
 
+export enum GameStatus {
+  Waiting = 'WAITING',
+  Running = 'RUNNING',
+  Finished = 'FINISHED',
+}
+
+export interface RunningGameState extends RunningGame {
+  status: GameStatus;
+  waiting_data: {
+    unassigned_players: User[];
+    ready_players: User[];
+  } | null;
+  running_data: {
+    round: number;
+    running: boolean;
+    current_team: number;
+    current_player: User;
+    points: number;
+    total_time: number;
+    round_start_time: number;
+    expression: string | null;
+    action: string;
+  } | null;
+}
+
 export interface UserStats {
   won_games: {
     category: Category;
