@@ -1,7 +1,7 @@
 <mat-card class="personalStatisticsCard">
     <h2><mat-icon [inline]="true">person_outline</mat-icon>Personal</h2>
 
-    <table *ngIf="userStats !== null">
+    <table *ngIf="userStats !== null" class="data_table">
         <tr>
             <td>Played games:</td>
             <td>{{ userStats.played_games }}</td>

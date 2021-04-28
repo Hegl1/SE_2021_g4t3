@@ -1,0 +1,32 @@
+<mat-card class="runningGameCard">
+    <ng-container *ngIf="runningGame !== null">
+        <h2><mat-icon [inline]="true">gamepad</mat-icon>{{ runningGame.code | gameCode }}</h2>
+
+        <table class="data_table">
+            <tr>
+                <td>Category:</td>
+                <td>{{ runningGame.category.name }}</td>
+            </tr>
+            <tr>
+                <td>Host:</td>
+                <td>{{ runningGame.host.username }}</td>
+            </tr>
+            <tr>
+                <td>Players:</td>
+                <td>{{ players }}</td>
+            </tr>
+            <tr>
+                <td>Teams:</td>
+                <td>{{ runningGame.teams.length }}</td>
+            </tr>
+            <tr>
+                <td>Maximum points:</td>
+                <td>{{ runningGame.max_score }}</td>
+            </tr>
+        </table>
+
+        <button mat-raised-button color="warn" (click)="doCloseGame()" [disabled]="loading">
+            <mat-icon [inline]="true" style="margin-right: 0.25em">block</mat-icon>Close game
+        </button>
+    </ng-container>
+</mat-card>
