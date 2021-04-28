@@ -1,11 +1,15 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'runningGameCode',
+  name: 'gameCode',
 })
-export class RunningGameCodePipe implements PipeTransform {
-  transform(value: number): string {
-    let code = value.toString().padStart(8, '0');
+export class GameCodePipe implements PipeTransform {
+  transform(value: string | number, pad = true): string {
+    let code = value.toString();
+
+    if (pad) {
+      code = code.padStart(8, '0');
+    }
 
     let parts: string[] = [];
 

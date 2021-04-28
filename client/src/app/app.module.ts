@@ -31,7 +31,7 @@ import { GlobalStatisticsCardComponent } from './pages/home/components/global-st
 import { PersonalStatisticsCardComponent } from './pages/home/components/personal-statistics-card/personal-statistics-card.component';
 import { CategoryStatisticsCardComponent } from './pages/home/components/category-statistics-card/category-statistics-card.component';
 import { GameCardComponent } from './pages/admin/games/components/running-game-card/running-game-card.component';
-import { RunningGameCodePipe } from './core/pipes/running-gamecode.pipe';
+import { GameCodePipe } from './core/pipes/gamecode.pipe';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();
@@ -65,7 +65,7 @@ export function setupConfig(service: ConfigService) {
     PersonalStatisticsCardComponent,
     CategoryStatisticsCardComponent,
     GameCardComponent,
-    RunningGameCodePipe,
+    GameCodePipe,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, HttpClientModule],
   providers: [

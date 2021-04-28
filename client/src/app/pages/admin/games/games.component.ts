@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ApiService } from 'src/app/core/api/api.service';
 import { RunningGame } from 'src/app/core/api/ApiInterfaces';
+import { GameCodePipe } from 'src/app/core/pipes/gamecode.pipe';
 
 @Component({
   selector: 'tg-games',
@@ -13,6 +14,8 @@ export class GamesComponent implements OnInit {
 
   error: string | null = null;
   loading = false;
+
+  private _filter = '';
 
   constructor(private api: ApiService, private snackBar: MatSnackBar) {}
 
@@ -59,5 +62,21 @@ export class GamesComponent implements OnInit {
     }
   }
 
-  // TODO: add filter for games
+  set filter(filter: string) {
+    let code = filter.replace(/-/g, '').substr(0, 8);
+
+    this._filter = GameCodePipe.prototype.transform(code, false);
+  }
+
+  get filter() {
+    return this._filter;
+  }
+
+  get filteredRunningGames() {
+    if (!this.runningGames) return;
+
+    return this.runningGames.filter((game) => {
+      return game.code.toString().padStart(8, '0').startsWith(this.filter.replace(/-/g, ''));
+    });
+  }
 }

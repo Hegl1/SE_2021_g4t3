@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { RunningGame } from 'src/app/core/api/ApiInterfaces';
-import { RunningGameCodePipe } from 'src/app/core/pipes/running-gamecode.pipe';
+import { GameCodePipe } from 'src/app/core/pipes/gamecode.pipe';
 
 @Component({
   selector: 'tg-running-game-card',
@@ -37,7 +37,7 @@ export class GameCardComponent {
   async doCloseGame() {
     if (!this.runningGame) return;
 
-    let code = RunningGameCodePipe.prototype.transform(this.runningGame.code);
+    let code = GameCodePipe.prototype.transform(this.runningGame.code);
 
     let res = await this.dialog
       .open(ConfirmDialogComponent, {
