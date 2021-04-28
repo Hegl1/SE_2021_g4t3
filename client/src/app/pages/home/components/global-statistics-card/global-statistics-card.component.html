@@ -1,7 +1,7 @@
 <mat-card class="globalStatisticsCard">
     <h2><mat-icon [inline]="true">public</mat-icon>Global</h2>
 
-    <table *ngIf="globalStats !== null">
+    <table *ngIf="globalStats !== null" class="data_table">
         <tr>
             <td>Played games:</td>
             <td>{{ globalStats.totalGames }}</td>

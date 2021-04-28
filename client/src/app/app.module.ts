@@ -30,6 +30,8 @@ import { CreateGameDialogComponent } from './pages/home/components/create-game-c
 import { GlobalStatisticsCardComponent } from './pages/home/components/global-statistics-card/global-statistics-card.component';
 import { PersonalStatisticsCardComponent } from './pages/home/components/personal-statistics-card/personal-statistics-card.component';
 import { CategoryStatisticsCardComponent } from './pages/home/components/category-statistics-card/category-statistics-card.component';
+import { GameCardComponent } from './pages/admin/games/components/running-game-card/running-game-card.component';
+import { RunningGameCodePipe } from './core/pipes/running-gamecode.pipe';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();
@@ -62,6 +64,8 @@ export function setupConfig(service: ConfigService) {
     GlobalStatisticsCardComponent,
     PersonalStatisticsCardComponent,
     CategoryStatisticsCardComponent,
+    GameCardComponent,
+    RunningGameCodePipe,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, HttpClientModule],
   providers: [
