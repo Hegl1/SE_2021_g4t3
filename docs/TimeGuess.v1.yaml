@@ -14,6 +14,7 @@ tags:
   - name: User
   - name: Statistics
   - name: Game
+  - name: Ingame
   - name: Expression
   - name: Category
   - name: Dice
@@ -505,6 +506,180 @@ paths:
         - Game
       security:
         - Token: []
+  "/games/{code}/join":
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+          maximum: 99999999
+        name: code
+        in: path
+        required: true
+    post:
+      summary: Joins the game
+      operationId: post-games-code-join
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Not Found
+        "409":
+          description: Player already in a game
+      description: Joins the authenticated user to the game with the supplied code
+      tags:
+        - Game
+      security:
+        - Token: []
+  /ingame:
+    get:
+      summary: Checks whether the user is in a game
+      operationId: get-ingame
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      description: Checks whether the authenticated user is currently in a game or not
+      tags:
+        - Ingame
+      security:
+        - Token: []
+  /ingame/fetch:
+    get:
+      summary: Fetch the current state of the game
+      operationId: get-ingame-fetch
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunningGameState"
+        "404":
+          description: Not in a game
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      description: Fetches the current state of the game
+      tags:
+        - Ingame
+      security:
+        - Token: []
+  /ingame/ready:
+    post:
+      summary: Sets the players ready state
+      operationId: post-ingame-ready
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not in a game
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: boolean
+              description: Whether the player is ready or not
+      description: Sets the players ready state in his current game
+      tags:
+        - Ingame
+      security:
+        - Token: []
+  /ingame/teams/{index}/join:
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+        name: index
+        in: path
+        required: true
+    post:
+      summary: Adds the current player to the team
+      operationId: post-ingame-teams-index-join
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not in a game
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      description: Adds the authenticated player to the team with the supplied index
+      tags:
+        - Ingame
+      security:
+        - Token: []
+  /ingame/teams/{index}/players:
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+        name: index
+        in: path
+        required: true
+    post:
+      summary: Adds a player to the team
+      operationId: post-ingame-teams-index-players
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Username or password wrong
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: max.muster
+                password:
+                  type: string
+                  example: 123
+              required:
+                - username
+                - password
+      description: Adds the player to the team with the supplied index
+      tags:
+        - Ingame
+      security:
+        - Token: []
+  /ingame/confirm:
+    post:
+      summary: Confirms the guess of a team
+      operationId: post-ingame-confirm
+      responses:
+        "200":
+          description: OK
+        "403":
+          description: Can't confirm for own team
+        "404":
+          description: Not in a game
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              enum:
+                - CORRECT
+                - WRONG
+                - INVALID
+      description: Confirms the guess of the team with the supplied type
+      tags:
+        - Ingame
+      security:
+        - Token: []
   "/stats/users/{id}":
     parameters:
       - schema:
@@ -583,7 +758,6 @@ paths:
                   example: Politics
               required:
                 - name
-        description: ""
       security:
         - Token: []
   /categories/info:
@@ -1086,6 +1260,84 @@ components:
         - teams
         - host
         - category
+    RunningGameState:
+      title: RunningGameState
+      allOf:
+        - type: object
+          properties:
+            status:
+              type: string
+              enum:
+                - WAITING
+                - RUNNING
+            waiting_data:
+              type: object
+              nullable: true
+              properties:
+                unassigned_players:
+                  type: array
+                  uniqueItems: true
+                  items:
+                    $ref: "#/components/schemas/User"
+                ready_players:
+                  type: array
+                  uniqueItems: true
+                  items:
+                    $ref: "#/components/schemas/User"
+              required:
+                - unassigned_players
+                - ready_players
+            running_data:
+              type: object
+              nullable: true
+              properties:
+                round:
+                  type: integer
+                  minimum: 1
+                running:
+                  type: boolean
+                  description: Whether the current round is running or paused
+                current_team:
+                  type: integer
+                  minimum: 0
+                  description: Index of the current team
+                current_player:
+                  $ref: "#/components/schemas/User"
+                points:
+                  type: integer
+                  minimum: 1
+                total_time:
+                  type: integer
+                  minimum: 1
+                  description: Total available time in seconds
+                round_start_time:
+                  type: integer
+                  minimum: 0
+                  example: 1619630311
+                  description: Round start time as unix timestamp in seconds
+                expression:
+                  type: string
+                  nullable: true
+                  example: Brasil
+                  description: The current expression; is null if the users team has to guess
+                action:
+                  type: string
+                  example: Pantomime
+              required:
+                - round
+                - running
+                - current_team
+                - current_player
+                - points
+                - total_time
+                - round_start_time
+                - expression
+                - action
+          required:
+            - status
+            - waiting_data
+            - running_data
+        - $ref: "#/components/schemas/RunningGame"
     UserStats:
       title: UserStats
       type: object
