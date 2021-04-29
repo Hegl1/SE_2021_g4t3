@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ApiService } from 'src/app/core/api/api.service';
-import { Category, User, UserStats } from 'src/app/core/api/ApiInterfaces';
+import { User, UserStats } from 'src/app/core/api/ApiInterfaces';
 
 @Component({
   selector: 'tg-profile-dialog',

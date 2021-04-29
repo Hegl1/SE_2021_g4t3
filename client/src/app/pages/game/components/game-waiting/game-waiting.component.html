@@ -1,0 +1,73 @@
+<div class="info">
+    <button
+        mat-raised-button
+        color="primary"
+        (click)="startGame()"
+        [disabled]="amountReadyPlayers < game.totalPlayers"
+        style="margin-bottom: 2em; margin-right: 1em"
+        *ngIf="isCurrentUserHost"
+    >
+        <mat-icon [inline]="true">play_arrow</mat-icon>
+        Start game
+    </button>
+
+    <span>
+        Ready players:
+        <strong>{{ amountReadyPlayers }}</strong>
+        /
+        <strong>{{ game.totalPlayers }}</strong>
+    </span>
+</div>
+
+<div class="teams" *ngIf="teams !== null">
+    <mat-card
+        class="teamCard"
+        [class.current_team]="isCurrentUsersTeam(index)"
+        *ngFor="let index of team_indexes"
+        (click)="switchTeam(index)"
+    >
+        <div class="current_team_marker mat-elevation-z2"><mat-icon>check</mat-icon></div>
+
+        <h2><mat-icon [inline]="true">groups</mat-icon>{{ teams[index].name }}</h2>
+
+        <ul class="players">
+            <li *ngFor="let player of teams[index].players" [class.current]="player.id === currentUserId">
+                <mat-icon [inline]="true" [style.color]="isReadyPlayer(player.id) ? '#0f0' : '#f12'">{{
+                    isReadyPlayer(player.id) ? 'check' : 'remove'
+                }}</mat-icon>
+                <span>{{ player.username }}</span>
+                <mat-icon [inline]="true" *ngIf="player.id === currentUserId">person</mat-icon>
+                <mat-icon color="accent" [inline]="true" *ngIf="player.id === hostId">star</mat-icon>
+            </li>
+        </ul>
+
+        <button mat-raised-button color="primary" (click)="addPlayerToTeam(index)" *ngIf="isCurrentUserHost">
+            <mat-icon [inline]="true" style="margin-right: 0.25em">person_add</mat-icon>
+            Add player
+        </button>
+    </mat-card>
+</div>
+
+<div class="actions">
+    <button mat-raised-button color="warn" (click)="leaveGame()">
+        <mat-icon [inline]="true">logout</mat-icon> Leave game
+    </button>
+    <button
+        mat-raised-button
+        *ngIf="currentUserId !== undefined"
+        [color]="isReadyPlayer(currentUserId) ? 'warn' : 'primary'"
+        (click)="toggleReady()"
+    >
+        <mat-icon [inline]="true">{{ isReadyPlayer(currentUserId) ? 'remove' : 'check' }}</mat-icon>
+        {{ isReadyPlayer(currentUserId) ? 'Unready' : 'Ready' }}
+    </button>
+
+    <span class="game_code">
+        <span> Game code: </span>
+        <input [value]="game.currentState?.code || '' | gameCode" readonly #codeInput />
+
+        <button mat-icon-button (click)="copyCode(codeInput)">
+            <mat-icon>content_copy</mat-icon>
+        </button>
+    </span>
+</div>

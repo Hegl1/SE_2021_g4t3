@@ -229,6 +229,10 @@ export class ApiService {
     return this.handleResponse<{}>(this.http.post<{}>(`${this.URL}/ingame/ready`, state, this.httpOptions).toPromise());
   }
 
+  ingameStart() {
+    return this.handleResponse<{}>(this.http.post<{}>(`${this.URL}/ingame/start`, null, this.httpOptions).toPromise());
+  }
+
   joinIngameTeam(team: number) {
     return this.handleResponse<{}>(
       this.http.post<{}>(`${this.URL}/ingame/teams/${team}/join`, null, this.httpOptions).toPromise()

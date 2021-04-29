@@ -1,0 +1,110 @@
+@import '../../../../../variables.scss';
+
+.teams {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2em;
+
+  @media screen and (max-width: 1600px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media screen and (max-width: 1150px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media screen and (max-width: 650px) {
+    grid-template-columns: 1fr;
+  }
+
+  margin-bottom: 2em;
+
+  .teamCard {
+    overflow: hidden;
+
+    &:not(.current_team) {
+      cursor: pointer;
+    }
+
+    .current_team_marker {
+      display: none;
+    }
+
+    &.current_team .current_team_marker {
+      display: block;
+
+      position: absolute;
+      right: 0;
+      top: 0;
+
+      width: 2em;
+      height: 2em;
+      background-color: mat-color($primary);
+      border-bottom-left-radius: 5px;
+
+      font-size: 0.75rem;
+
+      mat-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    ul.players {
+      list-style-type: none;
+      padding: 0;
+
+      li {
+        > * {
+          vertical-align: middle;
+        }
+
+        mat-icon:not(:first-child) {
+          margin-left: 0.5em;
+        }
+
+        mat-icon:first-child {
+          margin-right: 0.5em;
+        }
+
+        &.current {
+          font-weight: 550;
+        }
+      }
+    }
+  }
+}
+
+.actions {
+  > *:not(:last-child) {
+    margin-right: 1em;
+  }
+
+  > * {
+    margin-bottom: 1em;
+  }
+
+  span.game_code {
+    > * {
+      vertical-align: middle;
+
+      &:not(:last-child) {
+        margin-right: 0.25em;
+      }
+    }
+
+    > input {
+      font-size: 1.1rem;
+      padding: 0.25em 0.5em;
+      border-radius: 5px;
+      border: none;
+      color: inherit;
+      width: 11ch;
+      text-align: center;
+
+      outline: none;
+
+      background-color: rgba(0, 0, 0, 0.25);
+    }
+  }
+}

@@ -1,0 +1,40 @@
+<h2 mat-dialog-title>{{ data.name }}: Add player</h2>
+
+<mat-dialog-content>
+    <mat-form-field color="primary" appearance="outline" style="width: 100%">
+        <mat-label>Username</mat-label>
+        <input
+            matInput
+            [(ngModel)]="username"
+            (keyup.enter)="save_btn._elementRef.nativeElement.click()"
+            [disabled]="saving"
+            autocomplete="off"
+        />
+    </mat-form-field>
+    <mat-form-field color="primary" appearance="outline" style="width: 100%">
+        <mat-label>Password</mat-label>
+        <input
+            matInput
+            type="password"
+            [(ngModel)]="password"
+            (keyup.enter)="save_btn._elementRef.nativeElement.click()"
+            [disabled]="saving"
+            autocomplete="off"
+        />
+    </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <mat-spinner *ngIf="saving" diameter="24" style="margin-right: 1em"></mat-spinner>
+
+    <button mat-button [mat-dialog-close]="null" [disabled]="saving">Cancel</button>
+    <button
+        mat-button
+        color="primary"
+        (click)="save()"
+        #save_btn
+        [disabled]="username.length === 0 || password.length === 0 || saving"
+    >
+        Add
+    </button>
+</mat-dialog-actions>
