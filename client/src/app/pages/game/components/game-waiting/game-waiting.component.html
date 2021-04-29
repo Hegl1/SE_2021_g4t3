@@ -23,7 +23,7 @@
     <mat-card
         class="teamCard"
         [class.current_team]="isCurrentUsersTeam(index)"
-        *ngFor="let index of team_indexes"
+        *ngFor="let index of game.team_indexes"
         (click)="switchTeam(index)"
     >
         <div class="current_team_marker mat-elevation-z2"><mat-icon>check</mat-icon></div>

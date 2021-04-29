@@ -1,0 +1,66 @@
+@import '../../../../../variables.scss';
+
+.status {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.5fr 1fr;
+  gap: 2em;
+
+  @media screen and (max-width: 1450px) {
+    grid-template-columns: 1fr 1fr 0.75fr;
+  }
+  @media screen and (max-width: 1100px) {
+    grid-template-columns: 1fr 1fr;
+
+    mat-card:not(.timerCard) {
+      height: unset !important;
+    }
+  }
+  @media screen and (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+
+  margin-bottom: 2em;
+
+  mat-card {
+    height: fit-content;
+
+    table {
+      width: 100%;
+    }
+  }
+
+  .timerCard .timer {
+    font-size: 2em;
+    text-align: center;
+    width: 100%;
+    padding: 0.5em 0;
+
+    border-radius: 5px;
+
+    background-color: mat-color($accent);
+  }
+
+  .expressionCard {
+    table td:last-child {
+      font-size: 1.5em;
+      font-weight: 500;
+    }
+
+    .confirm_actions {
+      > * {
+        display: inline-block;
+        width: calc(100% / 3);
+        text-align: center;
+        cursor: pointer;
+
+        transition: transform 0.1s;
+        transform-origin: center center;
+
+        &:hover {
+          transform: scale(1.25);
+          text-shadow: 0 0 0.25em black;
+        }
+      }
+    }
+  }
+}

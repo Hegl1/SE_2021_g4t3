@@ -72,4 +72,19 @@ export class GameService {
 
     return total;
   }
+  get team_indexes() {
+    return Object.keys(this.currentState?.teams || []).map((index) => parseInt(index));
+  }
+
+  /**
+   * Checks whether the user is in the team
+   * with the given index
+   *
+   * @param user_id the users id
+   * @param team_index the teams index
+   * @returns whether the authenticated user is in the team
+   */
+  isUsersTeam(user_id: number, team_index: number) {
+    return this.currentState?.teams[team_index].players.some((user) => user.id === user_id) || false;
+  }
 }

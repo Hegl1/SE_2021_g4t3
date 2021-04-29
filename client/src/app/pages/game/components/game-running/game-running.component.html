@@ -1,1 +1,79 @@
-<p>game-running works!</p>
+<div class="status" *ngIf="game.currentState && game.currentState.running_data">
+    <mat-card class="informationCard">
+        <h2><mat-icon>info</mat-icon>Information</h2>
+        <table class="data_table">
+            <tr>
+                <td>Round:</td>
+                <td>{{ game.currentState.running_data.round }}</td>
+            </tr>
+            <tr>
+                <td>Current team:</td>
+                <td>{{ game.currentState.teams[game.currentState.running_data.current_team].name }}</td>
+            </tr>
+            <tr>
+                <td>Category:</td>
+                <td>{{ game.currentState.category.name }}</td>
+            </tr>
+            <tr>
+                <td>Maximum points:</td>
+                <td>{{ game.currentState.max_score }}</td>
+            </tr>
+        </table>
+    </mat-card>
+    <mat-card class="currentRoundCard">
+        <h2><mat-icon>play_arrow</mat-icon>Current round</h2>
+        <table class="data_table">
+            <tr>
+                <td>Player:</td>
+                <td>{{ game.currentState.running_data.current_player.username }}</td>
+            </tr>
+            <tr>
+                <td>Points:</td>
+                <td>{{ game.currentState.running_data.points }}</td>
+            </tr>
+            <tr>
+                <td>Available time:</td>
+                <td>{{ game.currentState.running_data.total_time | time }}</td>
+            </tr>
+        </table>
+    </mat-card>
+    <mat-card class="timerCard">
+        <h2><mat-icon>schedule</mat-icon>Timer</h2>
+        <div class="timer mat-elevation-z3">{{ time | time }}</div>
+    </mat-card>
+    <mat-card class="expressionCard">
+        <h2><mat-icon>manage_search</mat-icon>Searched expression</h2>
+        <table class="data_table">
+            <tr *ngIf="!isCurrentUsersTeam(game.currentState.running_data.current_team)">
+                <td>Expression:</td>
+                <td>{{ game.currentState.running_data.expression }}</td>
+            </tr>
+            <tr>
+                <td>Action:</td>
+                <td>{{ game.currentState.running_data.action }}</td>
+            </tr>
+        </table>
+
+        <ng-container *ngIf="!isCurrentUsersTeam(game.currentState.running_data.current_team)">
+            <mat-divider></mat-divider>
+
+            <mat-card-actions class="confirm_actions">
+                <div>
+                    <mat-icon style="color: limegreen">thumb_up</mat-icon>
+                </div>
+                <div>
+                    <mat-icon style="color: orange">thumb_down</mat-icon>
+                </div>
+                <div>
+                    <mat-icon color="warn">gpp_bad</mat-icon>
+                </div>
+            </mat-card-actions>
+        </ng-container>
+    </mat-card>
+</div>
+
+<h1><mat-icon>groups</mat-icon> Teams</h1>
+
+<div class="teams">
+    <!-- TODO: -->
+</div>

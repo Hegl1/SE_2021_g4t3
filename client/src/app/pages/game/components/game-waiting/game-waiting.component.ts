@@ -23,9 +23,6 @@ export class GameWaitingComponent {
   get teams() {
     return this.game.currentState?.teams || null;
   }
-  get team_indexes() {
-    return Object.keys(this.game.currentState?.teams || []).map((index) => parseInt(index));
-  }
 
   get hostId() {
     return this.game.currentState?.host.id;
@@ -49,7 +46,9 @@ export class GameWaitingComponent {
    * @returns whether the authenticated user is in the team
    */
   isCurrentUsersTeam(index: number) {
-    return this.game.currentState?.teams[index].players.some((user) => user.id === this.currentUserId) || false;
+    if (this.user.user?.id == null) return false;
+
+    return this.game.isUsersTeam(this.user.user?.id, index);
   }
 
   isReadyPlayer(id: number) {
