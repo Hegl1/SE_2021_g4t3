@@ -1,9 +1,10 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
-import { NavigationStart, Router } from '@angular/router';
+import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { ProfileDialogComponent } from '../components/profile-dialog/profile-dialog.component';
+import { ApiService } from '../core/api/api.service';
 import { UserService } from '../core/auth/user.service';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 
@@ -14,7 +15,8 @@ const maxWidthPx = 1000;
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit {
+  inGame = false;
   isSmallScreen = this.breakpointObserver.isMatched(`(max-width: ${maxWidthPx}px)`);
 
   @ViewChild('drawer') public sidenav!: MatSidenav;
@@ -23,7 +25,8 @@ export class LayoutComponent {
     private dialog: MatDialog,
     private breakpointObserver: BreakpointObserver,
     private user: UserService,
-    private router: Router
+    private router: Router,
+    private api: ApiService
   ) {
     this.breakpointObserver
       .observe([`(max-width: ${maxWidthPx}px)`])
@@ -34,6 +37,16 @@ export class LayoutComponent {
         this.sidenav.close();
       }
     });
+  }
+
+  async ngOnInit() {
+    let ingame = await this.api.getIngame();
+
+    if (ingame.isOK() && ingame.value) {
+      this.inGame = ingame.value;
+    } else {
+      this.inGame = false;
+    }
   }
 
   openSettings() {
