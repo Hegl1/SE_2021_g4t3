@@ -4,8 +4,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { ApiService } from '../api/api.service';
-import { GameStatus, RunningGameState } from '../api/ApiInterfaces';
+import { GameStatus, RunningGameState, Team, User } from '../api/ApiInterfaces';
 import { WebsocketService } from '../api/websocket.service';
+
+const INGAME_QUEUE = '/messagequeue/ingame';
 
 @Injectable({
   providedIn: 'root',
@@ -50,12 +52,47 @@ export class GameService {
       return;
     }
 
-    await this.websocket.connect().afterConnected();
+    await this.websocket.connect(true).afterConnected();
 
     this._connected = true;
     this._currentState = res.value;
 
-    // TODO: listen to message-queues
+    this.websocket.subscribeQueue(`${INGAME_QUEUE}/` + this.code, (data) => {
+      if (!this._currentState) return;
+
+      switch (data.identifier) {
+        case 'TEAM_UPDATE':
+          let team_update = <{ teams: Team[] }>data.data;
+
+          this._currentState.teams = team_update.teams;
+          break;
+        case 'READY_UPDATE':
+          if (!this._currentState.waiting_data) return;
+          let ready_update = <{ unassigned_players: User[]; ready_players: User[]; startable: boolean }>data.data;
+
+          this._currentState.waiting_data.unassigned_players = ready_update.unassigned_players;
+          this._currentState.waiting_data.ready_players = ready_update.ready_players;
+          this._currentState.waiting_data.startable = ready_update.startable;
+          break;
+        case 'ERROR':
+          let error = <{ message: string }>data.data;
+
+          this.snackBar.open(error.message, 'OK', {
+            duration: 10000,
+            panelClass: 'action-warn',
+          });
+          break;
+        case 'GAME_NOT_CONTINUEABLE':
+          this.snackBar.open("The game can't be continued and was therefore terminated!", 'OK', {
+            duration: 10000,
+            panelClass: 'action-warn',
+          });
+
+          this.disconnect();
+
+          break;
+      }
+    });
   }
 
   get code() {
@@ -124,6 +161,10 @@ export class GameService {
       return;
     }
 
+    this.disconnect();
+  }
+
+  private disconnect() {
     this.router.navigateByUrl('/home');
     // TODO: disconnect websocket
   }

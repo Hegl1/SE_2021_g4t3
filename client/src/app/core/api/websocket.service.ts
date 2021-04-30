@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ConfigService } from '../config/config.service';
+import { WebsocketResponse } from './ApiInterfaces';
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -50,7 +51,7 @@ export class WebsocketService {
    * @param queue the message queue to subscribe to
    * @param callback the callback-function that receives the messages
    */
-  async subscribeQueue(queue: string, callback: (message: any) => void) {
+  async subscribeQueue(queue: string, callback: (message: WebsocketResponse) => void) {
     if (this.stompClient === null) {
       throw new Error('Not connected to websocket');
     }

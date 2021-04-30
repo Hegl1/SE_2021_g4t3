@@ -25,15 +25,17 @@ export interface User {
   role: Role;
 }
 
+export interface Team {
+  index: number;
+  name: string;
+  players: User[];
+  score: number;
+}
+
 export interface RunningGame {
   code: number;
   max_score: number;
-  teams: {
-    index: number;
-    name: string;
-    players: User[];
-    score: number;
-  }[];
+  teams: Team[];
   host: User;
   category: Category;
 }
@@ -107,4 +109,9 @@ export interface DiceMapping {
   action: string;
   time: number;
   points: number;
+}
+
+export interface WebsocketResponse {
+  identifier: string;
+  data: any;
 }
