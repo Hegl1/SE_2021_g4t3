@@ -6,21 +6,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import at.qe.timeguess.controllers.WebsocketController;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.model.User;
-import at.qe.timeguess.websockDto.PlayerReadyDTO;
+import at.qe.timeguess.websockDto.WaitingDataDTO;
 
 /**
  * Class that represents am open game. Contains all the game logic.
  */
 public class Game {
 
-	@Autowired
-	private WebsocketController webSocketController;
+	private static WebsocketController webSocketController;
 
 	// general game information
 	private int gameCode;
@@ -41,8 +38,11 @@ public class Game {
 	// ingame phase
 	private int currentTeam;
 	private int startTeam;
+	private int roundCounter;
 	private List<Expression> usedExpressions;
 	private Expression currentExpression;
+	private long roundStartTime;
+	private long roundEndTime;
 
 	// TODO maybe delete, revisit later
 	public Game(final int code) {
@@ -70,7 +70,9 @@ public class Game {
 			throw new GameCreationException("Too less teams for game construction");
 		}
 		for (int i = 0; i < numberOfTeams; i++) {
-			teams.add(new Team());
+			Team current = new Team();
+			teams.add(current);
+			current.setIndex(teams.indexOf(current));
 		}
 		this.dice = new Dice();
 		this.raspberryId = raspberryId;
@@ -88,15 +90,20 @@ public class Game {
 	 * Method to assign a new user to the game.
 	 *
 	 * @param player user that wants to join the game.
+	 * @throws GameAlreadyRunningException
 	 */
-	public void joinGame(final User player) throws UserStateException {
-		if (!isInGame(player)) {
-			addToReadyMapIfNotAlreadyExists(player, false);
+	public void joinGame(final User player) throws GameAlreadyRunningException {
+		if (!isInGame(player) && !active) {
 			usersWithDevices.add(player);
 			unassignedUsers.add(player);
+			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+			addToReadyMapIfNotAlreadyExists(player, false);
+		} else if (!isInGame(player) && active) {
+			throw new GameAlreadyRunningException();
 		} else {
-			readyPlayers.put(player, false);
-			throw new UserStateException("User already in game, ui update required");
+			if (!active) {
+				readyPlayers.put(player, false);
+			}
 		}
 	}
 
@@ -106,19 +113,32 @@ public class Game {
 	 * 
 	 * @param team   Team to move the user to
 	 * @param player User to move
+	 * @throws HostAlreadyReadyException
 	 */
-	public void joinTeam(final Team team, final User player) {
+	public void joinTeam(final Team team, final User player) throws HostAlreadyReadyException {
 		if (!readyPlayers.get(host)) {
-			leaveTeam(player);
-			if (unassignedUsers.contains(player)) {
-				unassignedUsers.remove(player);
+
+			if (readyPlayers.get(player)) {
+				// if player is ready, no switch
+				return;
 			}
-			// if the player was did not have a ready state before, he has been added by
-			// host
-			addToReadyMapIfNotAlreadyExists(player, true);
-			team.joinTeam(player);
+
+			if (team == null) {
+				leaveTeam(player);
+				webSocketController.sendTeamUpdateToFrontend(gameCode, teams);
+				webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+			} else {
+				leaveTeam(player);
+				if (unassignedUsers.contains(player)) {
+					unassignedUsers.remove(player);
+				}
+				// add to ready map if offline player
+				addToReadyMapIfNotAlreadyExists(player, true);
+				team.joinTeam(player);
+				webSocketController.sendTeamUpdateToFrontend(gameCode, teams);
+			}
 		} else {
-			webSocketController.sendHostIsReadyErrorToFrontend(player.getUsername());
+			throw new HostAlreadyReadyException("Host is already ready");
 		}
 
 	}
@@ -127,8 +147,9 @@ public class Game {
 	 * Method to make a player leave a team and add it to the unassigned list.
 	 * 
 	 * @param player player to unassign.
+	 * @throws HostAlreadyReadyException
 	 */
-	public void leaveTeam(final User player) {
+	private void leaveTeam(final User player) throws HostAlreadyReadyException {
 		if (!readyPlayers.get(host)) {
 			for (Team current : teams) {
 				if (current.isInTeam(player)) {
@@ -138,7 +159,7 @@ public class Game {
 				}
 			}
 		} else {
-			webSocketController.sendHostIsReadyErrorToFrontend(player.getUsername());
+			throw new HostAlreadyReadyException("Host is already ready");
 		}
 
 	}
@@ -148,21 +169,20 @@ public class Game {
 	 * him into 'offline state' if he is assigned to a team.
 	 * 
 	 * @param player player to leave
-	 * @throws GameNotContinuableException gets throwsn either when host left or
-	 *                                     when game is running and a team has no
-	 *                                     devices left.
+	 * 
 	 */
-	public void leaveGame(final User player) throws GameNotContinuableException {
+	public void leaveGame(final User player) {
 		if (unassignedUsers.contains(player)) {
 			unassignedUsers.remove(player);
 			readyPlayers.remove(player);
 			usersWithDevices.remove(player);
+			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 		} else {
 			updateReadyStatus(player, true);
 			usersWithDevices.remove(player);
 		}
 		if (player.equals(host) || (!allTeamsEnoughPlayersWithDevice() && active)) {
-			throw new GameNotContinuableException("The host left the game or one Team has no devices left");
+			webSocketController.sendGameNotContinueableToFrontend(gameCode);
 		}
 	}
 
@@ -179,17 +199,19 @@ public class Game {
 			// hosts sets ready to false
 			for (User current : usersWithDevices) {
 				readyPlayers.put(current, false);
-				webSocketController.updateReadyInFrontend(gameCode, new PlayerReadyDTO(current.getUsername(), false));
+				webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 			}
 
-		}
-		if (user.equals(host) && !checkGameStartable()) {
-			// host trys to set ready to true, but not startable
-			webSocketController.sendHostNotReadyableToFrontend(host.getUsername());
+		} else if (user.equals(host) && !checkGameStartable()) {
+			// host trys to set ready to true, but not startable - do nothing
+			System.out.println("in updateREadyStatus" + webSocketController);
+			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+		} else if (unassignedUsers.contains(user)) {
+			// do nothing intentionally
 		} else {
 			// set ready of player
 			readyPlayers.put(user, isReady);
-			webSocketController.updateReadyInFrontend(gameCode, new PlayerReadyDTO(user.getUsername(), isReady));
+			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 			checkAllPlayersReadyAndStartGame();
 		}
 	}
@@ -251,6 +273,16 @@ public class Game {
 		// TODO implement proper action with game logic
 	}
 
+	public List<User> buildReadyPlayerList() {
+		List<User> result = new LinkedList<>();
+		for (User current : readyPlayers.keySet()) {
+			if (readyPlayers.get(current)) {
+				result.add(current);
+			}
+		}
+		return result;
+	}
+
 	public int getGameCode() {
 		return this.gameCode;
 	}
@@ -296,6 +328,10 @@ public class Game {
 
 	public List<User> getUsersWithDevices() {
 		return this.usersWithDevices;
+	}
+
+	public boolean isActive() {
+		return active;
 	}
 
 	/**
@@ -377,6 +413,10 @@ public class Game {
 	private void addToReadyMapIfNotAlreadyExists(final User player, final boolean readyStatus) {
 		if (!readyPlayers.containsKey(player)) {
 			readyPlayers.put(player, readyStatus);
+			System.out.println("gamecode" + gameCode);
+			System.out.println(buildWaitingDataDTO());
+			System.out.println(webSocketController);
+			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 		}
 	}
 
@@ -406,6 +446,10 @@ public class Game {
 		return true;
 	}
 
+	public void setWebSocketController(final WebsocketController websock) {
+		this.webSocketController = websock;
+	}
+
 	/**
 	 * Method that returns a team by its index.
 	 * 
@@ -417,9 +461,15 @@ public class Game {
 	public Team getTeamByIndex(final Integer index) throws TeamIndexOutOfBoundsException {
 		if (index >= numberOfTeams) {
 			throw new TeamIndexOutOfBoundsException();
+		} else if (index == -1) {
+			return null;
 		} else {
 			return this.teams.get(index);
 		}
+	}
+
+	public WaitingDataDTO buildWaitingDataDTO() {
+		return new WaitingDataDTO(unassignedUsers, buildReadyPlayerList(), checkGameStartable());
 	}
 
 	public class GameCreationException extends Exception {
@@ -440,10 +490,10 @@ public class Game {
 		}
 	}
 
-	public class GameNotContinuableException extends Exception {
+	public class HostAlreadyReadyException extends Exception {
 		private static final long serialVersionUID = 1L;
 
-		public GameNotContinuableException(final String message) {
+		public HostAlreadyReadyException(final String message) {
 			super(message);
 		}
 	}
@@ -452,6 +502,10 @@ public class Game {
 
 		private static final long serialVersionUID = 1L;
 
+	}
+
+	public class GameAlreadyRunningException extends Exception {
+		private static final long serialVersionUID = 1L;
 	}
 
 }

@@ -21,13 +21,16 @@ import at.qe.timeguess.dto.TeamDTO;
 import at.qe.timeguess.dto.UserDTO;
 import at.qe.timeguess.gamelogic.Dice;
 import at.qe.timeguess.gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game.GameAlreadyRunningException;
 import at.qe.timeguess.gamelogic.Game.GameCreationException;
 import at.qe.timeguess.gamelogic.Team;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.repositories.CategoryRepository;
 import at.qe.timeguess.services.LobbyService;
+import at.qe.timeguess.services.LobbyService.GameNotFoundException;
 import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
+import at.qe.timeguess.services.UserService;
 
 /**
  * Class that controls creating, viewing and deleting games via REST.
@@ -41,6 +44,8 @@ public class GameController {
 	@Autowired
 	private LobbyService lobbyService;
 
+	@Autowired
+	private UserService userService;
 	// TODO change to service as soon as availalbe
 	@Autowired
 	private CategoryRepository categoryRepository;
@@ -129,6 +134,29 @@ public class GameController {
 		} else {
 			lobbyService.abortRunningGame(code);
 			return new ResponseEntity<Void>(HttpStatus.OK);
+		}
+	}
+
+	@PostMapping("/{code}/join")
+	public ResponseEntity<Void> joinGame(@PathVariable final int code) {
+
+		User authUser = userService.getAuthenticatedUser();
+
+		if (authUser == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+
+		if (lobbyService.isUserInGame(authUser)) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
+
+		try {
+			lobbyService.joinGame(code, authUser);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (GameNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (GameAlreadyRunningException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
