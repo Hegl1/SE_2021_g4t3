@@ -153,7 +153,6 @@ public class IngameController {
 	public ResponseEntity<StateUpdateDTO> fetchGameInformation() {
 		User authUser = userService.getAuthenticatedUser();
 
-		System.out.println("GAME STATE FETCH");
 		if (authUser == null) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
@@ -162,8 +161,6 @@ public class IngameController {
 		}
 
 		Game game = lobbyService.getGameContainingUser(authUser);
-		System.out.println(game);
-		System.out.println(buildStateUpdate(game));
 		return new ResponseEntity<>(buildStateUpdate(game), HttpStatus.OK);
 
 	}
@@ -171,7 +168,6 @@ public class IngameController {
 	private StateUpdateDTO buildStateUpdate(final Game game) {
 
 		if (game.isActive()) {
-			System.out.println("GAME ");
 			// TODO write when actually active games are performed
 			return null;
 		} else {

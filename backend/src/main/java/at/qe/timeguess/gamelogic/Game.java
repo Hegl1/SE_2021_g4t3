@@ -195,10 +195,7 @@ public class Game {
 	 */
 	public void updateReadyStatus(final User user, final Boolean isReady) {
 		// TODO test readying logic with frontend
-		System.out.println(user.getUsername());
-		System.out.println(isReady);
 		if (user.equals(host) && isReady.equals(false)) {
-			System.out.println("HOST UNREADIED");
 			// hosts sets ready to false
 			for (User current : usersWithDevices) {
 				readyPlayers.put(current, false);
@@ -206,19 +203,15 @@ public class Game {
 			}
 
 		} else if (user.equals(host) && !checkGameStartable()) {
-			System.out.println("HOST READIED");
 			// host trys to set ready to true, but not startable - do nothing
 			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 		} else if (unassignedUsers.contains(user)) {
-			System.out.println("UNASSINGED CHANGED READYSTATE");
 			// do nothing intentionally
 		} else {
-			System.out.println("ASSIGNED CHANGE READY STATE");
 			// set ready of player
 			readyPlayers.put(user, isReady);
 			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 			checkAllPlayersReadyAndStartGame();
-			System.out.println("FINISHED UPDATE READY STATE");
 		}
 	}
 
