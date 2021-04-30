@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.Assert;
 
@@ -60,6 +61,7 @@ public class CategoryControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testCreateCategoryHttpStatusCreated() {
         NameDTO nameDTO = new NameDTO("Politics");
         ResponseEntity<Category> response = this.categoryController.createCategory(nameDTO);
@@ -71,6 +73,7 @@ public class CategoryControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testCreateCategoryHttpStatusConflict() {
         NameDTO nameDTO = new NameDTO("Deutschland");
         ResponseEntity<Category> response = this.categoryController.createCategory(nameDTO);
@@ -81,6 +84,7 @@ public class CategoryControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testDeleteCategoryHttpStatusOk() {
         NameDTO nameDTO = new NameDTO("Politics");
         this.categoryController.createCategory(nameDTO);
@@ -91,6 +95,7 @@ public class CategoryControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testDeleteCategoryHttpStatusForbidden() {
         ResponseEntity<Category> response = this.categoryController.deleteCategory(0L);
         Assertions.assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -98,6 +103,7 @@ public class CategoryControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testDeleteCategoryHttpStatusNotFound() {
         ResponseEntity<Category> response = this.categoryController.deleteCategory(5L);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());

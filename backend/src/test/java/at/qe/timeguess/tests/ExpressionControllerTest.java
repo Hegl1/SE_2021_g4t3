@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.LinkedList;
@@ -48,6 +49,7 @@ public class ExpressionControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testCreateExpressionHttpStatusOk() {
         NameDTO nameDTO = new NameDTO("Stefan Raab");
         ResponseEntity<ExpressionDTO> response = this.expressionController.createExpression(0L, nameDTO);
@@ -59,6 +61,7 @@ public class ExpressionControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testCreateExpressionHttpStatusNotFound() {
         NameDTO nameDTO = new NameDTO("Stefan Raab");
         ResponseEntity<ExpressionDTO> response = this.expressionController.createExpression(5L, nameDTO);
@@ -67,6 +70,7 @@ public class ExpressionControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testCreateExpressionHttpStatusConflict() {
         NameDTO nameDTO = new NameDTO("Bundestag");
         ResponseEntity<ExpressionDTO> response = this.expressionController.createExpression(0L, nameDTO);
@@ -75,6 +79,7 @@ public class ExpressionControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testDeleteExpressionHttpStatusOk() throws ExpressionService.ExpressionAlreadyExists, CategoryService.CategoryAlreadyExistsException {
         Category category = this.categoryService.saveCategory(new Category("Politics"));
         NameDTO nameDTO = new NameDTO("Trump");
@@ -87,6 +92,7 @@ public class ExpressionControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testDeleteExpressionHttpStatusNotFound() {
         ResponseEntity<Expression> response = this.expressionController.deleteExpression(500L);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -94,6 +100,7 @@ public class ExpressionControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testDeleteExpressionHttpStatusConflict() {
         ResponseEntity<Expression> response = this.expressionController.deleteExpression(1L);
         Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
@@ -101,6 +108,7 @@ public class ExpressionControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testImportExpressionsIntoCategory() {
         List<String> expressionNames = new LinkedList<>();
         for(int i = 1; i < 6; i++) {
@@ -115,6 +123,7 @@ public class ExpressionControllerTest {
 
     @Test
     @DirtiesContext
+    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testImportExpressions() {
         List<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOS = new LinkedList<>();
 
