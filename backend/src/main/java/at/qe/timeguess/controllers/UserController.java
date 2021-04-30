@@ -7,6 +7,7 @@ import at.qe.timeguess.dto.UpdateUserDTO;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.model.UserRole;
 import at.qe.timeguess.services.AuthenticationService;
+import at.qe.timeguess.services.LobbyService;
 import at.qe.timeguess.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,9 @@ public class UserController {
 
     @Autowired
     private AuthenticationService authenticationService;
+
+    @Autowired
+    private LobbyService lobbyService;
 
     /**
      * Method that returns a JWT Token needed for authorization upon successful login.
@@ -240,6 +244,18 @@ public class UserController {
     @GetMapping("search/{username}")
     public List<String> searchUsers(@PathVariable String username) {
         return this.userService.searchUsers(username);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/{id}/ingame")
+    public ResponseEntity<?> isUserInGame(@PathVariable Long id) {
+        User user = this.userService.getUserById(id);
+        if(user != null) {
+            return new ResponseEntity<>(lobbyService.isUserInGame(user),HttpStatus.OK);
+        } else {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
     }
 
 }
