@@ -37,7 +37,7 @@ public class CategoryService {
      * @return all Categories from the database
      */
     public Collection<Category> getAllCategories() {
-        return this.categoryRepository.findAll();
+        return this.categoryRepository.findByOrderByIdAsc();
     }
 
     /**
@@ -95,10 +95,9 @@ public class CategoryService {
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         Collection<Game> allRunningGames = this.lobbyService.getAllRunningGames();
 
-        if(allRunningGames.stream().anyMatch(runningGame -> runningGame.getCategory().getId().equals(category.getId())))
-
-        if(allCompletedGames.stream().anyMatch(completedGame -> completedGame.getCategory().getId().equals(category.getId()))) {
-            throw new CategoryIsReferencedInCompletedGamesException("This Category can not be deleted, because it is referenced in a completed game!");
+        if(allCompletedGames.stream().anyMatch(completedGame -> completedGame.getCategory().getId().equals(category.getId())) ||
+            allRunningGames.stream().anyMatch(runningGame -> runningGame.getCategory().getId().equals(category.getId()))) {
+            throw new CategoryIsReferencedInCompletedGamesException("This Category can not be deleted, because it is referenced in a game!");
         }
         this.categoryRepository.delete(category);
     }
