@@ -10,12 +10,14 @@ public class TeamDTO {
 	private String name;
 	private int Score;
 	private List<UserDTO> players;
+	private int index;
 
-	public TeamDTO(final String name, final int score, final List<UserDTO> players) {
+	public TeamDTO(final String name, final int score, final List<UserDTO> players, final int index) {
 		super();
 		this.name = name;
 		Score = score;
 		this.players = players;
+		this.index = index;
 	}
 
 	public String getName() {
@@ -28,6 +30,10 @@ public class TeamDTO {
 
 	public List<UserDTO> getPlayers() {
 		return players;
+	}
+
+	public int getIndex() {
+		return index;
 	}
 
 }

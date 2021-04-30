@@ -13,9 +13,9 @@ public class Team {
 
 	private int score;
 	private String name;
-	private User leader;
 	private int currentPlayer;
 	private List<User> players;
+	private int index;
 
 	public Team() {
 		this.score = 0;
@@ -29,9 +29,6 @@ public class Team {
 	 * @param user user to join the team.
 	 */
 	public void joinTeam(final User user) {
-		if (players.isEmpty()) {
-			leader = user;
-		}
 		players.add(user);
 	}
 
@@ -69,12 +66,12 @@ public class Team {
 		this.name = name;
 	}
 
-	public User getLeader() {
-		return leader;
+	public int getIndex() {
+		return this.index;
 	}
 
-	public void setLeader(final User leader) {
-		this.leader = leader;
+	public void setIndex(final int index) {
+		this.index = index;
 	}
 
 	public int getCurrentPlayer() {

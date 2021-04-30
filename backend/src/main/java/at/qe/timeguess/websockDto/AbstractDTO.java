@@ -1,5 +1,5 @@
 package at.qe.timeguess.websockDto;
 
-public abstract class AbstractDTO {
+public interface AbstractDTO {
 
 }
