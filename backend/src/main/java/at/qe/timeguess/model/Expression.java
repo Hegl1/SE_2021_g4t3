@@ -1,5 +1,8 @@
 package at.qe.timeguess.model;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 
 @Entity
@@ -11,7 +14,8 @@ public class Expression {
 	private long id;
 	private String name;
 
-	@OneToOne
+	@ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
 	private Category category;
 
 	public Expression() {
