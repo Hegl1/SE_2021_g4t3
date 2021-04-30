@@ -120,7 +120,6 @@ public class ExpressionService {
         return new ExpressionDTO(expression.getId(), expression.getName());
     }
 
-    // TODO: Expressions do not get a Category assigned
     /**
      *  Imports Expressions into the database and assigns them to a given Category,
      *  if there Expressions to import, which already exist in the database, they get ignored,
