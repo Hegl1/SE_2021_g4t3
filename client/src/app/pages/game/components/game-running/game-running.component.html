@@ -78,5 +78,44 @@
 <h1><mat-icon>groups</mat-icon> Teams</h1>
 
 <div class="teams">
-    <!-- TODO: -->
+    <mat-card
+        *ngFor="let team of teams"
+        class="teamCard"
+        [class.current_team]="team.index === game.currentState?.running_data?.current_team"
+    >
+        <h2>
+            <mat-icon [inline]="true">groups</mat-icon>
+            <span>{{ team.name }}</span>
+            <span class="score mat-elevation-z2">{{ team.score }} Point{{ team.score != 1 ? 's' : '' }}</span>
+        </h2>
+
+        <ul class="players">
+            <li *ngFor="let player of team.players" [class.current]="player.id === currentUserId">
+                <mat-icon
+                    [inline]="true"
+                    color="primary"
+                    *ngIf="currentPlayerUser && currentPlayerUser.id === player.id"
+                    >play_arrow</mat-icon
+                >
+                <span>{{ player.username }}</span>
+                <mat-icon [inline]="true" *ngIf="player.id === currentUserId">person</mat-icon>
+                <mat-icon color="accent" [inline]="true" *ngIf="player.id === hostId">star</mat-icon>
+            </li>
+        </ul>
+    </mat-card>
+</div>
+
+<div class="actions">
+    <button mat-raised-button color="warn" (click)="leaveGame()">
+        <mat-icon [inline]="true">logout</mat-icon> Leave game
+    </button>
+
+    <span class="game_code">
+        <span> Game code: </span>
+        <input [value]="game.currentState?.code || '' | gameCode" readonly #codeInput />
+
+        <button mat-icon-button (click)="copyCode(codeInput)">
+            <mat-icon>content_copy</mat-icon>
+        </button>
+    </span>
 </div>

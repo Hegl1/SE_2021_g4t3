@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserService } from 'src/app/core/auth/user.service';
 import { GameService } from 'src/app/core/game/game.service';
 
@@ -12,10 +13,32 @@ export class GameRunningComponent implements OnInit {
 
   timer: any = null;
 
-  constructor(public game: GameService, private user: UserService) {}
+  constructor(public game: GameService, private user: UserService, private snackBar: MatSnackBar) {}
 
   ngOnInit() {
     this.startTimer();
+  }
+
+  get teams() {
+    return this.game.currentState?.teams || null;
+  }
+
+  get hostId() {
+    return this.game.currentState?.host.id;
+  }
+
+  get currentUserId() {
+    return this.user.user?.id;
+  }
+
+  get isCurrentUserHost() {
+    if (!this.user.user || !this.game.currentState) return false;
+
+    return this.user.user.id === this.game.currentState.host.id;
+  }
+
+  get currentPlayerUser() {
+    return this.game.currentState?.running_data?.current_player || null;
   }
 
   /**
@@ -83,5 +106,26 @@ export class GameRunningComponent implements OnInit {
     if (this.user.user?.id == null) return false;
 
     return this.game.isUsersTeam(this.user.user?.id, index);
+  }
+
+  /**
+   * Leaves the current game
+   */
+  async leaveGame() {
+    this.game.leave();
+  }
+
+  /**
+   * Selectes the content of the code input
+   * and copys it to the clipboard
+   */
+  copyCode(input: HTMLInputElement) {
+    input.select();
+    input.setSelectionRange(0, 99);
+    document.execCommand('copy');
+
+    this.snackBar.open('Code copied to clipboard!', 'OK', {
+      duration: 2000,
+    });
   }
 }
