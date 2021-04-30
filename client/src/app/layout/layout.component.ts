@@ -2,7 +2,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
-import { NavigationEnd, NavigationStart, Router } from '@angular/router';
+import { NavigationStart, Router } from '@angular/router';
 import { ProfileDialogComponent } from '../components/profile-dialog/profile-dialog.component';
 import { ApiService } from '../core/api/api.service';
 import { UserService } from '../core/auth/user.service';

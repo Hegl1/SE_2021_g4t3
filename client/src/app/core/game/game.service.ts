@@ -55,6 +55,9 @@ export class GameService {
     // TODO: listen to message-queues
   }
 
+  get code() {
+    return this._currentState?.code || 0;
+  }
   get currentState() {
     return this._currentState;
   }
@@ -72,9 +75,6 @@ export class GameService {
 
     return total;
   }
-  get team_indexes() {
-    return Object.keys(this.currentState?.teams || []).map((index) => parseInt(index));
-  }
 
   /**
    * Checks whether the user is in the team
@@ -86,5 +86,25 @@ export class GameService {
    */
   isUsersTeam(user_id: number, team_index: number) {
     return this.currentState?.teams[team_index].players.some((user) => user.id === user_id) || false;
+  }
+
+  /**
+   * leaves from the current game, disconnectes the websocket and
+   * redirects to the homepage
+   */
+  async leave() {
+    let res = await this.api.leaveIngame(this.code);
+
+    if (!res.isOK()) {
+      this.snackBar.open('Error leaving game!', 'OK', {
+        duration: 10000,
+        panelClass: 'action-warn',
+      });
+
+      return;
+    }
+
+    this.router.navigateByUrl('/home');
+    // TODO: disconnect websocket
   }
 }

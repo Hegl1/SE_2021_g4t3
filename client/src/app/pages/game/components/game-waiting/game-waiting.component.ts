@@ -75,6 +75,7 @@ export class GameWaitingComponent {
         data: {
           index: index,
           name: this.teams[index].name,
+          code: this.game.code,
         },
         width: '350px',
       })
@@ -91,7 +92,7 @@ export class GameWaitingComponent {
   async switchTeam(index: number) {
     if (this.isCurrentUsersTeam(index)) return;
 
-    let res = await this.api.joinIngameTeam(index);
+    let res = await this.api.joinIngameTeam(this.game.code, index);
 
     if (!res.isOK()) {
       this.snackBar.open('Error switching team!', 'OK', {
@@ -107,7 +108,7 @@ export class GameWaitingComponent {
   async toggleReady() {
     if (this.currentUserId === undefined) return;
 
-    let res = await this.api.setIngameReady(!this.isReadyPlayer(this.currentUserId));
+    let res = await this.api.setIngameReady(this.game.code, !this.isReadyPlayer(this.currentUserId));
 
     if (!res.isOK()) {
       this.snackBar.open('Error setting ready state!', 'OK', {
@@ -118,30 +119,10 @@ export class GameWaitingComponent {
   }
 
   /**
-   * Starts the game
-   */
-  async startGame() {
-    let res = await this.api.ingameStart();
-
-    if (!res.isOK()) {
-      let message = 'Error starting game';
-
-      if (res.isConflict()) {
-        message = 'Not all players are ready yet!';
-      }
-
-      this.snackBar.open(message, 'OK', {
-        duration: 10000,
-        panelClass: 'action-warn',
-      });
-    }
-  }
-
-  /**
    * Leaves the current game
    */
   async leaveGame() {
-    // TODO:
+    this.game.leave();
   }
 
   /**

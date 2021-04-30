@@ -17,7 +17,7 @@ export class AddPlayerToTeamDialogComponent {
   constructor(
     private api: ApiService,
     @Inject(MAT_DIALOG_DATA)
-    public data: { index: number; name: string },
+    public data: { index: number; name: string; code: number },
     private snackBar: MatSnackBar,
     private dialogRef: MatDialogRef<AddPlayerToTeamDialogComponent>
   ) {}
@@ -31,7 +31,7 @@ export class AddPlayerToTeamDialogComponent {
     this.dialogRef.disableClose = true;
     this.saving = true;
 
-    let res = await this.api.addIngamePlayerToTeam(this.data.index, this.username, this.password);
+    let res = await this.api.addIngamePlayerToTeam(this.data.code, this.data.index, this.username, this.password);
 
     this.dialogRef.disableClose = false;
     this.saving = false;

@@ -28,6 +28,7 @@ export class WebsocketService {
       this.stompClient.debug = null;
     }
 
+    // TODO: handle error
     this.connected = new Promise((res) => {
       this.stompClient.connect({}, () => {
         res();
@@ -58,7 +59,6 @@ export class WebsocketService {
 
     this.stompClient.subscribe(queue, (message: any) => {
       if (message.body) {
-        // TODO: parse body
         callback(JSON.parse(message.body));
       }
     });

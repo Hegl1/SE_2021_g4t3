@@ -10,7 +10,7 @@ import { GameService } from 'src/app/core/game/game.service';
 export class GameRunningComponent implements OnInit {
   time = 0;
 
-  private timer: any = null;
+  timer: any = null;
 
   constructor(public game: GameService, private user: UserService) {}
 
@@ -22,12 +22,19 @@ export class GameRunningComponent implements OnInit {
    * Starts the timer with the time from the running-data
    */
   startTimer() {
-    if (this.game.currentState?.running_data?.running) {
-      this.updateTimer();
-
-      this.timer = setInterval(() => {
+    if (this.game.currentState?.running_data) {
+      if (this.game.currentState.running_data.round_pause_time === null) {
         this.updateTimer();
-      }, 1000);
+
+        this.timer = setInterval(() => {
+          this.updateTimer();
+        }, 1000);
+      } else if (this.game.currentState.running_data.round_start_time !== null) {
+        this.time =
+          this.game.currentState.running_data.round_pause_time - this.game.currentState.running_data.round_start_time;
+      } else {
+        this.time = 0;
+      }
     }
   }
 
@@ -35,7 +42,10 @@ export class GameRunningComponent implements OnInit {
    * Updates the current timer value
    */
   private updateTimer() {
-    if (this.game.currentState?.running_data?.running) {
+    if (
+      this.game.currentState?.running_data?.round_pause_time === null &&
+      this.game.currentState?.running_data?.round_start_time !== null
+    ) {
       this.time =
         this.game.currentState?.running_data?.round_start_time +
         this.game.currentState?.running_data?.total_time -
@@ -44,9 +54,21 @@ export class GameRunningComponent implements OnInit {
       if (this.time < 0) {
         this.time = 0;
         clearTimeout(this.timer);
+        this.timer = null;
       }
     } else {
+      if (
+        this.game.currentState?.running_data?.round_pause_time &&
+        this.game.currentState?.running_data?.round_start_time
+      ) {
+        this.time =
+          this.game.currentState.running_data.round_pause_time - this.game.currentState.running_data.round_start_time;
+      } else {
+        this.time = 0;
+      }
+
       clearTimeout(this.timer);
+      this.timer = null;
     }
   }
 

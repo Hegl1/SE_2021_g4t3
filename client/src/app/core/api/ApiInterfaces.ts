@@ -29,6 +29,7 @@ export interface RunningGame {
   code: number;
   max_score: number;
   teams: {
+    index: number;
     name: string;
     players: User[];
     score: number;
@@ -48,16 +49,17 @@ export interface RunningGameState extends RunningGame {
   waiting_data: {
     unassigned_players: User[];
     ready_players: User[];
+    startable: boolean;
   } | null;
   running_data: {
     round: number;
-    running: boolean;
+    round_pause_time: number | null;
+    round_start_time: number | null;
     current_team: number;
     current_player: User;
+    expression: string | null;
     points: number;
     total_time: number;
-    round_start_time: number;
-    expression: string | null;
     action: string;
   } | null;
 }

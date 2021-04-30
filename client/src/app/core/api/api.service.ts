@@ -3,6 +3,7 @@ import { Expression } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { UserService } from '../auth/user.service';
 import { ConfigService } from '../config/config.service';
+import { GameService } from '../game/game.service';
 import {
   Category,
   CategoryInfo,
@@ -135,6 +136,12 @@ export class ApiService {
     return this.handleResponse<{}>(this.http.delete<{}>(`${this.URL}/users/${id}`, this.httpOptions).toPromise());
   }
 
+  isUserIngame(id: number) {
+    return this.handleResponse<boolean>(
+      this.http.get<boolean>(`${this.URL}/users/${id}/ingame`, this.httpOptions).toPromise()
+    );
+  }
+
   // Statistics
 
   getUserStats(id: number) {
@@ -219,31 +226,35 @@ export class ApiService {
     return this.handleResponse<boolean>(this.http.get<boolean>(`${this.URL}/ingame`, this.httpOptions).toPromise());
   }
 
+  leaveIngame(code: number) {
+    return this.handleResponse<{}>(
+      this.http.delete<{}>(`${this.URL}/ingame/${code}/leave`, this.httpOptions).toPromise()
+    );
+  }
+
   getIngameState() {
     return this.handleResponse<RunningGameState>(
-      this.http.get<RunningGameState>(`${this.URL}/ingame/fetch`, this.httpOptions).toPromise()
+      this.http.get<RunningGameState>(`${this.URL}/ingame/state`, this.httpOptions).toPromise()
     );
   }
 
-  setIngameReady(state: boolean) {
-    return this.handleResponse<{}>(this.http.post<{}>(`${this.URL}/ingame/ready`, state, this.httpOptions).toPromise());
-  }
-
-  ingameStart() {
-    return this.handleResponse<{}>(this.http.post<{}>(`${this.URL}/ingame/start`, null, this.httpOptions).toPromise());
-  }
-
-  joinIngameTeam(team: number) {
+  setIngameReady(code: number, state: boolean) {
     return this.handleResponse<{}>(
-      this.http.post<{}>(`${this.URL}/ingame/teams/${team}/join`, null, this.httpOptions).toPromise()
+      this.http.post<{}>(`${this.URL}/ingame/${code}/ ready`, state, this.httpOptions).toPromise()
     );
   }
 
-  addIngamePlayerToTeam(team: number, username: string, password: string) {
+  joinIngameTeam(code: number, team: number) {
+    return this.handleResponse<{}>(
+      this.http.post<{}>(`${this.URL}/ingame/${code}/ teams/${team}/join`, null, this.httpOptions).toPromise()
+    );
+  }
+
+  addIngamePlayerToTeam(code: number, team: number, username: string, password: string) {
     return this.handleResponse<{}>(
       this.http
         .post<{}>(
-          `${this.URL}/ingame/teams/${team}/players`,
+          `${this.URL}/ingame/${code}/ teams/${team}/players`,
           {
             username: username,
             password: password,
@@ -254,9 +265,9 @@ export class ApiService {
     );
   }
 
-  confirmIngame(confirmation: 'CORRECT' | 'WRONG' | 'INVALID') {
+  confirmIngame(code: number, confirmation: 'CORRECT' | 'WRONG' | 'INVALID') {
     return this.handleResponse<{}>(
-      this.http.post<{}>(`${this.URL}/ingame/confirm`, confirmation, this.httpOptions).toPromise()
+      this.http.post<{}>(`${this.URL}/ingame/${code}/ confirm`, confirmation, this.httpOptions).toPromise()
     );
   }
 

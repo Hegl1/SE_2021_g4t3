@@ -38,6 +38,10 @@
     border-radius: 5px;
 
     background-color: mat-color($accent);
+
+    > * {
+      vertical-align: middle;
+    }
   }
 
   .expressionCard {
