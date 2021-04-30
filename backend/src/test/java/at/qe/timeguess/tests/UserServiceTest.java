@@ -82,7 +82,7 @@ public class UserServiceTest {
 
     @Test
     public void testDeletingUserTeamExists() throws UserService.UsernameNotAvailableException, UserService.EmptyPasswordException {
-        CompletedGameTeam team = new CompletedGameTeam(3, 4, 5);
+        CompletedGameTeam team = new CompletedGameTeam(3, 4, 5, false);
         team.addPlayer(this.admin);
         User newUser = new User("sdfasdfasfjzktzre", "ffsdfa", UserRole.GAMEMANAGER);
         User saved = this.userService.saveUser(newUser);
