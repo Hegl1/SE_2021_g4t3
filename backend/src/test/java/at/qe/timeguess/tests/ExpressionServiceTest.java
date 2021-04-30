@@ -121,11 +121,13 @@ public class ExpressionServiceTest {
 
     @Test
     @DirtiesContext
-    public void testDeleteExpression() throws ExpressionService.ExpressionAlreadyExists, ExpressionService.ExpressionDoesNotExistAnymore, ExpressionService.ExpressionReferencedInGame {
+    public void testDeleteExpression() throws ExpressionService.ExpressionAlreadyExists, ExpressionService.ExpressionDoesNotExistAnymore, ExpressionService.ExpressionReferencedInGame, CategoryService.CategoryAlreadyExistsException {
 
-        NameDTO nameDTO = new NameDTO("Ballermann");
-        this.expressionService.saveExpression(0L, nameDTO);
-        this.expressionService.deleteExpression(this.expressionService.getExpressionById(1L));
+        NameDTO nameDTO = new NameDTO("Trump");
+        Category category = this.categoryService.saveCategory(new Category("Politics"));
+
+        this.expressionService.saveExpression(11L, nameDTO);
+        this.expressionService.deleteExpression(this.expressionService.getExpressionById(11L));
         Assertions.assertEquals(5, this.expressionService.getAllExpressions().size());
     }
 
@@ -138,10 +140,10 @@ public class ExpressionServiceTest {
 
     @Test
     @DirtiesContext
-    public void testExpressionDoesNotExistAnymoreException() throws ExpressionService.ExpressionDoesNotExistAnymore, ExpressionService.ExpressionReferencedInGame, ExpressionService.ExpressionAlreadyExists {
-        NameDTO nameDTO = new NameDTO("Merkel");
-        Category category = this.categoryService.getCategoryById(0L);
-        ExpressionDTO expressionDTO = this.expressionService.saveExpression(0L, nameDTO);
+    public void testExpressionDoesNotExistAnymoreException() throws ExpressionService.ExpressionDoesNotExistAnymore, ExpressionService.ExpressionReferencedInGame, ExpressionService.ExpressionAlreadyExists, CategoryService.CategoryAlreadyExistsException {
+        NameDTO nameDTO = new NameDTO("Trump");
+        Category category = this.categoryService.saveCategory(new Category("Politics"));
+        ExpressionDTO expressionDTO = this.expressionService.saveExpression(11L, nameDTO);
 
         Long expressionId = expressionDTO.getId();
         Expression expressionToDelete = this.expressionService.getExpressionById(expressionId);

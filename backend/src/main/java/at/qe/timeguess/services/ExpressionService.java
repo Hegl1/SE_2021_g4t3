@@ -191,7 +191,7 @@ public class ExpressionService {
 
             for(CompletedGame current : allCompletedGames) {
 
-                if(current.getCategory().getId() == category.getId()) {
+                if(current.getCategory().getId().equals(category.getId())) {
                     throw new ExpressionReferencedInGame("The Category of this Expression is referenced in a Game!");
                 }
             }
