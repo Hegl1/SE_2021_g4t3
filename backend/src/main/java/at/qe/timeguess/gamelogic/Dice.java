@@ -62,16 +62,28 @@ public class Dice {
 		activityMapping[11] = "Rhime";
 	}
 
-	public int getPoints(final int facet) {
-		return pointsMapping[facet];
+	public Integer getPoints(final Integer facet) {
+		if (facet == null) {
+			return -1;
+		} else {
+			return pointsMapping[facet];
+		}
 	}
 
-	public int getDurationInSeconds(final int facet) {
-		return durationMapping[facet];
+	public Integer getDurationInSeconds(final Integer facet) {
+		if (facet == null) {
+			return -1;
+		} else {
+			return durationMapping[facet];
+		}
 	}
 
-	public String getActivity(final int facet) {
-		return activityMapping[facet];
+	public String getActivity(final Integer facet) {
+		if (facet == null) {
+			return null;
+		} else {
+			return activityMapping[facet];
+		}
 	}
 
 	public int[] getPointsMapping() {

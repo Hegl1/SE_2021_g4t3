@@ -5,11 +5,19 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import at.qe.timeguess.controllers.WebsocketController;
+import at.qe.timeguess.dto.TeamDTO;
+import at.qe.timeguess.dto.UserDTO;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.model.User;
+import at.qe.timeguess.services.ExpressionService;
+import at.qe.timeguess.services.LobbyService;
+import at.qe.timeguess.websockDto.RunningDataDTO;
+import at.qe.timeguess.websockDto.ScoreUpdateDTO;
+import at.qe.timeguess.websockDto.StateUpdateDTO;
 import at.qe.timeguess.websockDto.WaitingDataDTO;
 
 /**
@@ -18,6 +26,8 @@ import at.qe.timeguess.websockDto.WaitingDataDTO;
 public class Game {
 
 	private static WebsocketController webSocketController;
+	private static ExpressionService expressionService;
+	private static LobbyService lobbyService;
 
 	// general game information
 	private int gameCode;
@@ -37,12 +47,14 @@ public class Game {
 
 	// ingame phase
 	private int currentTeam;
-	private int startTeam;
 	private int roundCounter;
+	private Integer currentFacet;
 	private List<Expression> usedExpressions;
 	private Expression currentExpression;
-	private long roundStartTime;
-	private long roundEndTime;
+	private Long roundStartTime;
+	private Long roundEndTime;
+	private long gameStartTime;
+	private boolean expressionConfirmed;
 
 	// TODO maybe delete, revisit later
 	public Game(final int code) {
@@ -73,7 +85,7 @@ public class Game {
 			Team current = new Team();
 			teams.add(current);
 			current.setIndex(teams.indexOf(current));
-			current.setName("Team " + current.getIndex());
+			current.setName("Team " + (current.getIndex() + 1));
 		}
 		this.dice = new Dice();
 		this.raspberryId = raspberryId;
@@ -125,7 +137,7 @@ public class Game {
 
 			if (team == null) {
 				leaveTeam(player);
-				webSocketController.sendTeamUpdateToFrontend(gameCode, teams);
+				webSocketController.sendTeamUpdateToFrontend(gameCode, buildTeamDTOs(teams));
 				webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 			} else {
 				leaveTeam(player);
@@ -135,7 +147,8 @@ public class Game {
 				// add to ready map if offline player
 				addToReadyMapIfNotAlreadyExists(player, true);
 				team.joinTeam(player);
-				webSocketController.sendTeamUpdateToFrontend(gameCode, teams);
+				webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+				webSocketController.sendTeamUpdateToFrontend(gameCode, buildTeamDTOs(teams));
 			}
 		} else {
 			throw new HostAlreadyReadyException("Host is already ready");
@@ -183,6 +196,7 @@ public class Game {
 		}
 		if (player.equals(host) || (!allTeamsEnoughPlayersWithDevice() && active)) {
 			webSocketController.sendGameNotContinueableToFrontend(gameCode);
+			lobbyService.abortRunningGame(gameCode);
 		}
 	}
 
@@ -217,14 +231,62 @@ public class Game {
 
 	private void startGame() {
 		active = true;
-		// TODO proper starting action and communication with frontend
+		expressionConfirmed = false;
+		currentFacet = null;
+		gameStartTime = System.currentTimeMillis() / 1000L;
+		currentTeam = new Random().nextInt(numberOfTeams);
+		roundCounter = 1;
+		currentExpression = expressionService.getRandomExpressionByCategory(category);
+		usedExpressions.add(currentExpression);
+		roundStartTime = -1L;
+		roundEndTime = -1L;
+		webSocketController.sendCompleteGameUpdateToFrontend(gameCode, buildStateUpdate());
 	}
 
 	/**
 	 * Method that is called whenever a dice gets updated and a game is mapped.
 	 */
-	public void diceUpdate(final int side) {
-		// TODO implement with game logic
+	public void diceUpdate(final int facet) {
+		if (roundStartTime == -1) {
+			// between round phase - start timer
+			roundStartTime = System.currentTimeMillis() / 1000L;
+			currentFacet = facet;
+			sendRunningDataToTeams();
+
+		} else {
+			if (roundStartTime != -1L && roundEndTime == -1L) {
+				roundEndTime = System.currentTimeMillis() / 1000L;
+				sendRunningDataToTeams();
+			}
+
+		}
+	}
+
+	public void confirmExpression(final String descision) {
+		if (roundStartTime != -1 && !expressionConfirmed) {
+			expressionConfirmed = true;
+			if (descision == "CORRECT") {
+				teams.get(currentTeam).incrementScore(dice.getPoints(currentFacet));
+				webSocketController.broadcastScoreChangeToFrontend(gameCode,
+						new ScoreUpdateDTO(dice.getPoints(currentFacet), currentTeam));
+				if (teams.get(currentTeam).getScore() > maxPoints) {
+					// TODO end game
+				}
+			} else if (descision == "INVALID") {
+				teams.get(currentTeam).decrementScore(2);
+				webSocketController.broadcastScoreChangeToFrontend(gameCode,
+						new ScoreUpdateDTO(dice.getPoints(currentFacet), currentTeam));
+			}
+			teams.get(currentTeam).incrementCurrentPlayer();
+			incrementCurrentTeam();
+			if (!pickNewExpression()) {
+				// TODO END GAME WITH NO EXPRESSIONS LEFT
+			}
+			currentFacet = null;
+			roundStartTime = -1L;
+			roundEndTime = -1L;
+			expressionConfirmed = false;
+		}
 	}
 
 	/**
@@ -417,6 +479,24 @@ public class Game {
 		}
 	}
 
+	private User getCurrentPlayer() {
+		return teams.get(currentTeam).getCurrentPlayer();
+	}
+
+	private void incrementCurrentTeam() {
+		currentTeam = (currentTeam++) % teams.size();
+	}
+
+	private void sendRunningDataToTeams() {
+		for (Team t : teams) {
+			if (currentTeam == t.getIndex()) {
+				webSocketController.sendRunningDataToTeam(gameCode, t.getIndex(), buildRunningDataDTO(true));
+			} else {
+				webSocketController.sendRunningDataToTeam(gameCode, t.getIndex(), buildRunningDataDTO(false));
+			}
+		}
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -445,6 +525,14 @@ public class Game {
 
 	public void setWebSocketController(final WebsocketController websock) {
 		this.webSocketController = websock;
+	}
+
+	public void setExpressionService(final ExpressionService expServ) {
+		this.expressionService = expServ;
+	}
+
+	public void setLobbyService(final LobbyService lobServ) {
+		this.lobbyService = lobServ;
 	}
 
 	/**
@@ -477,6 +565,64 @@ public class Game {
 			super(message);
 		}
 
+	}
+
+	public RunningDataDTO buildRunningDataDTO(final boolean isCurrendTeam) {
+		if (isCurrendTeam) {
+			return new RunningDataDTO(roundCounter, roundEndTime, roundStartTime, currentTeam, getCurrentPlayer(), null,
+					dice.getPoints(currentFacet), dice.getDurationInSeconds(currentFacet),
+					dice.getActivity(currentFacet));
+		} else {
+			return new RunningDataDTO(roundCounter, roundEndTime, roundStartTime, currentTeam, getCurrentPlayer(),
+					currentExpression.getName(), dice.getPoints(currentFacet), dice.getDurationInSeconds(currentFacet),
+					dice.getActivity(currentFacet));
+		}
+	}
+
+	public StateUpdateDTO buildStateUpdate() {
+
+		if (isActive()) {
+			RunningDataDTO runningData = buildRunningDataDTO(false);
+			return new StateUpdateDTO("RUNNING", null, runningData, gameCode, buildTeamDTOs(teams), host, category,
+					maxPoints);
+		} else {
+			WaitingDataDTO waitingData = buildWaitingDataDTO();
+			return new StateUpdateDTO("WAITING", waitingData, null, gameCode, buildTeamDTOs(teams), host, category,
+					maxPoints);
+		}
+
+	}
+
+	private List<TeamDTO> buildTeamDTOs(final List<Team> teams) {
+		List<TeamDTO> result = new LinkedList<>();
+		for (Team t : teams) {
+			result.add(new TeamDTO(t.getName(), t.getScore(), buildUserDTOs(t.getPlayers()), t.getIndex()));
+		}
+		return result;
+	}
+
+	private List<UserDTO> buildUserDTOs(final List<User> users) {
+		List<UserDTO> result = new LinkedList<>();
+		for (User u : users) {
+			result.add(new UserDTO(u.getId(), u.getUsername(), u.getRole().toString()));
+		}
+		return result;
+	}
+
+	public boolean isUserInCurrentTeam(final User user) {
+		return teams.get(currentTeam).getPlayers().contains(user);
+	}
+
+	private boolean pickNewExpression() {
+		if (usedExpressions.size() == expressionService.getAllExpressionsByCategory(category).size()) {
+			return false;
+		} else {
+			while (usedExpressions.contains(currentExpression)) {
+				currentExpression = expressionService.getRandomExpressionByCategory(category);
+			}
+			usedExpressions.add(currentExpression);
+			return true;
+		}
 	}
 
 	public class UserStateException extends Exception {

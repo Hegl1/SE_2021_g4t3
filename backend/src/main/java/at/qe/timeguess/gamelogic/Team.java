@@ -50,6 +50,13 @@ public class Team {
 		this.score += points;
 	}
 
+	public void decrementScore(final int points) {
+		this.score -= points;
+		if (points < 0) {
+			score = 0;
+		}
+	}
+
 	public boolean isInTeam(final User player) {
 		return players.contains(player);
 	}
@@ -74,12 +81,16 @@ public class Team {
 		this.index = index;
 	}
 
-	public int getCurrentPlayer() {
+	public int getCurrentPlayerIndex() {
 		return currentPlayer;
 	}
 
-	public void setCurrentPlayer(final int currentPlayer) {
-		this.currentPlayer = currentPlayer;
+	public User getCurrentPlayer() {
+		return players.get(currentPlayer);
+	}
+
+	public void incrementCurrentPlayer() {
+		this.currentPlayer = (currentPlayer++) % players.size();
 	}
 
 	public List<User> getPlayers() {

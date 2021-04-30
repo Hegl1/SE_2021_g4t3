@@ -9,10 +9,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import at.qe.timeguess.dto.TeamDTO;
 import at.qe.timeguess.gamelogic.Game;
-import at.qe.timeguess.gamelogic.Team;
-import at.qe.timeguess.websockDto.ErrorDTO;
 import at.qe.timeguess.websockDto.ResponseDTO;
+import at.qe.timeguess.websockDto.RunningDataDTO;
+import at.qe.timeguess.websockDto.ScoreUpdateDTO;
+import at.qe.timeguess.websockDto.StateUpdateDTO;
 import at.qe.timeguess.websockDto.TeamResponseDTO;
 import at.qe.timeguess.websockDto.WaitingDataDTO;
 
@@ -24,7 +26,7 @@ public class WebsocketController {
 
 	private static final String INGAMEQUEUE = "/messagequeue/ingame/";
 
-	private static final String USERQUEUE = "/messagequeue/user/";
+	private static final String TEAMQUEUE = "/messagequeue/ingame/team/";
 
 	/**
 	 * Update ready status of a given user in frontend
@@ -36,35 +38,26 @@ public class WebsocketController {
 		simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("READY_UPDATE", content));
 	}
 
-	/**
-	 * Method for communicating that host is already in ready state to frontend.
-	 * 
-	 * @param userName user to notify
-	 */
-	public void sendHostIsReadyErrorToFrontend(final String userName) {
-		simpMessageingTemplate.convertAndSend(USERQUEUE + userName,
-				new ResponseDTO("ERROR", new ErrorDTO("HOST_READY")));
-	}
-
-	/**
-	 * Method for communicating that the host cannot get ready yet.
-	 * 
-	 * @param userName name of the host
-	 */
-	public void sendHostNotReadyableToFrontend(final String userName) {
-		// TODO maybe delete
-		simpMessageingTemplate.convertAndSend(USERQUEUE + userName,
-				new ResponseDTO("ERROR", new ErrorDTO("GAME_NOT_READY")));
-	}
-
 	public void sendGameNotContinueableToFrontend(final int id) {
-		simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id,
-				new ResponseDTO("ERROR", new ErrorDTO("GAME_NOT_CONTINUEABLE")));
+		simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("GAME_NOT_CONTINUEABLE", null));
 	}
 
-	public void sendTeamUpdateToFrontend(final int id, final List<Team> teams) {
+	public void sendTeamUpdateToFrontend(final int id, final List<TeamDTO> teams) {
 		simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id,
 				new ResponseDTO("TEAM_UPDATE", new TeamResponseDTO(teams)));
+	}
+
+	public void sendRunningDataToTeam(final int id, final int teamIndex, final RunningDataDTO content) {
+		simpMessageingTemplate.convertAndSend(TEAMQUEUE + id + "/" + teamIndex,
+				new ResponseDTO("RUNNING_DATA", content));
+	}
+
+	public void broadcastScoreChangeToFrontend(final int id, final ScoreUpdateDTO update) {
+		simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("SCORE_UPDATE", update));
+	}
+
+	public void sendCompleteGameUpdateToFrontend(final int id, final StateUpdateDTO update) {
+		// TODO maybe?
 	}
 
 	@EventListener
