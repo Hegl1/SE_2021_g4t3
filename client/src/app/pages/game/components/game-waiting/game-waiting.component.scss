@@ -47,6 +47,10 @@
 
   margin-bottom: 2em;
 
+  &.ready .teamCard {
+    cursor: default !important;
+  }
+
   .teamCard {
     overflow: hidden;
 

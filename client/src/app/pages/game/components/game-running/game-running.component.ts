@@ -114,18 +114,4 @@ export class GameRunningComponent implements OnInit {
   async leaveGame() {
     this.game.leave();
   }
-
-  /**
-   * Selectes the content of the code input
-   * and copys it to the clipboard
-   */
-  copyCode(input: HTMLInputElement) {
-    input.select();
-    input.setSelectionRange(0, 99);
-    document.execCommand('copy');
-
-    this.snackBar.open('Code copied to clipboard!', 'OK', {
-      duration: 2000,
-    });
-  }
 }

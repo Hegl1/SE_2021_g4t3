@@ -38,6 +38,10 @@ export class GameWaitingComponent {
     return this.user.user.id === this.game.currentState.host.id;
   }
 
+  get startable() {
+    return this.game.currentState?.waiting_data?.startable || false;
+  }
+
   /**
    * Checks whether the authenticated user is in the team
    * with the given index
@@ -47,6 +51,13 @@ export class GameWaitingComponent {
    */
   isCurrentUsersTeam(index: number) {
     if (this.user.user?.id == null) return false;
+
+    if (index === -1) {
+      return (
+        this.game.currentState?.waiting_data?.unassigned_players.some((player) => player.id === this.user.user?.id) ||
+        false
+      );
+    }
 
     return this.game.isUsersTeam(this.user.user?.id, index);
   }
@@ -91,6 +102,8 @@ export class GameWaitingComponent {
    */
   async switchTeam(index: number) {
     if (this.isCurrentUsersTeam(index)) return;
+    if (this.currentUserId != null && this.isReadyPlayer(this.currentUserId)) return;
+    if (this.hostId != null && this.isReadyPlayer(this.hostId)) return;
 
     let res = await this.api.joinIngameTeam(this.game.code, index);
 

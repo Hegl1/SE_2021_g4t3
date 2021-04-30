@@ -37,6 +37,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { LogoutComponent } from './pages/logout/logout.component';
 import { AddPlayerToTeamDialogComponent } from './pages/game/components/game-waiting/components/add-player-to-team-dialog/add-player-to-team-dialog.component';
 import { TimePipe } from './core/pipes/time.pipe';
+import { PlayerNameComponent } from './components/player-name/player-name.component';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();
@@ -76,6 +77,7 @@ export function setupConfig(service: ConfigService) {
     GameFinishedComponent,
     AddPlayerToTeamDialogComponent,
     TimePipe,
+    PlayerNameComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, HttpClientModule],
   providers: [

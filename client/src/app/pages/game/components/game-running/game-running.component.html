@@ -25,7 +25,12 @@
         <table class="data_table">
             <tr>
                 <td>Player:</td>
-                <td>{{ game.currentState.running_data.current_player.username }}</td>
+                <td>
+                    <tg-player-name
+                        [player]="game.currentState.running_data.current_player"
+                        (click)="$event.stopPropagation()"
+                    ></tg-player-name>
+                </td>
             </tr>
             <tr>
                 <td>Points:</td>
@@ -97,7 +102,7 @@
                     *ngIf="currentPlayerUser && currentPlayerUser.id === player.id"
                     >play_arrow</mat-icon
                 >
-                <span>{{ player.username }}</span>
+                <tg-player-name [player]="player" (click)="$event.stopPropagation()"></tg-player-name>
                 <mat-icon [inline]="true" *ngIf="player.id === currentUserId">person</mat-icon>
                 <mat-icon color="accent" [inline]="true" *ngIf="player.id === hostId">star</mat-icon>
             </li>
@@ -112,10 +117,6 @@
 
     <span class="game_code">
         <span> Game code: </span>
-        <input [value]="game.currentState?.code || '' | gameCode" readonly #codeInput />
-
-        <button mat-icon-button (click)="copyCode(codeInput)">
-            <mat-icon>content_copy</mat-icon>
-        </button>
+        <input [value]="game.currentState?.code || '' | gameCode" readonly />
     </span>
 </div>

@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { ApiService } from '../api/api.service';
 import { GameStatus, RunningGameState } from '../api/ApiInterfaces';
 import { WebsocketService } from '../api/websocket.service';
@@ -16,7 +18,8 @@ export class GameService {
     private websocket: WebsocketService,
     private router: Router,
     private api: ApiService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   /**
@@ -93,6 +96,23 @@ export class GameService {
    * redirects to the homepage
    */
   async leave() {
+    if (
+      !(await this.dialog
+        .open(ConfirmDialogComponent, {
+          data: {
+            title: 'Leave game',
+            content: 'Do you really want to leave this game?',
+            btnConfirm: 'Yes',
+            btnDecline: 'No',
+            warn: true,
+          },
+        })
+        .afterClosed()
+        .toPromise())
+    ) {
+      return;
+    }
+
     let res = await this.api.leaveIngame(this.code);
 
     if (!res.isOK()) {
