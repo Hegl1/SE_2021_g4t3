@@ -9,6 +9,7 @@ import at.qe.timeguess.services.ExpressionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -94,6 +95,7 @@ public class CategoryController {
      *      code CREATED  if successful
      *      code CONFLICT if category with this name exists already
      */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')")
     @PostMapping("")
     public ResponseEntity<Category> createCategory(@RequestBody final NameDTO nameDTO) {
         Category category = new Category(nameDTO.getName());
@@ -115,6 +117,7 @@ public class CategoryController {
      *      code FORBIDDEN  if a Category is referenced in persisted completed Game
      *      code NOT_FOUND  if the Category
      */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Category> deleteCategory(@PathVariable final Long id) {
         Category categoryToDelete = this.categoryService.getCategoryById(id);

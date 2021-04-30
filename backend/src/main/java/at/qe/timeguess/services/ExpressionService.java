@@ -162,6 +162,7 @@ public class ExpressionService {
             expressionNames.addAll(current.getExpressions());
             expressionDTOs = this.importExpressionsIntoCategory(category.getId(), expressionNames);
             categoryExpressionDTOs.add(new CategoryExpressionDTO(category, expressionDTOs));
+            expressionNames.clear();
         }
         return categoryExpressionDTOs;
     }
@@ -173,6 +174,7 @@ public class ExpressionService {
      * @throws ExpressionDoesNotExistAnymore if the Expression to get deleted does not exist anymore
      */
     public void deleteExpression(final Expression expression) throws ExpressionDoesNotExistAnymore, ExpressionReferencedInGame {
+
         if(expression == null) {
             throw new ExpressionDoesNotExistAnymore("This Expression does not exist anymore!");
         } else {
@@ -181,17 +183,18 @@ public class ExpressionService {
             Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
 
             for(Game current : allRunningGames) {
+
                 if(current.getCategory() == category) {
                     throw new ExpressionReferencedInGame("The Category of this Expression is referenced in a Game!");
                 }
             }
 
             for(CompletedGame current : allCompletedGames) {
-                if(current.getCategory() == category) {
+
+                if(current.getCategory().getId().equals(category.getId())) {
                     throw new ExpressionReferencedInGame("The Category of this Expression is referenced in a Game!");
                 }
             }
-
             this.expressionRepository.delete(expression);
         }
     }
