@@ -73,6 +73,7 @@ public class LobbyService {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
 				userService.getAuthenticatedUser(), raspberryId);
 		raspberryService.registerGame(raspberryId, newGame);
+		webSocketController.setWebsocketControllerForGame(newGame);
 		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}

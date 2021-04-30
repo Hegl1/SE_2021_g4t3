@@ -160,6 +160,20 @@ public class GameController {
 		}
 	}
 
+	@GetMapping("/{code}/exists")
+	public ResponseEntity<Void> gameExists(@PathVariable final int code) {
+
+		if (userService.getAuthenticatedUser() == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+
+		if (lobbyService.getGame(code) != null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
 	/**
 	 * Private method to build a GameDTO from a game.
 	 *
@@ -173,7 +187,7 @@ public class GameController {
 			for (User u : t.getPlayers()) {
 				users.add(buildUserDTO(u));
 			}
-			teams.add(new TeamDTO(t.getName(), t.getScore(), users));
+			teams.add(new TeamDTO(t.getName(), t.getScore(), users, t.getIndex()));
 		}
 		return new GameDTO(game.getGameCode(), teams, buildUserDTO(game.getHost()), game.getCategory(),
 				game.getMaxPoints());

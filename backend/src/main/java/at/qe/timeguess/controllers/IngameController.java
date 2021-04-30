@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +37,9 @@ public class IngameController {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@GetMapping("")
 	public ResponseEntity<Boolean> isUserIngame() {
@@ -99,7 +103,8 @@ public class IngameController {
 			game.joinTeam(game.getTeamByIndex(index), authUser);
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		} catch (HostAlreadyReadyException e) {
-			return new ResponseEntity<Void>(HttpStatus.CONFLICT);
+			// TODO conflict?
+			return new ResponseEntity<Void>(HttpStatus.OK);
 		} catch (TeamIndexOutOfBoundsException e) {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		}
@@ -117,7 +122,7 @@ public class IngameController {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 
-		if (userToLogin == null || !payload.getPassword().equals(userToLogin.getPassword())) {
+		if (userToLogin == null || !passwordEncoder.matches(payload.getPassword(), userToLogin.getPassword())) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 
@@ -148,7 +153,7 @@ public class IngameController {
 	public ResponseEntity<StateUpdateDTO> fetchGameInformation() {
 		User authUser = userService.getAuthenticatedUser();
 
-		System.out.println(lobbyService.isUserInGame(authUser));
+		System.out.println("GAME STATE FETCH");
 		if (authUser == null) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
@@ -157,6 +162,8 @@ public class IngameController {
 		}
 
 		Game game = lobbyService.getGameContainingUser(authUser);
+		System.out.println(game);
+		System.out.println(buildStateUpdate(game));
 		return new ResponseEntity<>(buildStateUpdate(game), HttpStatus.OK);
 
 	}
@@ -164,6 +171,7 @@ public class IngameController {
 	private StateUpdateDTO buildStateUpdate(final Game game) {
 
 		if (game.isActive()) {
+			System.out.println("GAME ");
 			// TODO write when actually active games are performed
 			return null;
 		} else {
@@ -177,7 +185,7 @@ public class IngameController {
 	private List<TeamDTO> buildTeamDTOs(final List<Team> teams) {
 		List<TeamDTO> result = new LinkedList<>();
 		for (Team t : teams) {
-			result.add(new TeamDTO(t.getName(), t.getScore(), buildUserDTOs(t.getPlayers())));
+			result.add(new TeamDTO(t.getName(), t.getScore(), buildUserDTOs(t.getPlayers()), t.getIndex()));
 		}
 		return result;
 	}
