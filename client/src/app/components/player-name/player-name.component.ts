@@ -17,6 +17,8 @@ export class PlayerNameComponent {
    * Opens the users profile dialog
    */
   openProfile() {
+    this.dialog.closeAll();
+
     this.dialog.open(ProfileDialogComponent, {
       data: {
         user_id: this.player.id,

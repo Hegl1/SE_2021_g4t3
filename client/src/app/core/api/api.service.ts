@@ -240,13 +240,13 @@ export class ApiService {
 
   setIngameReady(code: number, state: boolean) {
     return this.handleResponse<{}>(
-      this.http.post<{}>(`${this.URL}/ingame/${code}/ ready`, state, this.httpOptions).toPromise()
+      this.http.post<{}>(`${this.URL}/ingame/${code}/ready`, state, this.httpOptions).toPromise()
     );
   }
 
   joinIngameTeam(code: number, team: number) {
     return this.handleResponse<{}>(
-      this.http.post<{}>(`${this.URL}/ingame/${code}/ teams/${team}/join`, null, this.httpOptions).toPromise()
+      this.http.post<{}>(`${this.URL}/ingame/${code}/teams/${team}/join`, null, this.httpOptions).toPromise()
     );
   }
 
@@ -254,7 +254,7 @@ export class ApiService {
     return this.handleResponse<{}>(
       this.http
         .post<{}>(
-          `${this.URL}/ingame/${code}/ teams/${team}/players`,
+          `${this.URL}/ingame/${code}/teams/${team}/players`,
           {
             username: username,
             password: password,
@@ -267,7 +267,7 @@ export class ApiService {
 
   confirmIngame(code: number, confirmation: 'CORRECT' | 'WRONG' | 'INVALID') {
     return this.handleResponse<{}>(
-      this.http.post<{}>(`${this.URL}/ingame/${code}/ confirm`, confirmation, this.httpOptions).toPromise()
+      this.http.post<{}>(`${this.URL}/ingame/${code}/confirm`, confirmation, this.httpOptions).toPromise()
     );
   }
 

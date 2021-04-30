@@ -1,8 +1,8 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
-import { NavigationStart, Router } from '@angular/router';
+import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { ProfileDialogComponent } from '../components/profile-dialog/profile-dialog.component';
 import { ApiService } from '../core/api/api.service';
 import { UserService } from '../core/auth/user.service';
@@ -15,7 +15,7 @@ const maxWidthPx = 1000;
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent {
   inGame = false;
   isSmallScreen = this.breakpointObserver.isMatched(`(max-width: ${maxWidthPx}px)`);
 
@@ -32,21 +32,20 @@ export class LayoutComponent implements OnInit {
       .observe([`(max-width: ${maxWidthPx}px)`])
       .subscribe((result) => (this.isSmallScreen = result.matches));
 
-    this.router.events.subscribe((val) => {
+    this.router.events.subscribe(async (val) => {
       if (val instanceof NavigationStart && this.isSmallScreen && this.sidenav) {
         this.sidenav.close();
       }
+      if (val instanceof NavigationEnd) {
+        let ingame = await this.api.getIngame();
+
+        if (ingame.isOK() && ingame.value) {
+          this.inGame = ingame.value;
+        } else {
+          this.inGame = false;
+        }
+      }
     });
-  }
-
-  async ngOnInit() {
-    let ingame = await this.api.getIngame();
-
-    if (ingame.isOK() && ingame.value) {
-      this.inGame = ingame.value;
-    } else {
-      this.inGame = false;
-    }
   }
 
   openSettings() {

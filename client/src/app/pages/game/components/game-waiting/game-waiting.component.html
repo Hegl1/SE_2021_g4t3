@@ -52,7 +52,7 @@
         <button
             mat-raised-button
             color="primary"
-            (click)="addPlayerToTeam(team.index)"
+            (click)="$event.stopPropagation(); addPlayerToTeam(team.index)"
             *ngIf="isCurrentUserHost && currentUserId != null"
             [disabled]="isReadyPlayer(currentUserId)"
         >
@@ -88,6 +88,7 @@
         mat-raised-button
         *ngIf="currentUserId !== undefined && !isCurrentUserHost"
         [color]="isReadyPlayer(currentUserId) ? 'warn' : 'primary'"
+        [disabled]="isCurrentUsersTeam(-1)"
         (click)="toggleReady()"
     >
         <mat-icon [inline]="true">{{ isReadyPlayer(currentUserId) ? 'remove' : 'check' }}</mat-icon>

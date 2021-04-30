@@ -3,6 +3,7 @@
 .info {
   > * {
     margin-bottom: 2em;
+    display: inline-block;
 
     &:not(:last-child) {
       margin-right: 1em;
