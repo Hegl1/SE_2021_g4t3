@@ -30,7 +30,6 @@ public class ExpressionController {
     @Autowired
     private CategoryService categoryService;
 
-    // TODO: get it to work with initial data (getting code NOT_FOUND currently)
     /**
      * Returns a List of all Expressions in a Category
      *
@@ -39,13 +38,13 @@ public class ExpressionController {
      *      code OK         if the Expressions got found
      *      code NOT_FOUND  if there are no Expressions
      */
-    @GetMapping("/categories/{id}/expressions")
-    public ResponseEntity<List<ExpressionDTO>> getAllExpressionsOfCategory(final Long categoryId) {
+    @GetMapping("/categories/{categoryId}/expressions")
+    public ResponseEntity<List<ExpressionDTO>> getAllExpressionsOfCategory(@PathVariable final Long categoryId) {
         Category category = this.categoryService.getCategoryById(categoryId);
-        List<Expression> allExpressions = new LinkedList<>(this.expressionService.getAllExpressionsByCategory(category));
 
-        if(allExpressions.size() > 0) {
+        if(category != null) {
 
+            List<Expression> allExpressions = new LinkedList<>(this.expressionService.getAllExpressionsByCategory(category));
             List<ExpressionDTO> allExpressionDTOs = new LinkedList<>();
             for(Expression current : allExpressions) {
                 allExpressionDTOs.add(new ExpressionDTO(current.getId(), current.getName()));
@@ -56,7 +55,6 @@ public class ExpressionController {
         }
     }
 
-    // TODO: get it to work with initial data (getting code NOT_FOUND currently)
     /**
      * Creates and saves a new Expression into the database
      *
@@ -67,8 +65,8 @@ public class ExpressionController {
      *      code NOT_FOUND  if Category to assign is not found
      *      code CONFLICT   if Expression already exists
      */
-    @PostMapping("/categories/{id}/expressions")
-    public ResponseEntity<ExpressionDTO> createExpression(final Long categoryId, @RequestBody final NameDTO nameDTO) {
+    @PostMapping("/categories/{categoryId}/expressions")
+    public ResponseEntity<ExpressionDTO> createExpression(@PathVariable final Long categoryId, @RequestBody final NameDTO nameDTO) {
         Category category = this.categoryService.getCategoryById(categoryId);
 
         if(category != null) {
@@ -83,7 +81,6 @@ public class ExpressionController {
         }
     }
 
-    // TODO: get it work with initial data (getting code NOT_FOUND currently)
     /**
      * Deletes an existing Expression
      *
@@ -91,9 +88,10 @@ public class ExpressionController {
      * @return ResponseEntity for REST communication:
      *      code OK         if Expression got deleted successfully
      *      code NOT_FOUND  if Expression to delete was not found
+     *      code CONFLICT   if Expression to delete is referenced in a Game
      */
     @DeleteMapping("/expressions/{id}")
-    public ResponseEntity<Expression> deleteExpression(final Long id) {
+    public ResponseEntity<Expression> deleteExpression(@PathVariable final Long id) {
         Expression expression = this.expressionService.getExpressionById(id);
 
         try {
@@ -101,6 +99,8 @@ public class ExpressionController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (ExpressionService.ExpressionDoesNotExistAnymore e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (ExpressionService.ExpressionReferencedInGame e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
 
@@ -112,8 +112,8 @@ public class ExpressionController {
      * @return ResponseEntity for REST communication:
      *      code CREATED if Expressions got imported successfully
      */
-    @PostMapping("/categories/{id}/expressions/import")
-    public ResponseEntity<List<ExpressionDTO>> importExpressionsIntoCategory(final Long categoryId, @RequestBody final List<String> expressionNames) {
+    @PostMapping("/categories/{categoryId}/expressions/import")
+    public ResponseEntity<List<ExpressionDTO>> importExpressionsIntoCategory(@PathVariable final Long categoryId, @RequestBody final List<String> expressionNames) {
         List<ExpressionDTO> expressionDTOs = null;
 
         try {

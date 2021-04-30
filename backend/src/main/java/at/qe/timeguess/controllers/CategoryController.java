@@ -3,8 +3,6 @@ package at.qe.timeguess.controllers;
 import at.qe.timeguess.dto.CategoryInfoDTO;
 import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
-import at.qe.timeguess.model.CompletedGame;
-import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.repositories.CompletedGameRepository;
 import at.qe.timeguess.services.CategoryService;
 import at.qe.timeguess.services.ExpressionService;
@@ -69,7 +67,6 @@ public class CategoryController {
         return new ResponseEntity<List<CategoryInfoDTO>>(allCategoriesWithInfo, HttpStatus.OK);
     }
 
-    // TODO: get it to work with initial data (getting code NOT_FOUND currently)
     /**
      * Returns a Category by its ID
      *
@@ -79,7 +76,7 @@ public class CategoryController {
      *      code NOT_FOUND if the category was not found
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(final Long id) {
+    public ResponseEntity<Category> getCategoryById(@PathVariable final Long id) {
         Category category = this.categoryService.getCategoryById(id);
 
         if(category != null) {

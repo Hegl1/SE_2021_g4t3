@@ -5,7 +5,7 @@ public class CategoryInfoDTO {
     private Long id;
     private String name;
     private boolean deletable;
-    private int expression_amount;
+    private int expressions_amount;
 
     public CategoryInfoDTO() {
 
@@ -15,7 +15,7 @@ public class CategoryInfoDTO {
         this.id = id;
         this.name = name;
         this.deletable = deletable;
-        this.expression_amount = expression_amount;
+        this.expressions_amount = expression_amount;
     }
 
     public Long getId() {
@@ -30,7 +30,7 @@ public class CategoryInfoDTO {
         return deletable;
     }
 
-    public int getExpression_amount() {
-        return expression_amount;
+    public int getExpressions_amount() {
+        return expressions_amount;
     }
 }

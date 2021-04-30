@@ -120,9 +120,7 @@ public class ExpressionServiceTest {
 
     @Test
     @DirtiesContext
-    public void testDeleteExpression() throws ExpressionService.ExpressionAlreadyExists, ExpressionService.ExpressionDoesNotExistAnymore {
-
-        // TODO: can't delete predefined test data
+    public void testDeleteExpression() throws ExpressionService.ExpressionAlreadyExists, ExpressionService.ExpressionDoesNotExistAnymore, ExpressionService.ExpressionReferencedInGame {
         NameDTO nameDTO = new NameDTO("Ballermann");
         this.expressionService.saveExpression(0L, nameDTO);
         this.expressionService.deleteExpression(this.expressionService.getExpressionById(1L));

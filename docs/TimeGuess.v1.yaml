@@ -521,6 +521,8 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Game already started
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -550,7 +552,31 @@ paths:
         - Ingame
       security:
         - Token: []
-  /ingame/fetch:
+  /ingame/{code}/leave:
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+          maximum: 99999999
+        name: code
+        in: path
+        required: true
+    delete:
+      summary: Leaves from the current game
+      operationId: delete-ingame-leave
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Game not found or not in this game
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      description: Fetches the current state of the game
+      tags:
+        - Ingame
+      security:
+        - Token: []
+  /ingame/state:
     get:
       summary: Fetch the current state of the game
       operationId: get-ingame-fetch
@@ -570,7 +596,15 @@ paths:
         - Ingame
       security:
         - Token: []
-  /ingame/ready:
+  /ingame/{code}/ready:
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+          maximum: 99999999
+        name: code
+        in: path
+        required: true
     post:
       summary: Sets the players ready state
       operationId: post-ingame-ready
@@ -578,7 +612,7 @@ paths:
         "200":
           description: OK
         "404":
-          description: Not in a game
+          description: Game not found or not in this game
         "401":
           $ref: "#/components/responses/Unauthorized"
       requestBody:
@@ -592,8 +626,15 @@ paths:
         - Ingame
       security:
         - Token: []
-  /ingame/teams/{index}/join:
+  /ingame/{code}/teams/{index}/join:
     parameters:
+      - schema:
+          type: integer
+          minimum: 0
+          maximum: 99999999
+        name: code
+        in: path
+        required: true
       - schema:
           type: integer
           minimum: 0
@@ -607,7 +648,9 @@ paths:
         "200":
           description: OK
         "404":
-          description: Not in a game
+          description: Game not found or not in this game
+        "409":
+          description: Host already started game
         "401":
           $ref: "#/components/responses/Unauthorized"
       description: Adds the authenticated player to the team with the supplied index
@@ -615,8 +658,15 @@ paths:
         - Ingame
       security:
         - Token: []
-  /ingame/teams/{index}/players:
+  /ingame/{code}/teams/{index}/players:
     parameters:
+      - schema:
+          type: integer
+          minimum: 0
+          maximum: 99999999
+        name: code
+        in: path
+        required: true
       - schema:
           type: integer
           minimum: 0
@@ -631,6 +681,12 @@ paths:
           description: OK
         "400":
           description: Username or password wrong
+        "404":
+          description: Game not found or not in this game
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: Player already in a game
         "401":
           $ref: "#/components/responses/Unauthorized"
       requestBody:
@@ -653,17 +709,25 @@ paths:
         - Ingame
       security:
         - Token: []
-  /ingame/confirm:
+  /ingame/{code}/confirm:
+    parameters:
+      - schema:
+          type: integer
+          minimum: 0
+          maximum: 99999999
+        name: code
+        in: path
+        required: true
     post:
       summary: Confirms the guess of a team
       operationId: post-ingame-confirm
       responses:
         "200":
           description: OK
-        "403":
+        "400":
           description: Can't confirm for own team
         "404":
-          description: Not in a game
+          description: Game not found or not in this game
         "401":
           $ref: "#/components/responses/Unauthorized"
       requestBody:
@@ -1233,6 +1297,9 @@ components:
           items:
             type: object
             properties:
+              index:
+                type: integer
+                minimum: 0
               name:
                 type: string
                 example: Team Alpha
@@ -1284,9 +1351,12 @@ components:
                   uniqueItems: true
                   items:
                     $ref: "#/components/schemas/User"
+                startable:
+                  type: boolean
               required:
                 - unassigned_players
                 - ready_players
+                - startable
             running_data:
               type: object
               nullable: true
@@ -1294,43 +1364,53 @@ components:
                 round:
                   type: integer
                   minimum: 1
-                running:
-                  type: boolean
-                  description: Whether the current round is running or paused
+                round_pause_time:
+                  type: integer
+                  nullable: true
+                  minimum: 0
+                  example: 1619630315
+                  description: Round pause time as unix timestamp in seconds or null if not paused
+                round_start_time:
+                  type: integer
+                  nullable: true
+                  minimum: 0
+                  example: 1619630311
+                  description: Round start time as unix timestamp in seconds
                 current_team:
                   type: integer
                   minimum: 0
                   description: Index of the current team
                 current_player:
                   $ref: "#/components/schemas/User"
-                points:
-                  type: integer
-                  minimum: 1
-                total_time:
-                  type: integer
-                  minimum: 1
-                  description: Total available time in seconds
-                round_start_time:
-                  type: integer
-                  minimum: 0
-                  example: 1619630311
-                  description: Round start time as unix timestamp in seconds
                 expression:
                   type: string
                   nullable: true
                   example: Brasil
                   description: The current expression; is null if the users team has to guess
+                points:
+                  type: integer
+                  nullable: true
+                  minimum: 1
+                  description: Obtainable points for this round or null if dice not yet rolled
+                total_time:
+                  type: integer
+                  nullable: true
+                  minimum: 1
+                  description: Total available time in seconds or null if dice not yet rolled
                 action:
                   type: string
+                  nullable: true
                   example: Pantomime
+                  description: Action for this round or null if dice not yet rolled
               required:
                 - round
                 - running
+                - round_pause_time
+                - round_start_time
                 - current_team
                 - current_player
                 - points
                 - total_time
-                - round_start_time
                 - expression
                 - action
           required:
