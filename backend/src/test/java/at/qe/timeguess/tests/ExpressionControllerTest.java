@@ -1,6 +1,8 @@
 package at.qe.timeguess.tests;
 
 import at.qe.timeguess.controllers.ExpressionController;
+import at.qe.timeguess.dto.CategoryExpressionAsStringsDTO;
+import at.qe.timeguess.dto.CategoryExpressionDTO;
 import at.qe.timeguess.dto.ExpressionDTO;
 import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @SpringBootTest
@@ -79,7 +82,7 @@ public class ExpressionControllerTest {
         ResponseEntity<Expression> response = this.expressionController.deleteExpression(11L);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(0, this.expressionService.getAllExpressionsByCategory(category));
+        Assertions.assertEquals(0, this.expressionService.getAllExpressionsByCategory(category).size());
     }
 
     @Test
@@ -99,12 +102,48 @@ public class ExpressionControllerTest {
     @Test
     @DirtiesContext
     public void testImportExpressionsIntoCategory() {
+        List<String> expressionNames = new LinkedList<>();
+        for(int i = 1; i < 6; i++) {
+            expressionNames.add("Expression " + i);
+        }
 
+        ResponseEntity<List<ExpressionDTO>> response = this.expressionController.importExpressionsIntoCategory(0L, expressionNames);
+
+        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Assertions.assertEquals(10, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L)).size());
     }
 
     @Test
     @DirtiesContext
     public void testImportExpressions() {
+        List<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOS = new LinkedList<>();
 
+        List<String> categoryNames = new LinkedList<>();
+        List<String> expressionNames1 = new LinkedList<>();
+        List<String> expressionNames2 = new LinkedList<>();
+
+        for(int i = 1; i < 3; i++) {
+            categoryNames.add("Category " + i);
+        }
+
+        for(int i = 1; i < 6; i++) {
+            expressionNames1.add("Expression " + i);
+        }
+
+        for(int i = 1; i < 6; i++) {
+            expressionNames2.add("Term " + i);
+        }
+
+        categoryExpressionAsStringsDTOS.add(new CategoryExpressionAsStringsDTO(categoryNames.get(0), expressionNames1));
+        categoryExpressionAsStringsDTOS.add(new CategoryExpressionAsStringsDTO(categoryNames.get(1), expressionNames2));
+
+        ResponseEntity<List<CategoryExpressionDTO>> response = this.expressionController.importExpressions(categoryExpressionAsStringsDTOS);
+
+        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Assertions.assertEquals(3, this.categoryService.getAllCategories().size());
+        Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L)).size());
+        Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(11L)).size());
+        Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(12L)).size());
     }
 }
+

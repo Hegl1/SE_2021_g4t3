@@ -75,8 +75,6 @@ public class CategoryControllerTest {
         NameDTO nameDTO = new NameDTO("Deutschland");
         ResponseEntity<Category> response = this.categoryController.createCategory(nameDTO);
 
-        System.out.println(response.getStatusCode());
-
         Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         Assertions.assertEquals(1, this.categoryService.getAllCategories().size());
     }
