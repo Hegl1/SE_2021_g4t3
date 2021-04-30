@@ -53,18 +53,16 @@ export class ProfileDialogComponent implements OnInit {
   }
 
   /**
-   * Generates a string of users, the player has played with of
-   * maximum <i>amount</i> usernames.
+   * Generates a list of users, the player has played with of
+   * maximum <i>amount</i>.
    *
    * @param amount the amount of users to contain
-   * @returns the generated string
+   * @returns the players and if they were truncated
    */
-  getPlayedWithString(amount = 3) {
-    return (
-      this.userStats?.played_with
-        .slice(0, Math.min(this.userStats.played_with.length, amount))
-        .map((element) => element.username)
-        .join(', ') + (this.userStats && this.userStats.played_with.length > amount ? ', ...' : '')
-    );
+  getPlayedWith(amount = 3) {
+    return {
+      players: this.userStats?.played_with.slice(0, Math.min(this.userStats.played_with.length, amount)),
+      truncated: (this.userStats?.played_with.length || 0) > amount,
+    };
   }
 }

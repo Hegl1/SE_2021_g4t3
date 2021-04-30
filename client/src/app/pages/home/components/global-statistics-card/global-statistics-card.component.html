@@ -20,7 +20,13 @@
         </tr>
         <tr>
             <td>Most won games:</td>
-            <td>{{ getMostWonPlayersString() }}</td>
+            <td>
+                <ng-container *ngFor="let player of getPlayedWith()?.players; let i = index"
+                    ><tg-player-name [player]="player"></tg-player-name>
+                    <ng-container *ngIf="i + 1 < (getPlayedWith()?.players || []).length">, </ng-container>
+                </ng-container>
+                {{ getPlayedWith()?.truncated ? '...' : '' }}
+            </td>
         </tr>
     </table>
 

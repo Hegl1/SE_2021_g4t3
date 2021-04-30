@@ -36,7 +36,13 @@
     <ng-container *ngIf="userStats.played_with.length > 0">
         <p class="played_with_users">Played with:</p>
 
-        <span>{{ getPlayedWithString() }}</span>
+        <span>
+            <ng-container *ngFor="let player of getPlayedWith().players; let i = index"
+                ><tg-player-name [player]="player"></tg-player-name>
+                <ng-container *ngIf="i + 1 < (getPlayedWith()?.players || []).length">, </ng-container>
+            </ng-container>
+            {{ getPlayedWith().truncated ? '...' : '' }}
+        </span>
     </ng-container>
 </mat-dialog-content>
 

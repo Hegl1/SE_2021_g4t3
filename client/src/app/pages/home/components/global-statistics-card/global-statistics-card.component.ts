@@ -26,20 +26,18 @@ export class GlobalStatisticsCardComponent implements OnInit {
   }
 
   /**
-   * Generates a string of users, that have the most wins with a
-   * maximum <i>amount</i> of usernames.
+   * Generates a list of users, that have the most wins with a
+   * maximum of <i>amount</i>.
    *
    * @param amount the amount of users to contain
-   * @returns the generated string
+   * @returns the players and if they were truncated
    */
-  getMostWonPlayersString(amount = 3) {
+  getPlayedWith(amount = 3) {
     if (this.globalStats === null) return null;
 
-    return (
-      this.globalStats.mostGamesWon
-        .slice(0, Math.min(this.globalStats.mostGamesWon.length, amount))
-        .map((element) => element.username)
-        .join(', ') + (this.globalStats.mostGamesWon.length > amount ? ', ...' : '')
-    );
+    return {
+      players: this.globalStats.mostGamesWon.slice(0, Math.min(this.globalStats.mostGamesWon.length, amount)),
+      truncated: (this.globalStats.mostGamesWon.length || 0) > amount,
+    };
   }
 }
