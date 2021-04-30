@@ -10,7 +10,7 @@
 </h2>
 
 <mat-dialog-content *ngIf="!loading && userStats !== null; else loading_container">
-    <table>
+    <table class="data_table">
         <tr>
             <td>Played games:</td>
             <td>{{ userStats.played_games }}</td>

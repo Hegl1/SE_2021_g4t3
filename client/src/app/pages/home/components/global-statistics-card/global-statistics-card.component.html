@@ -1,0 +1,32 @@
+<mat-card class="globalStatisticsCard">
+    <h2><mat-icon [inline]="true">public</mat-icon>Global</h2>
+
+    <table *ngIf="globalStats !== null" class="data_table">
+        <tr>
+            <td>Played games:</td>
+            <td>{{ globalStats.totalGames }}</td>
+        </tr>
+        <tr>
+            <td>Guessed words:</td>
+            <td>{{ globalStats.number_correct }}</td>
+        </tr>
+        <tr>
+            <td>Wrong words:</td>
+            <td>{{ globalStats.number_incorrect }}</td>
+        </tr>
+        <tr>
+            <td>Most played category:</td>
+            <td>{{ globalStats.mostPlayedCategory.name }}</td>
+        </tr>
+        <tr>
+            <td>Most won games:</td>
+            <td>{{ getMostWonPlayersString() }}</td>
+        </tr>
+    </table>
+
+    <mat-spinner *ngIf="globalStats === null && !error" diameter="24" style="margin: 0 auto"></mat-spinner>
+
+    <span class="warn" *ngIf="error">
+        <mat-icon style="vertical-align: middle; margin-right: 0.25em">error</mat-icon>{{ error }}
+    </span>
+</mat-card>

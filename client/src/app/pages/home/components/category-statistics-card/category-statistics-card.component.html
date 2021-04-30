@@ -1,0 +1,43 @@
+<mat-card class="categoryStatisticsCard">
+    <h2><mat-icon [inline]="true">category</mat-icon>Category</h2>
+
+    <div class="table_container mat-elevation-z2" *ngIf="categoryStats !== null">
+        <table mat-table [dataSource]="categoryStats">
+            <ng-container matColumnDef="category">
+                <th mat-header-cell *matHeaderCellDef>Category</th>
+                <td mat-cell *matCellDef="let stat">{{ stat.category.name }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="number_incorrect">
+                <th mat-header-cell *matHeaderCellDef>Incorrect expressions</th>
+                <td mat-cell *matCellDef="let stat">
+                    <mat-icon [inline]="true" color="warn" style="margin-right: 0.5em">clear</mat-icon
+                    >{{ stat.number_incorrect }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="number_correct">
+                <th mat-header-cell *matHeaderCellDef>Correct expressions</th>
+                <td mat-cell *matCellDef="let stat">
+                    <mat-icon [inline]="true" color="primary" style="margin-right: 0.5em">check</mat-icon
+                    >{{ stat.number_correct }}
+                </td>
+            </ng-container>
+
+            <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell" style="text-align: center" [colSpan]="displayedColumns.length">
+                    No categories found
+                </td>
+            </tr>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+    </div>
+
+    <mat-spinner *ngIf="categoryStats === null && !error" diameter="24" style="margin: 0 auto"></mat-spinner>
+
+    <span class="warn" *ngIf="error">
+        <mat-icon style="vertical-align: middle; margin-right: 0.25em">error</mat-icon>{{ error }}
+    </span>
+</mat-card>

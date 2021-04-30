@@ -27,6 +27,11 @@ import { LogoutComponent } from './pages/logout/logout.component';
 import { JoinGameCardComponent } from './pages/home/components/join-game-card/join-game-card.component';
 import { CreateGameCardComponent } from './pages/home/components/create-game-card/create-game-card.component';
 import { CreateGameDialogComponent } from './pages/home/components/create-game-card/components/create-game-dialog/create-game-dialog.component';
+import { GlobalStatisticsCardComponent } from './pages/home/components/global-statistics-card/global-statistics-card.component';
+import { PersonalStatisticsCardComponent } from './pages/home/components/personal-statistics-card/personal-statistics-card.component';
+import { CategoryStatisticsCardComponent } from './pages/home/components/category-statistics-card/category-statistics-card.component';
+import { GameCardComponent } from './pages/admin/games/components/running-game-card/running-game-card.component';
+import { GameCodePipe } from './core/pipes/gamecode.pipe';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();
@@ -56,6 +61,11 @@ export function setupConfig(service: ConfigService) {
     JoinGameCardComponent,
     CreateGameCardComponent,
     CreateGameDialogComponent,
+    GlobalStatisticsCardComponent,
+    PersonalStatisticsCardComponent,
+    CategoryStatisticsCardComponent,
+    GameCardComponent,
+    GameCodePipe,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, HttpClientModule],
   providers: [
