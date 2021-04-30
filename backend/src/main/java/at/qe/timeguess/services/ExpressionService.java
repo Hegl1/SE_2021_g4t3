@@ -162,6 +162,7 @@ public class ExpressionService {
             expressionNames.addAll(current.getExpressions());
             expressionDTOs = this.importExpressionsIntoCategory(category.getId(), expressionNames);
             categoryExpressionDTOs.add(new CategoryExpressionDTO(category, expressionDTOs));
+            expressionNames.clear();
         }
         return categoryExpressionDTOs;
     }
