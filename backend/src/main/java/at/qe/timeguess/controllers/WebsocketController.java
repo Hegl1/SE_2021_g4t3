@@ -12,6 +12,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import at.qe.timeguess.dto.TeamDTO;
 import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.websockDto.BatteryUpdateDTO;
+import at.qe.timeguess.websockDto.DiceConnectionUpdateDTO;
 import at.qe.timeguess.websockDto.ResponseDTO;
 import at.qe.timeguess.websockDto.RunningDataDTO;
 import at.qe.timeguess.websockDto.ScoreUpdateDTO;
@@ -57,8 +58,12 @@ public class WebsocketController {
 		simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("SCORE_UPDATE", update));
 	}
 
-	public void sendBatteryUpdateTpFrontend(final int id, final BatteryUpdateDTO update) {
+	public void sendBatteryUpdateToFrontend(final int id, final BatteryUpdateDTO update) {
 		simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("BAT_UPDATE", update));
+	}
+
+	public void sendConnectionUpdateToFrontend(final int id, final DiceConnectionUpdateDTO update) {
+		simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("CONN_UPDATE", update));
 	}
 
 	public void sendCompleteGameUpdateToFrontend(final int id, final StateUpdateDTO update) {

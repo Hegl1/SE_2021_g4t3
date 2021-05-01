@@ -16,6 +16,7 @@ import at.qe.timeguess.model.User;
 import at.qe.timeguess.services.ExpressionService;
 import at.qe.timeguess.services.LobbyService;
 import at.qe.timeguess.websockDto.BatteryUpdateDTO;
+import at.qe.timeguess.websockDto.DiceConnectionUpdateDTO;
 import at.qe.timeguess.websockDto.RunningDataDTO;
 import at.qe.timeguess.websockDto.ScoreUpdateDTO;
 import at.qe.timeguess.websockDto.StateUpdateDTO;
@@ -67,6 +68,7 @@ public class Game {
 		this.active = false;
 		this.gameCode = code;
 		this.dice = new Dice();
+		dice.setRaspberryConnected(true);
 	}
 
 	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
@@ -248,14 +250,14 @@ public class Game {
 	 * Method that is called whenever a dice gets updated and a game is mapped.
 	 */
 	public void diceUpdate(final int facet) {
-		if (roundStartTime == -1) {
+		if (roundStartTime == -1 && dice.isRaspberryConnected()) {
 			// between round phase - start timer
 			roundStartTime = System.currentTimeMillis() / 1000L;
 			currentFacet = facet;
 			sendRunningDataToTeams();
 
 		} else {
-			if (roundStartTime != -1L && roundEndTime == -1L) {
+			if (roundStartTime != -1L && roundEndTime == -1L && dice.isRaspberryConnected()) {
 				roundEndTime = System.currentTimeMillis() / 1000L;
 				sendRunningDataToTeams();
 			}
@@ -263,8 +265,8 @@ public class Game {
 		}
 	}
 
-	public void confirmExpression(final String descision) {
-		if (roundStartTime != -1 && !expressionConfirmed) {
+	public synchronized void confirmExpression(final String descision) {
+		if (roundStartTime != -1 && !expressionConfirmed && dice.isRaspberryConnected()) {
 			expressionConfirmed = true;
 			if (descision.equals("CORRECT")) {
 				teams.get(currentTeam).incrementScore(dice.getPoints(currentFacet));
@@ -315,26 +317,37 @@ public class Game {
 	}
 
 	/**
-	 * Method that randomly picks an expression that has not been picked before.
-	 */
-	public void pickExpression() {
-		// TODO implement after expressionservice
-	}
-
-	/**
 	 * Method that updates the dices battery status
 	 */
 	public void updateDiceBattery(final int batteryStatus) {
 		this.dice.setBatteryPower(batteryStatus);
-		webSocketController.sendBatteryUpdateTpFrontend(gameCode, new BatteryUpdateDTO(batteryStatus));
+		webSocketController.sendBatteryUpdateToFrontend(gameCode, new BatteryUpdateDTO(batteryStatus));
 	}
 
 	/**
 	 * Method that updates the dices connection status
 	 */
 	public void updateDiceConnection(final boolean isConnected) {
-		this.dice.setRaspberryConnected(isConnected);
-		// TODO implement proper action with game logic
+		if (isConnected) {
+			if (!pickNewExpression()) {
+				// Todo end game
+			}
+			webSocketController.sendConnectionUpdateToFrontend(gameCode, new DiceConnectionUpdateDTO(isConnected));
+			currentFacet = null;
+			roundStartTime = -1L;
+			roundEndTime = -1L;
+			expressionConfirmed = false;
+			sendRunningDataToTeams();
+			dice.setRaspberryConnected(isConnected);
+
+		} else {
+			dice.setRaspberryConnected(isConnected);
+			webSocketController.sendConnectionUpdateToFrontend(gameCode, new DiceConnectionUpdateDTO(isConnected));
+			roundStartTime = -1L;
+			roundEndTime = -1l;
+			sendRunningDataToTeams();
+		}
+
 	}
 
 	public List<User> buildReadyPlayerList() {
