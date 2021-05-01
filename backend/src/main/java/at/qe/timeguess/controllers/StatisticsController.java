@@ -22,16 +22,16 @@ public class StatisticsController {
 
     @GetMapping("/global")
     public void getGlobalStatistics() {
-
+        this.statisticsService.getGlobalStatistics();
     }
 
     @GetMapping("/categories")
     public void getCategoryStats() {
-
+        this.statisticsService.getCategoryStatistics();
     }
 
     @GetMapping("/topGames")
     public void getTopGames() {
-
+        this.statisticsService.getTopGamesStatistics();
     }
 }
