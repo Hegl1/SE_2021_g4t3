@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Class that controls the retrieving of Statistics of Categories, Players or Games
+ *
+ */
 @RequestMapping("/stats")
 @RestController
 public class StatisticsController {
@@ -22,24 +26,49 @@ public class StatisticsController {
     @Autowired
     private StatisticsService statisticsService;
 
+    /**
+     * Retrieves Statistics of a User
+     *
+     * @param id the ID of the User to get the Statistics for
+     * @return ResponseEntity for REST communication:
+     *      code OK if successful
+     */
     @GetMapping("/users/{id}")
     public ResponseEntity<UserStatisticsDTO> getUserStatistics(@PathVariable final Long id) {
         UserStatisticsDTO userStatisticsDTO = this.statisticsService.getUserStatistics(id);
         return new ResponseEntity<>(userStatisticsDTO, HttpStatus.OK);
     }
 
+    /**
+     * Retrieves global Statistics
+     *
+     * @return ResponseEntity for REST communication:
+     *      code OK if successful
+     */
     @GetMapping("/global")
     public ResponseEntity<GlobalStatisticsDTO> getGlobalStatistics() {
         GlobalStatisticsDTO globalStatisticsDTO = this.statisticsService.getGlobalStatistics();
         return new ResponseEntity<>(globalStatisticsDTO, HttpStatus.OK);
     }
 
+    /**
+     * Retrieves Statistics of all Categories
+     *
+     * @return ResponseEntity for REST communication:
+     *      code OK if successful
+     */
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryStatisticsDTO>> getCategoryStats() {
         List<CategoryStatisticsDTO> categoryStatisticsDTO = this.statisticsService.getCategoryStatistics();
         return new ResponseEntity<>(categoryStatisticsDTO, HttpStatus.OK);
     }
 
+    /**
+     * Retrieves Statistics of the top best Games
+     *
+     * @return ResponesEntity for REST communication:
+     *      code OK if successful
+     */
     @GetMapping("/topGames")
     public ResponseEntity<List<TopGamesStatisticsDTO>> getTopGames() {
         List<TopGamesStatisticsDTO> topGamesStatisticsDTOs = this.statisticsService.getTopGamesStatistics();
