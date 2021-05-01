@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
-import at.qe.timeguess.controllers.WebsocketController;
 import at.qe.timeguess.gamelogic.Dice;
 import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.gamelogic.Game.GameAlreadyRunningException;
@@ -18,6 +17,7 @@ import at.qe.timeguess.gamelogic.Game.UserStateException;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.services.LobbyService;
+import at.qe.timeguess.services.WebSocketService;
 import at.qe.timeguess.services.LobbyService.GameNotFoundException;
 import at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException;
 import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
@@ -30,7 +30,7 @@ public class LobbyServiceTest {
 	private LobbyService lobbyService;
 
 	@MockBean
-	private WebsocketController websocketController;
+	private WebSocketService websocketController;
 
 	private static String RASPIID = "TESTRASPIID";
 

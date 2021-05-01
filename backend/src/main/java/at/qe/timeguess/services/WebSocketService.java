@@ -1,4 +1,4 @@
-package at.qe.timeguess.controllers;
+package at.qe.timeguess.services;
 
 import java.util.List;
 
@@ -13,6 +13,7 @@ import at.qe.timeguess.dto.TeamDTO;
 import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.websockDto.BatteryUpdateDTO;
 import at.qe.timeguess.websockDto.DiceConnectionUpdateDTO;
+import at.qe.timeguess.websockDto.FinishedGameDTO;
 import at.qe.timeguess.websockDto.ResponseDTO;
 import at.qe.timeguess.websockDto.RunningDataDTO;
 import at.qe.timeguess.websockDto.ScoreUpdateDTO;
@@ -21,7 +22,7 @@ import at.qe.timeguess.websockDto.TeamResponseDTO;
 import at.qe.timeguess.websockDto.WaitingDataDTO;
 
 @Controller
-public class WebsocketController {
+public class WebSocketService {
 
 	@Autowired
 	private SimpMessagingTemplate simpMessageingTemplate;
@@ -64,6 +65,14 @@ public class WebsocketController {
 
 	public void sendConnectionUpdateToFrontend(final int id, final DiceConnectionUpdateDTO update) {
 		simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("CONN_UPDATE", update));
+	}
+
+	public void sendFinishGameToFrontend(final int id, final FinishedGameDTO content, final boolean earlyFinish) {
+		if (earlyFinish) {
+			simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("EARLY_FINISH", content));
+		} else {
+			simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("REGULAR_FINISH", content));
+		}
 	}
 
 	public void sendCompleteGameUpdateToFrontend(final int id, final StateUpdateDTO update) {

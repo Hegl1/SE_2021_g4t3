@@ -1,13 +1,14 @@
 package at.qe.timeguess.gamelogic;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import at.qe.timeguess.controllers.WebsocketController;
 import at.qe.timeguess.dto.TeamDTO;
 import at.qe.timeguess.dto.UserDTO;
 import at.qe.timeguess.model.Category;
@@ -15,8 +16,10 @@ import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.services.ExpressionService;
 import at.qe.timeguess.services.LobbyService;
+import at.qe.timeguess.services.WebSocketService;
 import at.qe.timeguess.websockDto.BatteryUpdateDTO;
 import at.qe.timeguess.websockDto.DiceConnectionUpdateDTO;
+import at.qe.timeguess.websockDto.FinishedGameDTO;
 import at.qe.timeguess.websockDto.RunningDataDTO;
 import at.qe.timeguess.websockDto.ScoreUpdateDTO;
 import at.qe.timeguess.websockDto.StateUpdateDTO;
@@ -27,7 +30,7 @@ import at.qe.timeguess.websockDto.WaitingDataDTO;
  */
 public class Game {
 
-	private static WebsocketController webSocketController;
+	private static WebSocketService webSocketService;
 	private static ExpressionService expressionService;
 	private static LobbyService lobbyService;
 
@@ -112,7 +115,7 @@ public class Game {
 		if (!isInGame(player) && !active) {
 			usersWithDevices.add(player);
 			unassignedUsers.add(player);
-			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+			webSocketService.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 			addToReadyMapIfNotAlreadyExists(player, false);
 		} else if (!isInGame(player) && active) {
 			throw new GameAlreadyRunningException();
@@ -140,8 +143,8 @@ public class Game {
 
 			if (team == null) {
 				leaveTeam(player);
-				webSocketController.sendTeamUpdateToFrontend(gameCode, buildTeamDTOs(teams));
-				webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+				webSocketService.sendTeamUpdateToFrontend(gameCode, buildTeamDTOs(teams));
+				webSocketService.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 			} else {
 				leaveTeam(player);
 				if (unassignedUsers.contains(player)) {
@@ -150,8 +153,8 @@ public class Game {
 				// add to ready map if offline player
 				addToReadyMapIfNotAlreadyExists(player, true);
 				team.joinTeam(player);
-				webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
-				webSocketController.sendTeamUpdateToFrontend(gameCode, buildTeamDTOs(teams));
+				webSocketService.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+				webSocketService.sendTeamUpdateToFrontend(gameCode, buildTeamDTOs(teams));
 			}
 		} else {
 			throw new HostAlreadyReadyException("Host is already ready");
@@ -192,13 +195,12 @@ public class Game {
 			unassignedUsers.remove(player);
 			readyPlayers.remove(player);
 			usersWithDevices.remove(player);
-			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+			webSocketService.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 		} else {
 			updateReadyStatus(player, true);
 			usersWithDevices.remove(player);
 		}
 		if (player.equals(host) || (!allTeamsEnoughPlayersWithDevice() && active)) {
-			webSocketController.sendGameNotContinueableToFrontend(gameCode);
 			lobbyService.abortRunningGame(gameCode);
 		}
 	}
@@ -211,23 +213,22 @@ public class Game {
 	 * @param isReady new ready status.
 	 */
 	public void updateReadyStatus(final User user, final Boolean isReady) {
-		// TODO test readying logic with frontend
 		if (user.equals(host) && isReady.equals(false)) {
 			// hosts sets ready to false
 			for (User current : usersWithDevices) {
 				readyPlayers.put(current, false);
-				webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+				webSocketService.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 			}
 
 		} else if (user.equals(host) && !checkGameStartable()) {
 			// host trys to set ready to true, but not startable - do nothing
-			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+			webSocketService.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 		} else if (unassignedUsers.contains(user)) {
 			// do nothing intentionally
 		} else {
 			// set ready of player
 			readyPlayers.put(user, isReady);
-			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+			webSocketService.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 			checkAllPlayersReadyAndStartGame();
 		}
 	}
@@ -243,7 +244,7 @@ public class Game {
 		usedExpressions.add(currentExpression);
 		roundStartTime = -1L;
 		roundEndTime = -1L;
-		webSocketController.sendCompleteGameUpdateToFrontend(gameCode, buildStateUpdate());
+		webSocketService.sendCompleteGameUpdateToFrontend(gameCode, buildStateUpdate());
 	}
 
 	/**
@@ -270,20 +271,24 @@ public class Game {
 			expressionConfirmed = true;
 			if (descision.equals("CORRECT")) {
 				teams.get(currentTeam).incrementScore(dice.getPoints(currentFacet));
-				webSocketController.broadcastScoreChangeToFrontend(gameCode,
+				teams.get(currentTeam).incrementCorrectExpressions();
+				webSocketService.broadcastScoreChangeToFrontend(gameCode,
 						new ScoreUpdateDTO(dice.getPoints(currentFacet), currentTeam));
 				if (teams.get(currentTeam).getScore() > maxPoints) {
-					// TODO end game
+					finishGame();
 				}
 			} else if (descision.equals("INVALID")) {
 				teams.get(currentTeam).decrementScore(2);
-				webSocketController.broadcastScoreChangeToFrontend(gameCode,
+				teams.get(currentTeam).incrementWrongExpressions();
+				webSocketService.broadcastScoreChangeToFrontend(gameCode,
 						new ScoreUpdateDTO(dice.getPoints(currentFacet), currentTeam));
+			} else {
+				teams.get(currentTeam).incrementWrongExpressions();
 			}
 			teams.get(currentTeam).incrementCurrentPlayer();
 			incrementCurrentTeam();
 			if (!pickNewExpression()) {
-				// TODO END GAME WITH NO EXPRESSIONS LEFT
+				finishGame();
 			}
 			currentFacet = null;
 			roundStartTime = -1L;
@@ -299,13 +304,41 @@ public class Game {
 	 * here.
 	 */
 	public void forceClose() {
-		// TODO implement with game logic
+		webSocketService.sendGameNotContinueableToFrontend(gameCode);
 	}
 
 	/**
 	 * Method to properly finish the game
 	 */
 	public void finishGame() {
+
+		long endTime = System.currentTimeMillis() / 1000L;
+
+		active = false;
+		Collections.sort(teams, new Comparator<Team>() {
+			@Override
+			public int compare(final Team o1, final Team o2) {
+				if (o1.getScore() < o2.getScore()) {
+					return -1;
+				} else if (o1.getScore() == o2.getScore()) {
+					return 0;
+				} else {
+					return 1;
+				}
+			}
+		});
+
+		FinishedGameDTO finishedGame = new FinishedGameDTO(buildTeamDTOs(teams), category.getName(),
+				getTotalNumberOfCorrectExpressions(), getTotalNumberOfWrongExpressions(), endTime - gameStartTime);
+
+		if (usedExpressions.size() == expressionService.getAllExpressionsByCategory(category).size()) {
+			webSocketService.sendFinishGameToFrontend(gameCode, finishedGame, true);
+		} else {
+			webSocketService.sendFinishGameToFrontend(gameCode, finishedGame, false);
+		}
+
+		persistFinishedGame();
+		lobbyService.closeFinishedGame(gameCode);
 
 	}
 
@@ -321,7 +354,7 @@ public class Game {
 	 */
 	public void updateDiceBattery(final int batteryStatus) {
 		this.dice.setBatteryPower(batteryStatus);
-		webSocketController.sendBatteryUpdateToFrontend(gameCode, new BatteryUpdateDTO(batteryStatus));
+		webSocketService.sendBatteryUpdateToFrontend(gameCode, new BatteryUpdateDTO(batteryStatus));
 	}
 
 	/**
@@ -332,7 +365,7 @@ public class Game {
 			if (!pickNewExpression()) {
 				// Todo end game
 			}
-			webSocketController.sendConnectionUpdateToFrontend(gameCode, new DiceConnectionUpdateDTO(isConnected));
+			webSocketService.sendConnectionUpdateToFrontend(gameCode, new DiceConnectionUpdateDTO(isConnected));
 			currentFacet = null;
 			roundStartTime = -1L;
 			roundEndTime = -1L;
@@ -342,7 +375,7 @@ public class Game {
 
 		} else {
 			dice.setRaspberryConnected(isConnected);
-			webSocketController.sendConnectionUpdateToFrontend(gameCode, new DiceConnectionUpdateDTO(isConnected));
+			webSocketService.sendConnectionUpdateToFrontend(gameCode, new DiceConnectionUpdateDTO(isConnected));
 			roundStartTime = -1L;
 			roundEndTime = -1l;
 			sendRunningDataToTeams();
@@ -491,7 +524,7 @@ public class Game {
 	private void addToReadyMapIfNotAlreadyExists(final User player, final boolean readyStatus) {
 		if (!readyPlayers.containsKey(player)) {
 			readyPlayers.put(player, readyStatus);
-			webSocketController.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
+			webSocketService.updateReadyInFrontend(gameCode, buildWaitingDataDTO());
 		}
 	}
 
@@ -506,9 +539,9 @@ public class Game {
 	private void sendRunningDataToTeams() {
 		for (Team t : teams) {
 			if (currentTeam == t.getIndex()) {
-				webSocketController.sendRunningDataToTeam(gameCode, t.getIndex(), buildRunningDataDTO(true));
+				webSocketService.sendRunningDataToTeam(gameCode, t.getIndex(), buildRunningDataDTO(true));
 			} else {
-				webSocketController.sendRunningDataToTeam(gameCode, t.getIndex(), buildRunningDataDTO(false));
+				webSocketService.sendRunningDataToTeam(gameCode, t.getIndex(), buildRunningDataDTO(false));
 			}
 		}
 	}
@@ -539,8 +572,8 @@ public class Game {
 		return true;
 	}
 
-	public void setWebSocketController(final WebsocketController websock) {
-		this.webSocketController = websock;
+	public void setWebSocketController(final WebSocketService websock) {
+		this.webSocketService = websock;
 	}
 
 	public void setExpressionService(final ExpressionService expServ) {
@@ -621,6 +654,22 @@ public class Game {
 		List<UserDTO> result = new LinkedList<>();
 		for (User u : users) {
 			result.add(new UserDTO(u.getId(), u.getUsername(), u.getRole().toString()));
+		}
+		return result;
+	}
+
+	private int getTotalNumberOfCorrectExpressions() {
+		int result = 0;
+		for (Team t : teams) {
+			result += t.getNumberOfCorrectExpressions();
+		}
+		return result;
+	}
+
+	private int getTotalNumberOfWrongExpressions() {
+		int result = 0;
+		for (Team t : teams) {
+			result += t.getNumberOfCorrectExpressions();
 		}
 		return result;
 	}

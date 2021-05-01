@@ -16,10 +16,14 @@ public class Team {
 	private int currentPlayer;
 	private List<User> players;
 	private int index;
+	private int numberOfCorrectExpressions;
+	private int numberOfWrongExpressions;
 
 	public Team() {
 		this.score = 0;
 		this.currentPlayer = 0;
+		this.numberOfCorrectExpressions = 0;
+		this.numberOfWrongExpressions = 0;
 		this.players = new ArrayList<User>();
 	}
 
@@ -55,6 +59,14 @@ public class Team {
 		if (points < 0) {
 			score = 0;
 		}
+	}
+
+	public void incrementCorrectExpressions() {
+		this.numberOfCorrectExpressions += 1;
+	}
+
+	public void incrementWrongExpressions() {
+		this.numberOfWrongExpressions += 1;
 	}
 
 	public boolean isInTeam(final User player) {
@@ -95,6 +107,14 @@ public class Team {
 
 	public List<User> getPlayers() {
 		return players;
+	}
+
+	public int getNumberOfCorrectExpressions() {
+		return numberOfCorrectExpressions;
+	}
+
+	public int getNumberOfWrongExpressions() {
+		return numberOfWrongExpressions;
 	}
 
 }

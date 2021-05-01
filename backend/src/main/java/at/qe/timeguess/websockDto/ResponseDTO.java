@@ -10,12 +10,12 @@ public class ResponseDTO {
 
 	}
 
-	public ResponseDTO(final String identifyer, final AbstractDTO data) {
-		this.identifier = identifyer;
+	public ResponseDTO(final String identifier, final AbstractDTO data) {
+		this.identifier = identifier;
 		this.data = data;
 	}
 
-	public String getIdentifyer() {
+	public String getIdentifier() {
 		return identifier;
 	}
 
