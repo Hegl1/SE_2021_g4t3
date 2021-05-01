@@ -90,7 +90,7 @@ public class Team {
 	}
 
 	public void incrementCurrentPlayer() {
-		this.currentPlayer = (currentPlayer++) % players.size();
+		this.currentPlayer = (currentPlayer + 1) % players.size();
 	}
 
 	public List<User> getPlayers() {

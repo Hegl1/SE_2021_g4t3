@@ -265,14 +265,14 @@ public class Game {
 	public void confirmExpression(final String descision) {
 		if (roundStartTime != -1 && !expressionConfirmed) {
 			expressionConfirmed = true;
-			if (descision == "CORRECT") {
+			if (descision.equals("CORRECT")) {
 				teams.get(currentTeam).incrementScore(dice.getPoints(currentFacet));
 				webSocketController.broadcastScoreChangeToFrontend(gameCode,
 						new ScoreUpdateDTO(dice.getPoints(currentFacet), currentTeam));
 				if (teams.get(currentTeam).getScore() > maxPoints) {
 					// TODO end game
 				}
-			} else if (descision == "INVALID") {
+			} else if (descision.equals("INVALID")) {
 				teams.get(currentTeam).decrementScore(2);
 				webSocketController.broadcastScoreChangeToFrontend(gameCode,
 						new ScoreUpdateDTO(dice.getPoints(currentFacet), currentTeam));
@@ -286,6 +286,8 @@ public class Game {
 			roundStartTime = -1L;
 			roundEndTime = -1L;
 			expressionConfirmed = false;
+			roundCounter++;
+			sendRunningDataToTeams();
 		}
 	}
 
@@ -484,7 +486,9 @@ public class Game {
 	}
 
 	private void incrementCurrentTeam() {
-		currentTeam = (currentTeam++) % teams.size();
+		System.out.println("current team: " + currentTeam);
+		currentTeam = (currentTeam + 1) % teams.size();
+		System.out.println("current team: " + currentTeam);
 	}
 
 	private void sendRunningDataToTeams() {
