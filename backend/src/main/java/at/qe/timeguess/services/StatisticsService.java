@@ -144,8 +144,12 @@ public class StatisticsService {
         }
 
         int numberOfGamesOfMostPlayedCategory = 0;
+        List<CompletedGame> tempCompletedGame = null;
+
         for(Category category : allCategories) {
-            if(allCompletedGames.stream().filter(completedGame -> completedGame.getCategory().getId().equals(category.getId())).count() > numberOfGamesOfMostPlayedCategory) {
+
+            tempCompletedGame = this.completedGameRepository.findByCategory(category);
+            if(tempCompletedGame.size() > numberOfGamesOfMostPlayedCategory) {
                 mostPlayedCategory = category;
             }
         }
@@ -172,11 +176,68 @@ public class StatisticsService {
         return mostGamesWon;
     }
 
-    public CategoryStatisticsDTO getCategoryStatistics() {
-        return null;
+    public List<CategoryStatisticsDTO> getCategoryStatistics() {
+        List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
+        List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
+
+        List<CategoryStatisticsDTO> categoryStatisticsDTOs = new LinkedList<>();
+        int number_correct = 0;
+        int number_incorrect = 0;
+
+        for(Category category : allCategories) {
+            List<CompletedGame> allCompletedGamesOfCategory = this.completedGameRepository.findByCategory(category);
+            number_correct = 0;
+            number_incorrect = 0;
+
+            for(CompletedGame completedGame : allCompletedGamesOfCategory) {
+                for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
+                    number_correct += completedGameTeam.getNumberOfGuessedExpressions();
+                    number_incorrect += completedGameTeam.getNumberOfWrongExpressions();
+                }
+            }
+
+            categoryStatisticsDTOs.add(new CategoryStatisticsDTO(category, number_correct, number_incorrect));
+        }
+
+        return categoryStatisticsDTOs;
     }
 
-    public TopGamesStatisticsDTO getTopGamesStatistics() {
-        return null;
+    public List<TopGamesStatisticsDTO> getTopGamesStatistics() {
+        List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
+        PriorityQueue<TopGamesStatisticsDTO> sortedTopGamesStatisticsDTOs = new PriorityQueue<>();
+
+        List<TeamStatisticsDTO> teams = new LinkedList<>();
+        Category category = null;
+        double score_per_time = 0;
+        int duration = 0;
+
+        int score = 0;
+        int number_correct = 0;
+        int number_incorrect = 0;
+
+        for(CompletedGame completedGame : allCompletedGames) {
+
+            duration = (int) (completedGame.getEndTime().getTime() - completedGame.getStartTime().getTime()) / 1000;
+
+            for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
+                score = completedGameTeam.getScore();
+                score_per_time = (float) score / duration;
+                number_correct = completedGameTeam.getNumberOfGuessedExpressions();
+                number_incorrect = completedGameTeam.getNumberOfWrongExpressions();
+                category = completedGame.getCategory();
+
+                teams.add(new TeamStatisticsDTO(score, number_correct, number_incorrect));
+            }
+
+            sortedTopGamesStatisticsDTOs.add(new TopGamesStatisticsDTO(teams, category, score_per_time, duration));
+        }
+
+        List<TopGamesStatisticsDTO> topGames = new LinkedList<>();
+
+        for(int i = 0; i < 5; i++) {
+            topGames.add(sortedTopGamesStatisticsDTOs.peek());
+        }
+
+        return topGames;
     }
 }
