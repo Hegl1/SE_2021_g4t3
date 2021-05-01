@@ -38,16 +38,16 @@ public class StatisticsService {
     // TODO: add buildCompletedGameTeam method,
     //  which takes a Collection of Teams and returns a Collection of CompletedGameTeams
 
-    // TODO: fix
     public CompletedGame persistCompletedGame(final Date startTime, final Date endTime, final Category category,
                                               final Collection<CompletedGameTeam> teams) {
 
         CompletedGame completedGame = buildCompletedGame(startTime, endTime, category, teams);
-        this.completedGameRepository.save(completedGame);
 
         for(CompletedGameTeam current : teams) {
             this.completedGameTeamRepository.save(current);
         }
+
+        this.completedGameRepository.save(completedGame);
 
         return completedGame;
     }

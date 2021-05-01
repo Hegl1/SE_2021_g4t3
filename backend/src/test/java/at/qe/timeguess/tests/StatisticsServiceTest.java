@@ -46,8 +46,7 @@ public class StatisticsServiceTest {
         Assertions.assertEquals(category.getId(), completedGame.getCategory().getId());
     }
 
-    // TODO: fix persistCompletedGame method
-    //@Test
+    @Test
     @DirtiesContext
     public void testPersistCompletedGame() {
         Category category = this.categoryService.getCategoryById(0L);
