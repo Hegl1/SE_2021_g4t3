@@ -15,6 +15,7 @@ import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.services.ExpressionService;
 import at.qe.timeguess.services.LobbyService;
+import at.qe.timeguess.websockDto.BatteryUpdateDTO;
 import at.qe.timeguess.websockDto.RunningDataDTO;
 import at.qe.timeguess.websockDto.ScoreUpdateDTO;
 import at.qe.timeguess.websockDto.StateUpdateDTO;
@@ -325,7 +326,7 @@ public class Game {
 	 */
 	public void updateDiceBattery(final int batteryStatus) {
 		this.dice.setBatteryPower(batteryStatus);
-		// TODO implement proper actions with game logic
+		webSocketController.sendBatteryUpdateTpFrontend(gameCode, new BatteryUpdateDTO(batteryStatus));
 	}
 
 	/**
@@ -486,9 +487,7 @@ public class Game {
 	}
 
 	private void incrementCurrentTeam() {
-		System.out.println("current team: " + currentTeam);
 		currentTeam = (currentTeam + 1) % teams.size();
-		System.out.println("current team: " + currentTeam);
 	}
 
 	private void sendRunningDataToTeams() {
