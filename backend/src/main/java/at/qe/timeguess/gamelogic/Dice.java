@@ -42,7 +42,6 @@ public class Dice {
 	 * Initializes dice with default mapping.
 	 */
 	private void loadDefaultMapping() {
-		// TODO proper default mapping.
 		for (int i = 0; i < 12; i++) {
 			pointsMapping[i] = i % 3 + 1;
 			durationMapping[i] = ((i % 3) + 1) * 60;

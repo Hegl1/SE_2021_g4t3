@@ -62,7 +62,7 @@ public class Team {
 	 */
 	public void decrementScore(final int points) {
 		this.score -= points;
-		if (points < 0) {
+		if (score < 0) {
 			score = 0;
 		}
 	}

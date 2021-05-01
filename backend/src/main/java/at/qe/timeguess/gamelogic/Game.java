@@ -316,7 +316,7 @@ public class Game {
 				teams.get(currentTeam).incrementScore(dice.getPoints(currentFacet));
 				teams.get(currentTeam).incrementCorrectExpressions();
 				webSocketService.sendScoreChangeToFrontend(gameCode,
-						new ScoreUpdateDTO(currentTeam, dice.getPoints(currentFacet)));
+						new ScoreUpdateDTO(currentTeam, teams.get(currentTeam).getScore()));
 				if (teams.get(currentTeam).getScore() > maxPoints) {
 					finishGame();
 				}
@@ -324,7 +324,7 @@ public class Game {
 				teams.get(currentTeam).decrementScore(1);
 				teams.get(currentTeam).incrementWrongExpressions();
 				webSocketService.sendScoreChangeToFrontend(gameCode,
-						new ScoreUpdateDTO(currentTeam, dice.getPoints(currentFacet)));
+						new ScoreUpdateDTO(currentTeam, teams.get(currentTeam).getScore()));
 			} else {
 				teams.get(currentTeam).incrementWrongExpressions();
 			}
