@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import at.qe.timeguess.controllers.WebsocketController;
 import at.qe.timeguess.gamelogic.Dice;
 import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.gamelogic.Game.GameAlreadyRunningException;
@@ -36,7 +35,9 @@ public class LobbyService {
 	@Autowired
 	private RaspberryService raspberryService;
 
-	private WebsocketController webSocketController;
+	private ExpressionService expService;
+
+	private WebSocketService webSocketController;
 
 	/**
 	 * Map that holds all open games.
@@ -48,9 +49,10 @@ public class LobbyService {
 	 */
 	private static final int MAX_GAME_CODE_LENGTH = 8;
 
-	public LobbyService(@Lazy final WebsocketController controller) {
+	public LobbyService(@Lazy final WebSocketService controller, @Lazy final ExpressionService expService) {
 		this.runningGames = new HashMap<Integer, Game>();
 		this.webSocketController = controller;
+		this.expService = expService;
 	}
 
 	/**
@@ -74,6 +76,8 @@ public class LobbyService {
 				userService.getAuthenticatedUser(), raspberryId);
 		raspberryService.registerGame(raspberryId, newGame);
 		webSocketController.setWebsocketControllerForGame(newGame);
+		newGame.setExpressionService(expService);
+		newGame.setLobbyService(this);
 		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}
@@ -100,6 +104,8 @@ public class LobbyService {
 				userService.getAuthenticatedUser(), raspberryId);
 		raspberryService.registerGame(raspberryId, newGame);
 		webSocketController.setWebsocketControllerForGame(newGame);
+		newGame.setExpressionService(expService);
+		newGame.setLobbyService(this);
 		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}

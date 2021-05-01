@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.model.RaspberryID;
 import at.qe.timeguess.repositories.RaspberryIDRepository;
-import at.qe.timeguess.gamelogic.Game;
 
 @Service
 @Scope("application")
@@ -112,7 +112,7 @@ public class RaspberryService {
 	 * Method that registers a game for a given raspberry id.
 	 *
 	 * @param raspberryID id of the raspberry the game should be associated with.
-	 * @param game     the game that gets registered.
+	 * @param game        the game that gets registered.
 	 * @throws RaspberryAlreadyInUseException when raspberry is already assigned to
 	 *                                        a running game.
 	 */
@@ -133,7 +133,7 @@ public class RaspberryService {
 	 * Method to unregister a game of raspberry.
 	 *
 	 * @param raspberryID Id of the raspberry that is associated with the game to be
-	 *                 unregistered.
+	 *                    unregistered.
 	 */
 	public void unregisterGame(final String raspberryID) {
 		gameMappings.remove(raspberryID);
@@ -141,6 +141,10 @@ public class RaspberryService {
 
 	public Map<String, Game> getGameMappings() {
 		return this.gameMappings;
+	}
+
+	public RaspberryID getRaspberryById(final String raspberryId) {
+		return raspbiRepo.findFirstById(raspberryId);
 	}
 
 	public class RaspberryAlreadyInUseException extends Exception {
