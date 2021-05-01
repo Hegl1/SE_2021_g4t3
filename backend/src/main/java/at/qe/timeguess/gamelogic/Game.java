@@ -126,6 +126,8 @@ public class Game {
 		} else {
 			if (!active) {
 				readyPlayers.put(player, false);
+				usersWithDevices.add(player);
+				webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
 			}
 		}
 	}
@@ -406,7 +408,7 @@ public class Game {
 	public void updateDiceConnection(final boolean isConnected) {
 		if (isConnected) {
 			if (!pickNewExpression()) {
-				// Todo end game
+				finishGame();
 			}
 			webSocketService.sendConnectionUpdateToFrontend(gameCode, new DiceConnectionUpdateDTO(isConnected));
 			currentFacet = null;
