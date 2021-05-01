@@ -10,12 +10,14 @@ import javax.persistence.*;
 public class CompletedGameTeam {
 
 	@Id
-	@GeneratedValue
+    @SequenceGenerator(name = "completed_game_team_sequence", initialValue = 11)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "completed_game_team_sequence")
 	private long id;
 
 	private int score;
 	private int numberOfGuessedExpressions;
 	private int numberOfWrongExpressions;
+	private boolean hasWon;
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	private List<User> players;
@@ -25,16 +27,17 @@ public class CompletedGameTeam {
 	}
 
 	public CompletedGameTeam(final int numberOfGuessedExpressions, final int numberOfWrongExpressions,
-			final int score) {
+			final int score, final boolean hasWon) {
 		this();
 		this.numberOfGuessedExpressions = numberOfGuessedExpressions;
 		this.numberOfWrongExpressions = numberOfWrongExpressions;
 		this.score = score;
+		this.hasWon = hasWon;
 	}
 
 	public CompletedGameTeam(final int numberOfGuessedExpresions, final int numberOfWrongExpressions, final int score,
-			final Collection<User> players) {
-		this(numberOfGuessedExpresions, numberOfWrongExpressions, score);
+			final Collection<User> players, final boolean hasWon) {
+		this(numberOfGuessedExpresions, numberOfWrongExpressions, score, hasWon);
 		this.players.addAll(players);
 	}
 
@@ -81,5 +84,9 @@ public class CompletedGameTeam {
 	public void setScore(final int score) {
 		this.score = score;
 	}
+
+	public boolean getHasWon() {
+	    return this.hasWon;
+    }
 
 }
