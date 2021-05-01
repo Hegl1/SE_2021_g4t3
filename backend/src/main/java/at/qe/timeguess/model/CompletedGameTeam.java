@@ -10,7 +10,8 @@ import javax.persistence.*;
 public class CompletedGameTeam {
 
 	@Id
-	@GeneratedValue
+    @SequenceGenerator(name = "completed_game_team_sequence", initialValue = 11)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "completed_game_team_sequence")
 	private long id;
 
 	private int score;

@@ -5,19 +5,14 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 @Entity
 public class CompletedGame {
 
 	@Id
-	@GeneratedValue
+    @SequenceGenerator(name = "completed_game_sequence", initialValue = 11)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "completed_game_sequence")
 	private long id;
 
 	@Temporal(TemporalType.TIMESTAMP)
@@ -29,7 +24,7 @@ public class CompletedGame {
 	@OneToOne
 	private Category category;
 
-	@OneToMany
+	@OneToMany(fetch = FetchType.EAGER)
 	private List<CompletedGameTeam> attendedTeams;
 
 	public CompletedGame() {

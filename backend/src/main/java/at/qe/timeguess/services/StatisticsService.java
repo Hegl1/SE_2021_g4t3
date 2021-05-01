@@ -35,6 +35,10 @@ public class StatisticsService {
         return new CompletedGame(startTime, endTime, category, teams);
     }
 
+    // TODO: add buildCompletedGameTeam method,
+    //  which takes a Collection of Teams and returns a Collection of CompletedGameTeams
+
+    // TODO: fix
     public CompletedGame persistCompletedGame(final Date startTime, final Date endTime, final Category category,
                                               final Collection<CompletedGameTeam> teams) {
 
@@ -42,16 +46,13 @@ public class StatisticsService {
         this.completedGameRepository.save(completedGame);
 
         for(CompletedGameTeam current : teams) {
-            this.persistCompletedGameTeam(current);
+            this.completedGameTeamRepository.save(current);
         }
 
         return completedGame;
     }
 
-    public CompletedGameTeam persistCompletedGameTeam(final CompletedGameTeam completedGameTeam) {
-        return this.completedGameTeamRepository.save(completedGameTeam);
-    }
-
+    // TODO: refactor if possible
     public UserStatisticsDTO getUserStatistics(final Long userId) {
 
         User user = this.userService.getUserById(userId);
@@ -126,6 +127,7 @@ public class StatisticsService {
         return played_with;
     }
 
+    // TODO: refactor
     public GlobalStatisticsDTO getGlobalStatistics() {
         List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
@@ -176,6 +178,7 @@ public class StatisticsService {
         return mostGamesWon;
     }
 
+    // TODO: refactor
     public List<CategoryStatisticsDTO> getCategoryStatistics() {
         List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
@@ -202,6 +205,8 @@ public class StatisticsService {
         return categoryStatisticsDTOs;
     }
 
+    // TODO: test with more test data
+    // TODO: refactor
     public List<TopGamesStatisticsDTO> getTopGamesStatistics() {
         List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         PriorityQueue<TopGamesStatisticsDTO> sortedTopGamesStatisticsDTOs = new PriorityQueue<>();
@@ -233,9 +238,10 @@ public class StatisticsService {
         }
 
         List<TopGamesStatisticsDTO> topGames = new LinkedList<>();
+        int numberOfTopGames = Integer.min(5, sortedTopGamesStatisticsDTOs.size());
 
-        for(int i = 0; i < 5; i++) {
-            topGames.add(sortedTopGamesStatisticsDTOs.peek());
+        for(int i = 0; i < numberOfTopGames; i++) {
+            topGames.add(sortedTopGamesStatisticsDTOs.poll());
         }
 
         return topGames;
