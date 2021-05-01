@@ -13,6 +13,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+/**
+ * Class that manges the persisting of completed Games
+ * and retrieving Statistics of Games, Players, Categories and more
+ * for homepage view
+ *
+ */
 @Service
 @Scope("application")
 public class StatisticsService {
@@ -29,6 +35,15 @@ public class StatisticsService {
     @Autowired
     private CategoryService categoryService;
 
+    /**
+     * Method that builds a new CompletedGame
+     *
+     * @param startTime the timestamp when the Game started
+     * @param endTime the timestamp when the Game ended
+     * @param category the Category which was played in the Game
+     * @param teams the Teams which played in the Game
+     * @return the CompletedGame
+     */
     public CompletedGame buildCompletedGame(final Date startTime, final Date endTime, final Category category,
                                             final Collection<CompletedGameTeam> teams) {
 
@@ -38,6 +53,15 @@ public class StatisticsService {
     // TODO: add buildCompletedGameTeam method,
     //  which takes a Collection of Teams and returns a Collection of CompletedGameTeams
 
+    /**
+     * Method that persists a CompletedGame
+     *
+     * @param startTime the timestamp when the Game started
+     * @param endTime the timestamp when the Game ended
+     * @param category the Category which was played in the Game
+     * @param teams the Teams which played in the Game
+     * @return the CompletedGame
+     */
     public CompletedGame persistCompletedGame(final Date startTime, final Date endTime, final Category category,
                                               final Collection<CompletedGameTeam> teams) {
 
@@ -53,6 +77,12 @@ public class StatisticsService {
     }
 
     // TODO: refactor if possible
+    /**
+     * Method that retrieves Statistics of a User
+     *
+     * @param userId ID of the User
+     * @return UserStatisticsDTO with Statistics of the User
+     */
     public UserStatisticsDTO getUserStatistics(final Long userId) {
 
         User user = this.userService.getUserById(userId);
@@ -95,6 +125,12 @@ public class StatisticsService {
         return new UserStatisticsDTO(won_games, lost_games, most_played_category, played_games, played_with);
     }
 
+    /**
+     * Method to get the amount of played Games of a player
+     *
+     * @param user the player of which the amount of played Games is getting retrieved
+     * @return the amount of played Games
+     */
     private int getPlayedGames(User user) {
         List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         List<CompletedGame> allCompletedGamesOfUser = new LinkedList<>();
@@ -111,6 +147,12 @@ public class StatisticsService {
         return allCompletedGamesOfUser.size();
     }
 
+    /**
+     * Method that retrieves all players with which a player as played games
+     *
+     * @param user of which the players are getting retrieved
+     * @return the list of players
+     */
     private List<UserDTO> getPlayedWith(User user) {
         List<CompletedGameTeam> completedGamesOfUser = this.completedGameTeamRepository.findByUser(user);
         List<UserDTO> played_with = new LinkedList<>();
@@ -128,6 +170,11 @@ public class StatisticsService {
     }
 
     // TODO: refactor
+    /**
+     * Method that retrieves global Statistics
+     *
+     * @return a DTO which contains the global Statistics
+     */
     public GlobalStatisticsDTO getGlobalStatistics() {
         List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
@@ -159,6 +206,11 @@ public class StatisticsService {
         return new GlobalStatisticsDTO(totalGames, number_correct, number_incorrect, mostPlayedCategory, mostGamesWon);
     }
 
+    /**
+     * Method that retrieves players who have won the most games
+     *
+     * @return List of Users which have won the most games
+     */
     private List<User> getMostWinningPlayers() {
         List<User> mostGamesWon = new LinkedList<>();
         List<User> allUsers = this.userService.getAllUsers();
@@ -179,6 +231,11 @@ public class StatisticsService {
     }
 
     // TODO: refactor
+    /**
+     * Method that retrieves the Statistics of all Categories
+     *
+     * @return DTO which contains Statistics of all Categories
+     */
     public List<CategoryStatisticsDTO> getCategoryStatistics() {
         List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
@@ -207,6 +264,11 @@ public class StatisticsService {
 
     // TODO: test with more test data
     // TODO: refactor
+    /**
+     * Method that retrieves the top Games, sorted by score per time
+     *
+     * @return a List of DTOs which contain Statistics of the top Games
+     */
     public List<TopGamesStatisticsDTO> getTopGamesStatistics() {
         List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         PriorityQueue<TopGamesStatisticsDTO> sortedTopGamesStatisticsDTOs = new PriorityQueue<>();
