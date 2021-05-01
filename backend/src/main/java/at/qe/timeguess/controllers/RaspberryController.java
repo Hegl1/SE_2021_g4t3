@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import at.qe.timeguess.model.RaspberryID;
-import at.qe.timeguess.services.RandomCodeService;
 import at.qe.timeguess.services.RaspberryService;
 import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
 
@@ -22,11 +21,6 @@ import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
 @RequestMapping("/dice")
 @RestController
 public class RaspberryController {
-
-	private static final int identifyerLength = 8;
-
-	@Autowired
-	private RandomCodeService codeGenerator;
 
 	@Autowired
 	private RaspberryService raspiService;
