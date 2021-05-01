@@ -95,8 +95,8 @@ public class UserServiceTest {
 
     @Test
     public void testPasswordEncrypted() throws UserService.UsernameNotAvailableException, UserService.EmptyPasswordException {
+        String clearPassword = "ffsdfa";
         User newUser = new User("lfkahgfioldshsklgnkldf", "ffsdfa", UserRole.GAMEMANAGER);
-        String clearPassword = newUser.getPassword();
         User saved = this.userService.saveUser(newUser);
         Assertions.assertTrue(passwordEncoder.matches(clearPassword, saved.getPassword()));
     }

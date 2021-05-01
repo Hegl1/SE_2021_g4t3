@@ -43,7 +43,7 @@ public class UserControllerTest {
 
     @BeforeEach
     public void init() {
-        password =  passwordEncoder.encode("passwd");
+        password =  "passwd";
         this.admin = userRepository.findFirstByUsername("admin");
         if (this.admin == null) {
             this.admin = new User();

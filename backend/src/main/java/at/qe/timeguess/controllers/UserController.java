@@ -7,6 +7,7 @@ import at.qe.timeguess.dto.UpdateUserDTO;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.model.UserRole;
 import at.qe.timeguess.services.AuthenticationService;
+import at.qe.timeguess.services.LobbyService;
 import at.qe.timeguess.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,8 +35,12 @@ public class UserController {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Autowired
+    private LobbyService lobbyService;
+
     /**
      * Method that returns a JWT Token needed for authorization upon successful login.
+     *
      * @param login DTO that contains username and password
      * @return ResponseEntity: Status 401 when wrong credenentials are entered, Status 200 with LoginResult DTO when
      * login was successful
@@ -59,6 +64,7 @@ public class UserController {
 
     /**
      * Method that registers a new user and assigns the role player to it
+     *
      * @param login DTO that contains username and password
      * @return ResponseEntity: 201 if user could be created, 409 if a user with the same username already exists
      */
@@ -83,6 +89,7 @@ public class UserController {
 
     /**
      * Returns the user with the given id.
+     *
      * @param id number that represents the id of a user
      * @return 200 and User entity without password and timestamp on success, 404 when user couldn't be found
      */
@@ -100,11 +107,12 @@ public class UserController {
      * Method that changes a user if the authenticated user has the right permissions to modify a user and
      * modify it's role. Only admins can change other users than themselves and are to only ones allowed to change the role of a user.
      * A non admin user can only change his password and username and needs to verify himself with his current password.
-     * @param id number that represents the id of a user
+     *
+     * @param id            number that represents the id of a user
      * @param updateUserDTO DTO that contains the changed values of the user and its current password
      * @ return ResponseEntity: 200 when user could be changed successfully, 400 wrong old password or empty password was given
-     *                      403 when the user hadn't the permissions to change a user, 404 user with specified user id doesn't
-     *                      exist, 409 if new username is the same as a username of an existing user
+     * 403 when the user hadn't the permissions to change a user, 404 user with specified user id doesn't
+     * exist, 409 if new username is the same as a username of an existing user
      */
     @PutMapping("/{id}")
     public ResponseEntity<?> putUser(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
@@ -131,12 +139,15 @@ public class UserController {
             return new ResponseEntity(HttpStatus.OK);
         }
 
+        //admin does not need to specify oldPassword except when he changes his own data
         if (!isAdmin) {
             if (authorizedUser.getId() != user.getId()) {
                 return new ResponseEntity("The user has not the rights to perform this action", HttpStatus.FORBIDDEN);
             } else if (oldPassword == null || !passwordEncoder.matches(oldPassword, user.getPassword())) {
                 return new ResponseEntity("The supplied current password is not correct", HttpStatus.BAD_REQUEST);
             }
+        } else if (authorizedUser.getId() == user.getId() && (oldPassword == null || !passwordEncoder.matches(oldPassword, user.getPassword()))) {
+            return new ResponseEntity("The supplied current password is not correct", HttpStatus.BAD_REQUEST);
         }
 
         if (username != null) {
@@ -169,6 +180,7 @@ public class UserController {
 
     /**
      * Method that deletes a user with the specified id. Only admins are allowed to delete users.
+     *
      * @param id number that represent the id of the to be deleted user
      * @return ResponseEntity: 200 if user could be deleted, 404 if user couldn't be found
      */
@@ -187,6 +199,7 @@ public class UserController {
 
     /**
      * Returns a list of all users. Only admins are allowed to call this method.
+     *
      * @return list of users
      */
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -197,6 +210,7 @@ public class UserController {
 
     /**
      * Creates a user with the specified username, password and role. Only admins are allowed to create users.
+     *
      * @param createUserDTO DTO that contains username, password and role
      * @return ResponseEntity: 201 if user could be created, 400 if missing parameters or empty password, 409 if there
      * already exists a user with the same password
@@ -223,12 +237,25 @@ public class UserController {
 
     /**
      * Method searches users by username  based on the given search parameter.
+     *
      * @param username string that is used to seach usernames
      * @return a list of usernames that match search pattern
      */
     @GetMapping("search/{username}")
     public List<String> searchUsers(@PathVariable String username) {
         return this.userService.searchUsers(username);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/{id}/ingame")
+    public ResponseEntity<?> isUserInGame(@PathVariable Long id) {
+        User user = this.userService.getUserById(id);
+        if(user != null) {
+            return new ResponseEntity<>(lobbyService.isUserInGame(user),HttpStatus.OK);
+        } else {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
     }
 
 }

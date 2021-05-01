@@ -32,6 +32,7 @@ public class Dice {
 	 * @param durationMapping array that maps facet to duration.
 	 */
 	public Dice(final int[] pointsMapping, final String[] activityMapping, final int[] durationMapping) {
+		this();
 		this.pointsMapping = pointsMapping;
 		this.activityMapping = activityMapping;
 		this.durationMapping = durationMapping;
