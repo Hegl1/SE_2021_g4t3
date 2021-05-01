@@ -66,7 +66,7 @@ public class StatisticsController {
     /**
      * Retrieves Statistics of the top best Games
      *
-     * @return ResponesEntity for REST communication:
+     * @return ResponseEntity for REST communication:
      *      code OK if successful
      */
     @GetMapping("/topGames")
