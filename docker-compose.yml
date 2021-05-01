@@ -3,7 +3,7 @@ version: '3.0'
 services:
   mysql:
     image: mysql:8.0.19
-    container_name: mysql
+    container_name: db
     environment:
       MYSQL_ROOT_PASSWORD: secret
       MYSQL_DATABASE: timeguess
@@ -21,3 +21,12 @@ services:
       PMA_PASSWORD: secret
     ports:
       - "9090:80"
+      
+  spring-backend:
+    depends_on:
+      - "mysql"
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+        - "8080:8080"

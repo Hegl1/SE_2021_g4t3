@@ -27,16 +27,16 @@ import java.util.regex.Pattern;
 public class UserControllerTest {
 
     @Autowired
-    UserController userController;
+    private UserController userController;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
 
     private User admin;
     private String password;
