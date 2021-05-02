@@ -20,8 +20,6 @@ import java.util.Collection;
 @Scope("application")
 public class CategoryService {
 
-    // TODO: add PreAuthorize-annotations where needed
-
     @Autowired
     private CategoryRepository categoryRepository;
 

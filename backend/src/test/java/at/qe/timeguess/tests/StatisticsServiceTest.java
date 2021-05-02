@@ -1,10 +1,10 @@
 package at.qe.timeguess.tests;
 
 import at.qe.timeguess.dto.*;
+import at.qe.timeguess.gamelogic.Team;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.CompletedGame;
 import at.qe.timeguess.model.CompletedGameTeam;
-import at.qe.timeguess.model.User;
 import at.qe.timeguess.repositories.CompletedGameRepository;
 import at.qe.timeguess.services.CategoryService;
 import at.qe.timeguess.services.StatisticsService;
@@ -34,25 +34,27 @@ public class StatisticsServiceTest {
     @Autowired
     private UserService userService;
 
+    // TODO: fix test
     @Test
     public void testBuildCompletedGame() {
         Category category = this.categoryService.getCategoryById(0L);
-        List<CompletedGameTeam> teams = new LinkedList<>();
-        teams.add(new CompletedGameTeam(3, 1, 2, false));
-        teams.add(new CompletedGameTeam(10, 3, 7, true));
+        List<Team> teams = new LinkedList<>();
+        teams.add(new Team());
+        teams.add(new Team());
 
         CompletedGame completedGame = this.statisticsService.buildCompletedGame(new Date(), new Date(), category, teams);
         Assertions.assertEquals(2, completedGame.getAttendedTeams().size());
         Assertions.assertEquals(category.getId(), completedGame.getCategory().getId());
     }
 
+    // TODO: fix test
     @Test
     @DirtiesContext
     public void testPersistCompletedGame() {
         Category category = this.categoryService.getCategoryById(0L);
-        List<CompletedGameTeam> teams = new LinkedList<>();
-        teams.add(new CompletedGameTeam(3, 1, 2, false));
-        teams.add(new CompletedGameTeam(10, 3, 7, true));
+        List<Team> teams = new LinkedList<>();
+        teams.add(new Team());
+        teams.add(new Team());
 
         CompletedGame completedGame = this.statisticsService.persistCompletedGame(new Date(), new Date(), category, teams);
         Assertions.assertEquals(2, this.completedGameRepository.findAll().size());

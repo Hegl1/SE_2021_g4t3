@@ -1,6 +1,7 @@
 package at.qe.timeguess.services;
 
 import at.qe.timeguess.dto.*;
+import at.qe.timeguess.gamelogic.Team;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.CompletedGame;
 import at.qe.timeguess.model.CompletedGameTeam;
@@ -45,13 +46,34 @@ public class StatisticsService {
      * @return the CompletedGame
      */
     public CompletedGame buildCompletedGame(final Date startTime, final Date endTime, final Category category,
-                                            final Collection<CompletedGameTeam> teams) {
+                                            final List<Team> teams) {
 
-        return new CompletedGame(startTime, endTime, category, teams);
+        List<CompletedGameTeam> completedGameTeams = buildCompletedGameTeams(teams);
+        return new CompletedGame(startTime, endTime, category, completedGameTeams);
     }
 
-    // TODO: add buildCompletedGameTeam method,
-    //  which takes a Collection of Teams and returns a Collection of CompletedGameTeams
+    /**
+     * Accepts a List of Teams and returns a List of CompletedGameTeams
+     * private method, only used in buildCompletedGame and persistCompletedGame methods
+     *
+     * @param teams the List of Team out of which the List of CompletedGameTeams gets built
+     * @return a List of CompletedGameTeams
+     */
+    private List<CompletedGameTeam> buildCompletedGameTeams(List<Team> teams) {
+        List<CompletedGameTeam> completedGameTeams = new LinkedList<>();
+
+        completedGameTeams.add(new CompletedGameTeam(teams.get(0).getNumberOfCorrectExpressions(),
+            teams.get(0).getNumberOfWrongExpressions(), teams.get(0).getScore(),
+            teams.get(0).getPlayers(), true));
+
+        for(int i = 1; i < teams.size(); i++) {
+            completedGameTeams.add(new CompletedGameTeam(teams.get(i).getNumberOfCorrectExpressions(),
+                teams.get(i).getNumberOfWrongExpressions(), teams.get(i).getScore(),
+                teams.get(i).getPlayers(), false));
+        }
+
+        return completedGameTeams;
+    }
 
     /**
      * Method that persists a CompletedGame
@@ -63,11 +85,12 @@ public class StatisticsService {
      * @return the CompletedGame
      */
     public CompletedGame persistCompletedGame(final Date startTime, final Date endTime, final Category category,
-                                              final Collection<CompletedGameTeam> teams) {
+                                              final List<Team> teams) {
 
         CompletedGame completedGame = buildCompletedGame(startTime, endTime, category, teams);
+        List<CompletedGameTeam> completedGameTeams = this.buildCompletedGameTeams(teams);
 
-        for(CompletedGameTeam current : teams) {
+        for(CompletedGameTeam current : completedGameTeams) {
             this.completedGameTeamRepository.save(current);
         }
 
@@ -127,6 +150,7 @@ public class StatisticsService {
 
     /**
      * Method to get the amount of played Games of a player
+     * private method, only used in getUserStatistics method
      *
      * @param user the player of which the amount of played Games is getting retrieved
      * @return the amount of played Games
@@ -149,6 +173,7 @@ public class StatisticsService {
 
     /**
      * Method that retrieves all players with which a player as played games
+     * private method, only used in getUserStatistics method
      *
      * @param user of which the players are getting retrieved
      * @return the list of players
@@ -208,6 +233,7 @@ public class StatisticsService {
 
     /**
      * Method that retrieves players who have won the most games
+     * private method, only used in getGlobalStatistics method
      *
      * @return List of Users which have won the most games
      */
