@@ -43,7 +43,7 @@ public class ExpressionServiceTest {
     @Test
     public void testGetAllExpressions() {
         Collection<Expression> allExpressions = this.expressionService.getAllExpressions();
-        Assertions.assertEquals(15, allExpressions.size());
+        Assertions.assertEquals(60, allExpressions.size());
         Assertions.assertTrue(allExpressions.stream().anyMatch(expression -> expression.getName().equals("Bundestag")));
     }
 
@@ -51,7 +51,7 @@ public class ExpressionServiceTest {
     public void testGetAllExpressionsByCategory() {
         Category category = this.categoryService.getCategoryById(0L);
         Collection<Expression> allExpressionsOfCategory = this.expressionService.getAllExpressionsByCategory(category);
-        Assertions.assertEquals(5, allExpressionsOfCategory.size());
+        Assertions.assertEquals(20, allExpressionsOfCategory.size());
         Assertions.assertTrue(allExpressionsOfCategory.stream().anyMatch(expression -> expression.getName().equals("Bundestag")));
     }
 
@@ -81,7 +81,7 @@ public class ExpressionServiceTest {
         this.expressionService.saveExpression(0L, nameDTO);
         Collection<Expression> allExpressionsOfCategory = this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L));
 
-        Assertions.assertEquals(6, allExpressionsOfCategory.size());
+        Assertions.assertEquals(21, allExpressionsOfCategory.size());
         Assertions.assertTrue(allExpressionsOfCategory.stream().anyMatch(expression -> expression.getName().equals("Ballermann")));
     }
 
@@ -97,7 +97,7 @@ public class ExpressionServiceTest {
 
         Category category = this.categoryService.getCategoryByName("Deutschland");
         Collection<Expression> allExpressionsOfCategory = this.expressionService.getAllExpressionsByCategory(category);
-        Assertions.assertEquals(10, allExpressionsOfCategory.size());
+        Assertions.assertEquals(25, allExpressionsOfCategory.size());
     }
 
     @Test
@@ -116,7 +116,7 @@ public class ExpressionServiceTest {
         this.expressionService.importExpressions(categoryExpressionAsStringsDTOS);
 
         Assertions.assertEquals(3, this.categoryService.getAllCategories().size());
-        Assertions.assertEquals(10, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Deutschland")).size());
+        Assertions.assertEquals(25, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Deutschland")).size());
     }
 
     @Test
@@ -127,8 +127,8 @@ public class ExpressionServiceTest {
         Category category = this.categoryService.saveCategory(new Category("Politics"));
 
         this.expressionService.saveExpression(11L, nameDTO);
-        this.expressionService.deleteExpression(this.expressionService.getExpressionById(21L));
-        Assertions.assertEquals(15, this.expressionService.getAllExpressions().size());
+        this.expressionService.deleteExpression(this.expressionService.getExpressionById(101L));
+        Assertions.assertEquals(60, this.expressionService.getAllExpressions().size());
     }
 
     @Test

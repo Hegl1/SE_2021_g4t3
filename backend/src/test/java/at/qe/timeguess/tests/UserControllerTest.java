@@ -28,16 +28,16 @@ import java.util.regex.Pattern;
 public class UserControllerTest {
 
     @Autowired
-    UserController userController;
+    private UserController userController;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
 
     private User admin;
     private String password;
@@ -52,12 +52,6 @@ public class UserControllerTest {
             this.admin.setUsername("admin");
             this.admin.setRole(UserRole.ADMIN);
             this.userRepository.save(this.admin);
-        }
-
-        for(User user : userRepository.findAll()) {
-            if (!user.equals(admin)) {
-                userRepository.delete(user);
-            }
         }
     }
 
@@ -244,7 +238,7 @@ public class UserControllerTest {
     public void testGetAllUsers() {
         authenticationService.setUserAuthentication(admin);
         List<User> userList = userController.getUsers();
-        Assertions.assertEquals(1,userList.size() );
+        Assertions.assertEquals(8,userList.size() );
     }
 
     @Test

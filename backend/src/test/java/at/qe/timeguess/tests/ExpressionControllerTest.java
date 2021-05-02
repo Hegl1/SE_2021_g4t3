@@ -56,7 +56,7 @@ public class ExpressionControllerTest {
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertEquals("Stefan Raab", response.getBody().getName());
-        Assertions.assertEquals(6, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L)).size());
+        Assertions.assertEquals(21, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L)).size());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class ExpressionControllerTest {
         Category category = this.categoryService.saveCategory(new Category("Politics"));
         NameDTO nameDTO = new NameDTO("Trump");
         this.expressionService.saveExpression(11L, nameDTO);
-        ResponseEntity<Expression> response = this.expressionController.deleteExpression(21L);
+        ResponseEntity<Expression> response = this.expressionController.deleteExpression(101L);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertEquals(0, this.expressionService.getAllExpressionsByCategory(category).size());
@@ -118,7 +118,7 @@ public class ExpressionControllerTest {
         ResponseEntity<List<ExpressionDTO>> response = this.expressionController.importExpressionsIntoCategory(0L, expressionNames);
 
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        Assertions.assertEquals(10, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L)).size());
+        Assertions.assertEquals(25, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L)).size());
     }
 
     @Test
@@ -150,7 +150,7 @@ public class ExpressionControllerTest {
 
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Assertions.assertEquals(5, this.categoryService.getAllCategories().size());
-        Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L)).size());
+        Assertions.assertEquals(20, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L)).size());
         Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(11L)).size());
         Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(12L)).size());
     }
