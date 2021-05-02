@@ -23,6 +23,8 @@ import java.util.List;
 @RestController
 public class StatisticsController {
 
+    // TODO: add PreAuthorize-annotations where needed
+
     @Autowired
     private StatisticsService statisticsService;
 

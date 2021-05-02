@@ -29,8 +29,6 @@ import java.util.Map;
 @Scope("application")
 public class ExpressionService {
 
-    // TODO: add PreAuthorize-annotations where needed
-
     @Autowired
     private ExpressionRepository expressionRepository;
 
