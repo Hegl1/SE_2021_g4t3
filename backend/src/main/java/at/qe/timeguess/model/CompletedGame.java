@@ -24,7 +24,7 @@ public class CompletedGame {
 	@OneToOne
 	private Category category;
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<CompletedGameTeam> attendedTeams;
 
 	public CompletedGame() {
