@@ -43,7 +43,7 @@ public class ExpressionServiceTest {
     @Test
     public void testGetAllExpressions() {
         Collection<Expression> allExpressions = this.expressionService.getAllExpressions();
-        Assertions.assertEquals(5, allExpressions.size());
+        Assertions.assertEquals(15, allExpressions.size());
         Assertions.assertTrue(allExpressions.stream().anyMatch(expression -> expression.getName().equals("Bundestag")));
     }
 
@@ -115,7 +115,7 @@ public class ExpressionServiceTest {
         categoryExpressionAsStringsDTOS.add(categoryExpressionAsStringsDTO);
         this.expressionService.importExpressions(categoryExpressionAsStringsDTOS);
 
-        Assertions.assertEquals(1, this.categoryService.getAllCategories().size());
+        Assertions.assertEquals(3, this.categoryService.getAllCategories().size());
         Assertions.assertEquals(10, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Deutschland")).size());
     }
 
@@ -127,8 +127,8 @@ public class ExpressionServiceTest {
         Category category = this.categoryService.saveCategory(new Category("Politics"));
 
         this.expressionService.saveExpression(11L, nameDTO);
-        this.expressionService.deleteExpression(this.expressionService.getExpressionById(11L));
-        Assertions.assertEquals(5, this.expressionService.getAllExpressions().size());
+        this.expressionService.deleteExpression(this.expressionService.getExpressionById(21L));
+        Assertions.assertEquals(15, this.expressionService.getAllExpressions().size());
     }
 
     @Test

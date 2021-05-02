@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -47,11 +48,12 @@ public class UserControllerTest {
         this.admin = userRepository.findFirstByUsername("admin");
         if (this.admin == null) {
             this.admin = new User();
+            this.admin.setPassword(password);
+            this.admin.setUsername("admin");
+            this.admin.setRole(UserRole.ADMIN);
+            this.userRepository.save(this.admin);
         }
-        this.admin.setPassword(password);
-        this.admin.setUsername("admin");
-        this.admin.setRole(UserRole.ADMIN);
-        this.userRepository.save(this.admin);
+
         for(User user : userRepository.findAll()) {
             if (!user.equals(admin)) {
                 userRepository.delete(user);
@@ -134,6 +136,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DirtiesContext
     public void testUpdateUserSuccess() {
         User newUser = new User("somerandomuser",password,UserRole.PLAYER);
         User savedUser = userRepository.save(newUser);
@@ -144,6 +147,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DirtiesContext
     public void testUpdateUserNotAuthorized() {
         User newUser = new User("testuser",password,UserRole.PLAYER);
         User savedUser = userRepository.save(newUser);
@@ -153,6 +157,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DirtiesContext
     public void testUpdateOtherUserNonAdmin() {
         User newUser = new User("testuser",password,UserRole.PLAYER);
         User savedUser = userRepository.save(newUser);
@@ -165,6 +170,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DirtiesContext
     public void testUpdateUserRoleNonAdmin() {
         User newUser = new User("testuser",password,UserRole.PLAYER);
         User savedUser = userRepository.save(newUser);
@@ -175,6 +181,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DirtiesContext
     public void testUpdateUserAdmin() {
         User newUser = new User("testuser",password,UserRole.PLAYER);
         User savedUser = userRepository.save(newUser);
@@ -185,6 +192,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DirtiesContext
     public void testUpdateUserWrongPassword() {
         User newUser = new User("somerandomuser",password,UserRole.PLAYER);
         User savedUser = userRepository.save(newUser);
@@ -195,6 +203,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DirtiesContext
     public void testUpdateUserNotFound() {
         authenticationService.setUserAuthentication(admin);
         UpdateUserDTO updateDTO = new UpdateUserDTO("dlskgjlsjgljagkl",null, "wrong",null);
@@ -203,6 +212,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DirtiesContext
     public void testUpdateUserConflict() {
         User newUser = new User("somerandomuser",password,UserRole.PLAYER);
         User savedUser = userRepository.save(newUser);
@@ -213,6 +223,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DirtiesContext
     public void testDeleteUserSuccess() {
         User newUser = new User("somerandomuser",password,UserRole.PLAYER);
         User savedUser = userRepository.save(newUser);
@@ -222,6 +233,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DirtiesContext
     public void testDeleteUserNotFound() {
         authenticationService.setUserAuthentication(admin);
         ResponseEntity response = userController.deleteUser(99999999L);
@@ -236,6 +248,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DirtiesContext
     public void testCreateUserSuccess() {
         authenticationService.setUserAuthentication(admin);
         CreateUserDTO createUserDTO = new CreateUserDTO("manager",password,"GAMEMANAGER");

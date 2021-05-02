@@ -34,7 +34,6 @@ public class StatisticsServiceTest {
     @Autowired
     private UserService userService;
 
-    // TODO: fix test
     @Test
     public void testBuildCompletedGame() {
         Category category = this.categoryService.getCategoryById(0L);
@@ -47,7 +46,6 @@ public class StatisticsServiceTest {
         Assertions.assertEquals(category.getId(), completedGame.getCategory().getId());
     }
 
-    // TODO: fix test
     @Test
     @DirtiesContext
     public void testPersistCompletedGame() {
@@ -57,7 +55,7 @@ public class StatisticsServiceTest {
         teams.add(new Team());
 
         CompletedGame completedGame = this.statisticsService.persistCompletedGame(new Date(), new Date(), category, teams);
-        Assertions.assertEquals(2, this.completedGameRepository.findAll().size());
+        Assertions.assertEquals(4, this.completedGameRepository.findAll().size());
     }
 
     @Test
@@ -65,18 +63,18 @@ public class StatisticsServiceTest {
         UserStatisticsDTO userStatisticsDTO = this.statisticsService.getUserStatistics(0L);
 
         Assertions.assertEquals("Deutschland", userStatisticsDTO.getMost_played_category().getName());
-        Assertions.assertEquals(1, userStatisticsDTO.getPlayed_games());
+        Assertions.assertEquals(2, userStatisticsDTO.getPlayed_games());
     }
 
     @Test
     public void testGetGlobalStatistics() {
         GlobalStatisticsDTO globalStatisticsDTO = this.statisticsService.getGlobalStatistics();
 
-        Assertions.assertEquals(1, globalStatisticsDTO.getTotalGames());
-        Assertions.assertEquals(20, globalStatisticsDTO.getNumber_correct());
-        Assertions.assertEquals(5, globalStatisticsDTO.getNumber_incorrect());
-        Assertions.assertEquals("Deutschland", globalStatisticsDTO.getMostPlayedCategory().getName());
-        Assertions.assertTrue(globalStatisticsDTO.getMostGamesWon().stream().anyMatch(user -> user.getId().equals(0L)));
+        Assertions.assertEquals(3, globalStatisticsDTO.getTotalGames());
+        Assertions.assertEquals(80, globalStatisticsDTO.getNumber_correct());
+        Assertions.assertEquals(70, globalStatisticsDTO.getNumber_incorrect());
+        Assertions.assertEquals("Haskell", globalStatisticsDTO.getMostPlayedCategory().getName());
+        Assertions.assertTrue(globalStatisticsDTO.getMostGamesWon().stream().anyMatch(user -> user.getId().equals(7L)));
     }
 
     // TODO: implement properly

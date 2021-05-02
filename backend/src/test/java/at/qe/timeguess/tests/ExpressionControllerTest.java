@@ -84,7 +84,7 @@ public class ExpressionControllerTest {
         Category category = this.categoryService.saveCategory(new Category("Politics"));
         NameDTO nameDTO = new NameDTO("Trump");
         this.expressionService.saveExpression(11L, nameDTO);
-        ResponseEntity<Expression> response = this.expressionController.deleteExpression(11L);
+        ResponseEntity<Expression> response = this.expressionController.deleteExpression(21L);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertEquals(0, this.expressionService.getAllExpressionsByCategory(category).size());
@@ -149,7 +149,7 @@ public class ExpressionControllerTest {
         ResponseEntity<List<CategoryExpressionDTO>> response = this.expressionController.importExpressions(categoryExpressionAsStringsDTOS);
 
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        Assertions.assertEquals(3, this.categoryService.getAllCategories().size());
+        Assertions.assertEquals(5, this.categoryService.getAllCategories().size());
         Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L)).size());
         Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(11L)).size());
         Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(12L)).size());

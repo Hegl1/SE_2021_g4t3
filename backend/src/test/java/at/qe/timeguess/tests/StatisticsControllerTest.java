@@ -33,18 +33,18 @@ public class StatisticsControllerTest {
         ResponseEntity<GlobalStatisticsDTO> response = this.statisticsController.getGlobalStatistics();
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals("Deutschland", response.getBody().getMostPlayedCategory().getName());
+        Assertions.assertEquals("Haskell", response.getBody().getMostPlayedCategory().getName());
     }
 
     @Test
     public void testGetCategoryStatus() {
         ResponseEntity<List<CategoryStatisticsDTO>> response = this.statisticsController.getCategoryStats();
-        Assertions.assertEquals(1, response.getBody().size());
+        Assertions.assertEquals(3, response.getBody().size());
     }
 
     @Test
     public void testGetTopGames() {
         ResponseEntity<List<TopGamesStatisticsDTO>> response = this.statisticsController.getTopGames();
-        Assertions.assertEquals(1, response.getBody().size());
+        Assertions.assertEquals(3, response.getBody().size());
     }
 }

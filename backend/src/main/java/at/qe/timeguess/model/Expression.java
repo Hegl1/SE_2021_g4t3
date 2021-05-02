@@ -9,7 +9,7 @@ import javax.persistence.*;
 public class Expression {
 
 	@Id
-    @SequenceGenerator(name = "expression_sequence", initialValue = 11)
+    @SequenceGenerator(name = "expression_sequence", initialValue = 21)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "expression_sequence")
 	private long id;
 	private String name;
