@@ -52,6 +52,9 @@
 
     .confirm_actions {
       > * {
+        background: none;
+        border: none;
+
         display: inline-block;
         width: calc(100% / 3);
         text-align: center;
@@ -60,9 +63,17 @@
         transition: transform 0.1s;
         transform-origin: center center;
 
-        &:hover {
+        &:not([disabled]):hover {
           transform: scale(1.25);
           text-shadow: 0 0 0.25em black;
+        }
+
+        &[disabled] {
+          cursor: default;
+
+          mat-icon {
+            color: darken($foreground, 20%) !important;
+          }
         }
       }
     }
@@ -96,10 +107,13 @@
     @media screen and (min-width: 651px) {
       &.current_team {
         transform: scale(1.1);
-        box-shadow: 0 0 13px 1px rgba(0, 0, 0, 0.5);
-        border: 1px solid mat-color($primary);
         z-index: 1;
       }
+    }
+
+    &.current_team {
+      box-shadow: 0 0 13px 1px rgba(0, 0, 0, 0.5);
+      border: 1px solid mat-color($primary);
     }
 
     h2 {

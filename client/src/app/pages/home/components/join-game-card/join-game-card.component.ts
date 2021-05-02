@@ -42,7 +42,7 @@ export class JoinGameCardComponent {
       return;
     }
 
-    joinCode = code.toString();
+    joinCode = code.toString().padStart(joinCode.length, '0');
 
     let parts: string[] = [];
 

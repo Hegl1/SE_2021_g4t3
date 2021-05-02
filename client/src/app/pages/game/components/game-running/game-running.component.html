@@ -34,11 +34,19 @@
             </tr>
             <tr>
                 <td>Points:</td>
-                <td>{{ game.currentState.running_data.points }}</td>
+                <td>
+                    {{ game.currentState.running_data.points === -1 ? '-' : game.currentState.running_data.points }}
+                </td>
             </tr>
             <tr>
                 <td>Available time:</td>
-                <td>{{ game.currentState.running_data.total_time | time }}</td>
+                <td>
+                    {{
+                        game.currentState.running_data.total_time === -1
+                            ? '-'
+                            : (game.currentState.running_data.total_time | time)
+                    }}
+                </td>
             </tr>
         </table>
     </mat-card>
@@ -58,7 +66,12 @@
             </tr>
             <tr>
                 <td>Action:</td>
-                <td>{{ game.currentState.running_data.action }}</td>
+                <td *ngIf="game.currentState.running_data.action">
+                    {{ game.currentState.running_data.action }}
+                </td>
+                <td *ngIf="!game.currentState.running_data.action">
+                    <mat-spinner diameter="16" style="float: right"></mat-spinner>
+                </td>
             </tr>
         </table>
 
@@ -66,15 +79,15 @@
             <mat-divider></mat-divider>
 
             <mat-card-actions class="confirm_actions">
-                <div>
+                <button (click)="confirmAnswer('CORRECT')" [disabled]="!game.currentState.running_data.action">
                     <mat-icon style="color: limegreen">thumb_up</mat-icon>
-                </div>
-                <div>
+                </button>
+                <button (click)="confirmAnswer('WRONG')" [disabled]="!game.currentState.running_data.action">
                     <mat-icon style="color: orange">thumb_down</mat-icon>
-                </div>
-                <div>
+                </button>
+                <button (click)="confirmAnswer('INVALID')" [disabled]="!game.currentState.running_data.action">
                     <mat-icon color="warn">gpp_bad</mat-icon>
-                </div>
+                </button>
             </mat-card-actions>
         </ng-container>
     </mat-card>

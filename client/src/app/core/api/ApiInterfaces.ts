@@ -55,8 +55,8 @@ export interface RunningGameState extends RunningGame {
   } | null;
   running_data: {
     round: number;
-    round_pause_time: number | null;
-    round_start_time: number | null;
+    round_pause_time: number;
+    round_start_time: number;
     current_team: number;
     current_player: User;
     expression: string | null;

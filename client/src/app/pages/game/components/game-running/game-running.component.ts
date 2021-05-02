@@ -17,6 +17,14 @@ export class GameRunningComponent implements OnInit {
 
   ngOnInit() {
     this.startTimer();
+
+    this.game.update.subscribe((type) => {
+      switch (type) {
+        case 'RUNNING_DATA':
+          this.startTimer();
+          break;
+      }
+    });
   }
 
   get teams() {
@@ -46,15 +54,17 @@ export class GameRunningComponent implements OnInit {
    */
   startTimer() {
     if (this.game.currentState?.running_data) {
-      if (this.game.currentState.running_data.round_pause_time === null) {
+      if (this.game.currentState.running_data.round_pause_time === -1) {
         this.updateTimer();
 
         this.timer = setInterval(() => {
           this.updateTimer();
         }, 1000);
-      } else if (this.game.currentState.running_data.round_start_time !== null) {
+      } else if (this.game.currentState.running_data.round_start_time !== -1) {
         this.time =
-          this.game.currentState.running_data.round_pause_time - this.game.currentState.running_data.round_start_time;
+          this.game.currentState.running_data.round_start_time +
+          this.game.currentState?.running_data?.total_time -
+          this.game.currentState.running_data.round_pause_time;
       } else {
         this.time = 0;
       }
@@ -66,8 +76,8 @@ export class GameRunningComponent implements OnInit {
    */
   private updateTimer() {
     if (
-      this.game.currentState?.running_data?.round_pause_time === null &&
-      this.game.currentState?.running_data?.round_start_time !== null
+      this.game.currentState?.running_data?.round_pause_time === -1 &&
+      this.game.currentState?.running_data?.round_start_time !== -1
     ) {
       this.time =
         this.game.currentState?.running_data?.round_start_time +
@@ -81,11 +91,14 @@ export class GameRunningComponent implements OnInit {
       }
     } else {
       if (
-        this.game.currentState?.running_data?.round_pause_time &&
-        this.game.currentState?.running_data?.round_start_time
+        this.game.currentState?.running_data &&
+        this.game.currentState?.running_data?.round_pause_time !== -1 &&
+        this.game.currentState?.running_data?.round_start_time !== -1
       ) {
         this.time =
-          this.game.currentState.running_data.round_pause_time - this.game.currentState.running_data.round_start_time;
+          this.game.currentState.running_data.round_start_time +
+          this.game.currentState?.running_data?.total_time -
+          this.game.currentState.running_data.round_pause_time;
       } else {
         this.time = 0;
       }
@@ -106,6 +119,15 @@ export class GameRunningComponent implements OnInit {
     if (this.user.user?.id == null) return false;
 
     return this.game.isUsersTeam(this.user.user?.id, index);
+  }
+
+  /**
+   * Confirms the answer of a team
+   *
+   * @param type the type of the confirmation
+   */
+  async confirmAnswer(type: 'CORRECT' | 'WRONG' | 'INVALID') {
+    this.game.confirmAnswer(type);
   }
 
   /**
