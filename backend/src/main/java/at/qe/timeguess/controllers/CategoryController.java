@@ -24,8 +24,6 @@ import java.util.List;
 @RestController
 public class CategoryController {
 
-    // TODO: add PreAuthorize-annotations where needed
-
     @Autowired
     private CategoryService categoryService;
 

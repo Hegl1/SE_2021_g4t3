@@ -25,8 +25,6 @@ import java.util.List;
 @RestController
 public class ExpressionController {
 
-    // TODO: add PreAuthorize-annotations where needed
-
     @Autowired
     private ExpressionService expressionService;
 
