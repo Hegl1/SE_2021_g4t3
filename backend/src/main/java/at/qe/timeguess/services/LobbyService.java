@@ -35,6 +35,8 @@ public class LobbyService {
 	@Autowired
 	private RaspberryService raspberryService;
 
+	private StatisticsService statsService;
+
 	private ExpressionService expService;
 
 	private WebSocketService webSocketController;
@@ -49,10 +51,12 @@ public class LobbyService {
 	 */
 	private static final int MAX_GAME_CODE_LENGTH = 8;
 
-	public LobbyService(@Lazy final WebSocketService controller, @Lazy final ExpressionService expService) {
+	public LobbyService(@Lazy final WebSocketService controller, @Lazy final ExpressionService expService,
+			@Lazy final StatisticsService statsService) {
 		this.runningGames = new HashMap<Integer, Game>();
 		this.webSocketController = controller;
 		this.expService = expService;
+		this.statsService = statsService;
 	}
 
 	/**
@@ -78,6 +82,7 @@ public class LobbyService {
 		webSocketController.setWebsocketControllerForGame(newGame);
 		newGame.setExpressionService(expService);
 		newGame.setLobbyService(this);
+		newGame.setStatisticService(statsService);
 		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}
@@ -106,6 +111,7 @@ public class LobbyService {
 		webSocketController.setWebsocketControllerForGame(newGame);
 		newGame.setExpressionService(expService);
 		newGame.setLobbyService(this);
+		newGame.setStatisticService(statsService);
 		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}
