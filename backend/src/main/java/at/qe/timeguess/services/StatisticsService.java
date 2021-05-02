@@ -99,7 +99,7 @@ public class StatisticsService {
         return completedGame;
     }
 
-    // TODO: refactor if possible
+    // TODO: exclude the current User himself from played_with
     /**
      * Method that retrieves Statistics of a User
      *
@@ -184,6 +184,9 @@ public class StatisticsService {
         Set<User> distinct_played_with = new HashSet<>();
 
         for(CompletedGameTeam current : completedGamesOfUser) {
+            if(current.getPlayers().contains(user)) {
+                current.getPlayers().remove(user);
+            }
             distinct_played_with.addAll(current.getPlayers());
         }
 
@@ -194,7 +197,7 @@ public class StatisticsService {
         return played_with;
     }
 
-    // TODO: refactor
+    // TODO: check for won most games players may be wrong
     /**
      * Method that retrieves global Statistics
      *
@@ -202,12 +205,11 @@ public class StatisticsService {
      */
     public GlobalStatisticsDTO getGlobalStatistics() {
         List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
-        List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
 
         int totalGames = allCompletedGames.size();
         int number_correct = 0;
         int number_incorrect = 0;
-        Category mostPlayedCategory = null;
+        Category mostPlayedCategory = this.getMostPlayedCategory();
         List<User> mostGamesWon = getMostWinningPlayers();
 
         for(CompletedGame completedGame : allCompletedGames) {
@@ -217,8 +219,19 @@ public class StatisticsService {
             }
         }
 
+        return new GlobalStatisticsDTO(totalGames, number_correct, number_incorrect, mostPlayedCategory, mostGamesWon);
+    }
+
+    /**
+     * Method that retrieves the most played Category
+     *
+     * @return the most played Category
+     */
+    private Category getMostPlayedCategory() {
+        List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
         int numberOfGamesOfMostPlayedCategory = 0;
-        List<CompletedGame> tempCompletedGame = null;
+        List<CompletedGame> tempCompletedGame;
+        Category mostPlayedCategory = null;
 
         for(Category category : allCategories) {
 
@@ -228,7 +241,7 @@ public class StatisticsService {
             }
         }
 
-        return new GlobalStatisticsDTO(totalGames, number_correct, number_incorrect, mostPlayedCategory, mostGamesWon);
+        return mostPlayedCategory;
     }
 
     /**
@@ -256,40 +269,44 @@ public class StatisticsService {
         return mostGamesWon;
     }
 
-    // TODO: refactor
     /**
      * Method that retrieves the Statistics of all Categories
      *
      * @return DTO which contains Statistics of all Categories
      */
     public List<CategoryStatisticsDTO> getCategoryStatistics() {
-        List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
-
         List<CategoryStatisticsDTO> categoryStatisticsDTOs = new LinkedList<>();
-        int number_correct = 0;
-        int number_incorrect = 0;
 
         for(Category category : allCategories) {
-            List<CompletedGame> allCompletedGamesOfCategory = this.completedGameRepository.findByCategory(category);
-            number_correct = 0;
-            number_incorrect = 0;
-
-            for(CompletedGame completedGame : allCompletedGamesOfCategory) {
-                for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
-                    number_correct += completedGameTeam.getNumberOfGuessedExpressions();
-                    number_incorrect += completedGameTeam.getNumberOfWrongExpressions();
-                }
-            }
-
-            categoryStatisticsDTOs.add(new CategoryStatisticsDTO(category, number_correct, number_incorrect));
+            categoryStatisticsDTOs.add(this.buildCategoryStatisticsDTO(category));
         }
 
         return categoryStatisticsDTOs;
     }
 
+    /**
+     * Method that retrieves Statistics of one Category
+     * private method, only used in getCategoryStatistics method
+     *
+     * @param category Category of which the Statistics are getting retrieved
+     * @return DTO which contains the Statistics of fore mentioned Category
+     */
+    private CategoryStatisticsDTO buildCategoryStatisticsDTO(Category category) {
+        List<CompletedGame> allCompletedGamesOfCategory = this.completedGameRepository.findByCategory(category);
+        int number_correct = 0;
+        int number_incorrect = 0;
+
+        for(CompletedGame completedGame : allCompletedGamesOfCategory) {
+            for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
+                number_correct += completedGameTeam.getNumberOfGuessedExpressions();
+                number_incorrect += completedGameTeam.getNumberOfWrongExpressions();
+            }
+        }
+        return new CategoryStatisticsDTO(category, number_correct, number_incorrect);
+    }
+
     // TODO: test with more test data
-    // TODO: refactor
     /**
      * Method that retrieves the top Games, sorted by score per time
      *
@@ -299,30 +316,8 @@ public class StatisticsService {
         List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         PriorityQueue<TopGamesStatisticsDTO> sortedTopGamesStatisticsDTOs = new PriorityQueue<>();
 
-        List<TeamStatisticsDTO> teams = new LinkedList<>();
-        Category category = null;
-        double score_per_time = 0;
-        int duration = 0;
-
-        int score = 0;
-        int number_correct = 0;
-        int number_incorrect = 0;
-
         for(CompletedGame completedGame : allCompletedGames) {
-
-            duration = (int) (completedGame.getEndTime().getTime() - completedGame.getStartTime().getTime()) / 1000;
-
-            for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
-                score = completedGameTeam.getScore();
-                score_per_time = (float) score / duration;
-                number_correct = completedGameTeam.getNumberOfGuessedExpressions();
-                number_incorrect = completedGameTeam.getNumberOfWrongExpressions();
-                category = completedGame.getCategory();
-
-                teams.add(new TeamStatisticsDTO(score, number_correct, number_incorrect));
-            }
-
-            sortedTopGamesStatisticsDTOs.add(new TopGamesStatisticsDTO(teams, category, score_per_time, duration));
+            sortedTopGamesStatisticsDTOs.add(this.buildTopGamesStatisticsDTO(completedGame));
         }
 
         List<TopGamesStatisticsDTO> topGames = new LinkedList<>();
@@ -333,5 +328,34 @@ public class StatisticsService {
         }
 
         return topGames;
+    }
+
+    /**
+     * Method that retrieves Statistics of one Game
+     * private method, only used in getTopGamesStatistics method
+     *
+     * @param completedGame the Game of which the Statistics
+     * @return DTO which contains the Statistics of a Game
+     */
+    private TopGamesStatisticsDTO buildTopGamesStatisticsDTO(CompletedGame completedGame) {
+        List<TeamStatisticsDTO> teams = new LinkedList<>();
+        Category category = null;
+        double score_per_time = 0;
+        int duration = (int) (completedGame.getEndTime().getTime() - completedGame.getStartTime().getTime()) / 1000;
+        int score = 0;
+        int number_correct = 0;
+        int number_incorrect = 0;
+
+        for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
+            score = completedGameTeam.getScore();
+            score_per_time = (float) score / duration;
+            number_correct = completedGameTeam.getNumberOfGuessedExpressions();
+            number_incorrect = completedGameTeam.getNumberOfWrongExpressions();
+            category = completedGame.getCategory();
+
+            teams.add(new TeamStatisticsDTO(score, number_correct, number_incorrect));
+        }
+
+        return new TopGamesStatisticsDTO(teams, category, score_per_time, duration);
     }
 }

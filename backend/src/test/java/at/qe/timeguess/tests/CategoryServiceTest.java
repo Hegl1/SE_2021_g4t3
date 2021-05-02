@@ -19,7 +19,7 @@ public class CategoryServiceTest {
     @Test
     public void testGetAllCategories() {
         Collection<Category> allCategories = this.categoryService.getAllCategories();
-        Assertions.assertEquals(1, allCategories.size());
+        Assertions.assertEquals(3, allCategories.size());
         Assertions.assertTrue(allCategories.stream().anyMatch(category -> category.getName().equals("Deutschland")));
     }
 
@@ -43,7 +43,7 @@ public class CategoryServiceTest {
 
         Collection<Category> allCategories = this.categoryService.getAllCategories();
 
-        Assertions.assertEquals(2, allCategories.size());
+        Assertions.assertEquals(4, allCategories.size());
         Assertions.assertTrue(allCategories.stream().anyMatch(category -> category.getName().equals("Politics")));
     }
 
@@ -58,7 +58,7 @@ public class CategoryServiceTest {
 
         Collection<Category> allCategories = this.categoryService.getAllCategories();
 
-        Assertions.assertEquals(1, allCategories.size());
+        Assertions.assertEquals(3, allCategories.size());
         Assertions.assertTrue(allCategories.stream().noneMatch(category -> category.getName().equals("Politics")));
     }
 

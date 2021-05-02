@@ -13,7 +13,8 @@ import java.util.Objects;
 public class User {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "user_sequence", initialValue = 21)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_sequence")
     private Long id;
     private String username;
     @JsonIgnore
