@@ -1,0 +1,26 @@
+.runningGames {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2em;
+
+  @media screen and (max-width: 1600px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media screen and (max-width: 1150px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media screen and (max-width: 650px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .runningGames > * {
+    width: 100%;
+    margin-right: 0 !important;
+  }
+}
+
+.actions {
+  margin-bottom: 1em;
+}

@@ -1,1 +1,40 @@
-<p>games works!</p>
+<h1>
+    <mat-icon [inline]="true">play_arrow</mat-icon>
+    Open games
+    <small *ngIf="runningGames !== null"> ({{ runningGames.length }}) </small>
+</h1>
+
+<div class="actions">
+    <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input matInput placeholder="00-00-00-00" [(ngModel)]="filter" [disabled]="loading" maxlength="11" />
+        <button mat-button matSuffix mat-icon-button *ngIf="filter" aria-label="Clear" (click)="filter = ''">
+            <mat-icon>close</mat-icon>
+        </button>
+    </mat-form-field>
+
+    <button mat-icon-button (click)="reload()" [disabled]="loading" style="margin-right: 1em; margin-left: 0.25em">
+        <mat-icon>refresh</mat-icon>
+    </button>
+
+    <mat-spinner
+        diameter="24"
+        *ngIf="loading && runningGames !== null"
+        style="display: inline-block; vertical-align: middle"
+    ></mat-spinner>
+</div>
+
+<div class="runningGames" *ngIf="runningGames !== null">
+    <tg-running-game-card
+        *ngFor="let game of filteredRunningGames"
+        [runningGame]="game"
+        [loading]="loading"
+        (closeGame)="closeGame(game.code)"
+    ></tg-running-game-card>
+</div>
+
+<mat-spinner diameter="32" style="margin: 1em auto" *ngIf="runningGames === null && !error"></mat-spinner>
+
+<span class="warn" *ngIf="error">
+    <mat-icon style="vertical-align: middle; margin-right: 0.25em">error</mat-icon>{{ error }}
+</span>

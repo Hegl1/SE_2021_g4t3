@@ -1,6 +1,6 @@
 package at.qe.timeguess.websockDto;
 
-public class ErrorDTO extends AbstractDTO {
+public class ErrorDTO implements AbstractDTO {
 
 	private String message;
 

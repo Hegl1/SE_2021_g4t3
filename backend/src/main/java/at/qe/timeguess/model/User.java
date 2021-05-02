@@ -3,6 +3,8 @@ package at.qe.timeguess.model;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Date;
 import java.util.Objects;
@@ -11,7 +13,8 @@ import java.util.Objects;
 public class User {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "user_sequence", initialValue = 21)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_sequence")
     private Long id;
     private String username;
     @JsonIgnore
@@ -30,7 +33,7 @@ public class User {
 
     public User(final String username, final String password, final UserRole role) {
         this.username = username;
-        this.password = password;
+        this.password = encode(password);
         this.role = role;
     }
 
@@ -59,7 +62,7 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = encode(password);
     }
 
     public void setUpdateDate(Date updateDate) {
@@ -93,5 +96,14 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(id, username, updateDate, role);
+    }
+
+    public String encode(String password) {
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (password != null && !password.isEmpty())  {
+            return encoder.encode(password);
+        }
+
+        return null;
     }
 }

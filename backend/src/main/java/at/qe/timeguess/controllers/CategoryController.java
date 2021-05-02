@@ -3,14 +3,13 @@ package at.qe.timeguess.controllers;
 import at.qe.timeguess.dto.CategoryInfoDTO;
 import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
-import at.qe.timeguess.model.CompletedGame;
-import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.repositories.CompletedGameRepository;
 import at.qe.timeguess.services.CategoryService;
 import at.qe.timeguess.services.ExpressionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -69,7 +68,6 @@ public class CategoryController {
         return new ResponseEntity<List<CategoryInfoDTO>>(allCategoriesWithInfo, HttpStatus.OK);
     }
 
-    // TODO: get it to work with initial data (getting code NOT_FOUND currently)
     /**
      * Returns a Category by its ID
      *
@@ -79,7 +77,7 @@ public class CategoryController {
      *      code NOT_FOUND if the category was not found
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(final Long id) {
+    public ResponseEntity<Category> getCategoryById(@PathVariable final Long id) {
         Category category = this.categoryService.getCategoryById(id);
 
         if(category != null) {
@@ -97,6 +95,7 @@ public class CategoryController {
      *      code CREATED  if successful
      *      code CONFLICT if category with this name exists already
      */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')")
     @PostMapping("")
     public ResponseEntity<Category> createCategory(@RequestBody final NameDTO nameDTO) {
         Category category = new Category(nameDTO.getName());
@@ -118,6 +117,7 @@ public class CategoryController {
      *      code FORBIDDEN  if a Category is referenced in persisted completed Game
      *      code NOT_FOUND  if the Category
      */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Category> deleteCategory(@PathVariable final Long id) {
         Category categoryToDelete = this.categoryService.getCategoryById(id);

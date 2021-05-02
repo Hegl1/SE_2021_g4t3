@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import at.qe.timeguess.services.WebSocketService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +27,9 @@ public class RaspberryServiceTest {
 
 	@Autowired
 	private RaspberryIDRepository raspiRepo;
+
+	@Autowired
+    private WebSocketService webSocketService;
 
 	@Test
 	public void testRegisterGame() throws RaspberryAlreadyInUseException, RaspberryNotFoundException {
@@ -61,6 +65,7 @@ public class RaspberryServiceTest {
 	@Test
 	public void testUpdateDiceBattery() throws RaspberryAlreadyInUseException, RaspberryNotFoundException {
 		Game testGame = new Game(111111111);
+		webSocketService.setWebsocketControllerForGame(testGame);
 		raspberryService.registerGame("TESTRASPIID", testGame);
 		raspberryService.updateDiceBatteryStatus("TESTRASPIID", 69);
 		assertEquals(69, testGame.getDice().getBatteryPower());
@@ -71,6 +76,7 @@ public class RaspberryServiceTest {
 	@Test
 	public void testUpdateDiceConnection() throws RaspberryNotFoundException, RaspberryAlreadyInUseException {
 		Game testGame = new Game(111111111);
+        webSocketService.setWebsocketControllerForGame(testGame);
 		assertFalse(raspberryService.updateDiceConnectionStatus("TESTRASPIID", false));
 		raspberryService.registerGame("TESTRASPIID", testGame);
 		assertTrue(raspberryService.updateDiceConnectionStatus("TESTRASPIID", false));

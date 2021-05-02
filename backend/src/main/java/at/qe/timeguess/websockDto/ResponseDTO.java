@@ -2,7 +2,7 @@ package at.qe.timeguess.websockDto;
 
 public class ResponseDTO {
 
-	private String identifyer;
+	private String identifier;
 
 	private AbstractDTO data;
 
@@ -10,13 +10,13 @@ public class ResponseDTO {
 
 	}
 
-	public ResponseDTO(final String identifyer, final AbstractDTO data) {
-		this.identifyer = identifyer;
+	public ResponseDTO(final String identifier, final AbstractDTO data) {
+		this.identifier = identifier;
 		this.data = data;
 	}
 
-	public String getIdentifyer() {
-		return identifyer;
+	public String getIdentifier() {
+		return identifier;
 	}
 
 	public AbstractDTO getData() {

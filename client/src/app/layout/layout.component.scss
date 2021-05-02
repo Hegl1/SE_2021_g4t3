@@ -57,7 +57,7 @@ mat-drawer-container {
         font-size: 1.25rem;
       }
 
-      .home {
+      .nav {
         margin: 1em 0;
       }
 
@@ -67,6 +67,11 @@ mat-drawer-container {
         left: 0;
         right: 0;
       }
+    }
+
+    .mat-list-item-disabled {
+      background-color: transparent;
+      color: darken($navigation-foreground, 50%) !important;
     }
   }
 

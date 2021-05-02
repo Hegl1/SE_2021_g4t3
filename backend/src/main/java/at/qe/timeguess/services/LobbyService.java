@@ -5,16 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import at.qe.timeguess.gamelogic.Dice;
 import at.qe.timeguess.gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game.GameAlreadyRunningException;
 import at.qe.timeguess.gamelogic.Game.GameCreationException;
-import at.qe.timeguess.gamelogic.Game.GameNotContinuableException;
-import at.qe.timeguess.gamelogic.Game.TeamIndexOutOfBoundsException;
 import at.qe.timeguess.gamelogic.Game.UserStateException;
-import at.qe.timeguess.gamelogic.Team;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException;
@@ -36,6 +35,12 @@ public class LobbyService {
 	@Autowired
 	private RaspberryService raspberryService;
 
+	private StatisticsService statsService;
+
+	private ExpressionService expService;
+
+	private WebSocketService webSocketController;
+
 	/**
 	 * Map that holds all open games.
 	 */
@@ -46,8 +51,12 @@ public class LobbyService {
 	 */
 	private static final int MAX_GAME_CODE_LENGTH = 8;
 
-	public LobbyService() {
+	public LobbyService(@Lazy final WebSocketService controller, @Lazy final ExpressionService expService,
+			@Lazy final StatisticsService statsService) {
 		this.runningGames = new HashMap<Integer, Game>();
+		this.webSocketController = controller;
+		this.expService = expService;
+		this.statsService = statsService;
 	}
 
 	/**
@@ -70,6 +79,10 @@ public class LobbyService {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
 				userService.getAuthenticatedUser(), raspberryId);
 		raspberryService.registerGame(raspberryId, newGame);
+		webSocketController.setWebsocketControllerForGame(newGame);
+		newGame.setExpressionService(expService);
+		newGame.setLobbyService(this);
+		newGame.setStatisticService(statsService);
 		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}
@@ -95,6 +108,10 @@ public class LobbyService {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
 				userService.getAuthenticatedUser(), raspberryId);
 		raspberryService.registerGame(raspberryId, newGame);
+		webSocketController.setWebsocketControllerForGame(newGame);
+		newGame.setExpressionService(expService);
+		newGame.setLobbyService(this);
+		newGame.setStatisticService(statsService);
 		runningGames.put(newGame.getGameCode(), newGame);
 		return newGame;
 	}
@@ -120,39 +137,12 @@ public class LobbyService {
 	 * @param user
 	 * @throws GameNotFoundException
 	 * @throws UserStateException
+	 * @throws GameAlreadyRunningException
 	 */
-	public void joinGame(final int gameCode, final User user) throws GameNotFoundException, UserStateException {
+	public void joinGame(final int gameCode, final User user)
+			throws GameNotFoundException, GameAlreadyRunningException {
 		if (runningGames.containsKey(gameCode)) {
 			runningGames.get(gameCode).joinGame(user);
-		} else {
-			throw new GameNotFoundException();
-		}
-	}
-
-	public void joinTeam(final int gameCode, final User user, final Integer teamIndex)
-			throws GameNotFoundException, TeamIndexOutOfBoundsException {
-
-		if (runningGames.containsKey(gameCode)) {
-			Game game = runningGames.get(gameCode);
-			Team team = game.getTeamByIndex(teamIndex);
-			game.joinTeam(team, user);
-		} else {
-			throw new GameNotFoundException();
-		}
-	}
-
-	public void leaveTeam(final int gameCode, final User user) throws GameNotFoundException {
-		if (runningGames.containsKey(gameCode)) {
-			runningGames.get(gameCode).leaveTeam(user);
-		} else {
-			throw new GameNotFoundException();
-		}
-	}
-
-	public void leaveGame(final int gameCode, final User user)
-			throws GameNotContinuableException, GameNotFoundException {
-		if (runningGames.containsKey(gameCode)) {
-			runningGames.get(gameCode).leaveGame(user);
 		} else {
 			throw new GameNotFoundException();
 		}
@@ -222,6 +212,15 @@ public class LobbyService {
 		}
 
 		return false;
+	}
+
+	public Game getGameContainingUser(final User user) {
+		for (Game current : runningGames.values()) {
+			if (current.isInGame(user)) {
+				return current;
+			}
+		}
+		return null;
 	}
 
 	public class GameNotFoundException extends Exception {
