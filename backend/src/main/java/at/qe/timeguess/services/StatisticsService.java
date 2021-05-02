@@ -99,6 +99,7 @@ public class StatisticsService {
         return completedGame;
     }
 
+    // TODO: exclude the current User himself from played_with
     /**
      * Method that retrieves Statistics of a User
      *
@@ -183,6 +184,9 @@ public class StatisticsService {
         Set<User> distinct_played_with = new HashSet<>();
 
         for(CompletedGameTeam current : completedGamesOfUser) {
+            if(current.getPlayers().contains(user)) {
+                current.getPlayers().remove(user);
+            }
             distinct_played_with.addAll(current.getPlayers());
         }
 
@@ -193,7 +197,7 @@ public class StatisticsService {
         return played_with;
     }
 
-    // TODO: check for won most games players
+    // TODO: check for won most games players may be wrong
     /**
      * Method that retrieves global Statistics
      *
