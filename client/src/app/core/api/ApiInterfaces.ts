@@ -66,6 +66,14 @@ export interface RunningGameState extends RunningGame {
   } | null;
 }
 
+export interface FinishedData {
+  ranking: Team[];
+  rounds: number;
+  correctExpressions: number;
+  wrongExpressions: number;
+  duration: number;
+}
+
 export interface UserStats {
   won_games: {
     category: Category;

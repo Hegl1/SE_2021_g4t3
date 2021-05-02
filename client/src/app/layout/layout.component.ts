@@ -6,6 +6,7 @@ import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { ProfileDialogComponent } from '../components/profile-dialog/profile-dialog.component';
 import { ApiService } from '../core/api/api.service';
 import { UserService } from '../core/auth/user.service';
+import { GameService } from '../core/game/game.service';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 
 const maxWidthPx = 1000;
@@ -26,7 +27,8 @@ export class LayoutComponent {
     private breakpointObserver: BreakpointObserver,
     private user: UserService,
     private router: Router,
-    private api: ApiService
+    private api: ApiService,
+    private game: GameService
   ) {
     this.breakpointObserver
       .observe([`(max-width: ${maxWidthPx}px)`])
@@ -43,6 +45,10 @@ export class LayoutComponent {
           this.inGame = ingame.value;
         } else {
           this.inGame = false;
+
+          if (this.game.connected) {
+            this.game.reset(false);
+          }
         }
       }
     });

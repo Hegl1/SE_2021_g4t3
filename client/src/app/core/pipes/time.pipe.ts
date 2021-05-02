@@ -5,6 +5,12 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class TimePipe implements PipeTransform {
   transform(time: number): string {
-    return new Date(time * 1000).toISOString().substr(14, 5);
+    let isoString = new Date(time * 1000).toISOString();
+
+    if (time >= 60 * 60) {
+      return isoString.substr(11, 8);
+    } else {
+      return isoString.substr(14, 5);
+    }
   }
 }

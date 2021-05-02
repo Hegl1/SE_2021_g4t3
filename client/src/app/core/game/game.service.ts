@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { ApiService } from '../api/api.service';
-import { GameStatus, RunningGameState, Team, User } from '../api/ApiInterfaces';
+import { FinishedData, GameStatus, Role, RunningGameState, Team, User } from '../api/ApiInterfaces';
 import { WebsocketService } from '../api/websocket.service';
 import { UserService } from '../auth/user.service';
 
@@ -16,7 +16,8 @@ const INGAME_QUEUE = '/messagequeue/ingame';
 export class GameService {
   private _currentState: RunningGameState | null = null;
   private _connected = false;
-  private teamQueue = false;
+  private teamQueueConnected = false;
+  private _finishedData: FinishedData | null = null;
 
   readonly update = new EventEmitter<string>();
 
@@ -38,6 +39,8 @@ export class GameService {
   async connectToGame() {
     this._connected = false;
     this._currentState = null;
+    this.teamQueueConnected = false;
+    this._finishedData = null;
 
     let res_state = await this.api.getIngameState();
 
@@ -86,6 +89,9 @@ export class GameService {
   }
   get currentState() {
     return this._currentState;
+  }
+  get finishedData() {
+    return this._finishedData;
   }
   get connected() {
     return this._connected;
@@ -145,7 +151,7 @@ export class GameService {
 
           this._currentState = full_info;
 
-          if (full_info.running_data && !this.teamQueue) {
+          if (full_info.running_data && !this.teamQueueConnected) {
             this.subscribeTeamQueue();
           }
 
@@ -177,7 +183,7 @@ export class GameService {
             panelClass: 'action-warn',
           });
 
-          this.disconnect();
+          this.reset();
 
           break;
         case 'RUNNING_DATA':
@@ -189,6 +195,16 @@ export class GameService {
           let score_update = <{ index: number; score: number }>data.data;
 
           this._currentState.teams[score_update.index].score = score_update.score;
+          break;
+        case 'REGULAR_FINISH':
+        case 'EARLY_FINISH':
+          this._currentState.running_data = null;
+          this._currentState.status = GameStatus.Finished;
+
+          this._finishedData = data.data;
+
+          this.disconnectWebsocket();
+
           break;
       }
     });
@@ -206,6 +222,8 @@ export class GameService {
         this._currentState.running_data = data.data;
         this.update.emit('RUNNING_DATA');
       });
+
+      this.teamQueueConnected = true;
     }
   }
 
@@ -262,15 +280,30 @@ export class GameService {
       return;
     }
 
-    this.disconnect();
+    this.reset();
   }
 
-  private disconnect() {
-    this.router.navigateByUrl('/home');
-
+  /**
+   * Resets the game service
+   * @param redirect whether to redirect to the homepage or not
+   */
+  reset(redirect = true) {
     this._connected = false;
     this._currentState = null;
-    this.teamQueue = false;
+    this.teamQueueConnected = false;
+    this._finishedData = null;
+
+    this.disconnectWebsocket();
+
+    if (redirect) {
+      this.router.navigateByUrl('/home');
+    }
+  }
+
+  /**
+   * Disconnects from the websocket
+   */
+  private disconnectWebsocket() {
     // TODO: disconnect websocket
   }
 }
