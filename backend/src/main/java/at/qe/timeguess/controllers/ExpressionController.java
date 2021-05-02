@@ -11,6 +11,7 @@ import at.qe.timeguess.services.ExpressionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedList;
@@ -23,6 +24,8 @@ import java.util.List;
 @RequestMapping("")
 @RestController
 public class ExpressionController {
+
+    // TODO: add PreAuthorize-annotations where needed
 
     @Autowired
     private ExpressionService expressionService;
@@ -65,6 +68,7 @@ public class ExpressionController {
      *      code NOT_FOUND  if Category to assign is not found
      *      code CONFLICT   if Expression already exists
      */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')")
     @PostMapping("/categories/{categoryId}/expressions")
     public ResponseEntity<ExpressionDTO> createExpression(@PathVariable final Long categoryId, @RequestBody final NameDTO nameDTO) {
         Category category = this.categoryService.getCategoryById(categoryId);
@@ -90,6 +94,7 @@ public class ExpressionController {
      *      code NOT_FOUND  if Expression to delete was not found
      *      code CONFLICT   if Expression to delete is referenced in a Game
      */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')")
     @DeleteMapping("/expressions/{id}")
     public ResponseEntity<Expression> deleteExpression(@PathVariable final Long id) {
         Expression expression = this.expressionService.getExpressionById(id);
@@ -112,6 +117,7 @@ public class ExpressionController {
      * @return ResponseEntity for REST communication:
      *      code CREATED if Expressions got imported successfully
      */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')")
     @PostMapping("/categories/{categoryId}/expressions/import")
     public ResponseEntity<List<ExpressionDTO>> importExpressionsIntoCategory(@PathVariable final Long categoryId, @RequestBody final List<String> expressionNames) {
         List<ExpressionDTO> expressionDTOs = null;
@@ -131,6 +137,7 @@ public class ExpressionController {
      * @return ResponseEntity for REST communication:
      *      code CREATED if Categories and Expressions got imported successfully
      */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')")
     @PostMapping("/expressions/import")
     public ResponseEntity<List<CategoryExpressionDTO>> importExpressions(@RequestBody final List<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOS) {
         List<CategoryExpressionDTO> importedCategoriesAndExpressions = new LinkedList<>();

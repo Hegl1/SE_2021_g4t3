@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import at.qe.timeguess.controllers.GameController;
 import at.qe.timeguess.dto.CreateGame;
 import at.qe.timeguess.dto.GameDTO;
+import org.springframework.security.test.context.support.WithMockUser;
 
 @SpringBootTest
 public class GameControllerTest {
@@ -70,8 +71,9 @@ public class GameControllerTest {
 	}
 
 	@Test
+    @WithMockUser(username = "admin")
 	public void testForceCloseRunningGame() {
-		ResponseEntity<Integer> success = gameController.createGame(new CreateGame(RASPIID, 0, null, 2, 30));
+	    ResponseEntity<Integer> success = gameController.createGame(new CreateGame(RASPIID, 0, null, 2, 30));
 		ResponseEntity<Void> response = gameController.forceCloseRunningGame(success.getBody());
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		gameController.forceCloseRunningGame(success.getBody());

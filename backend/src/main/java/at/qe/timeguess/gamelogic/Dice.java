@@ -42,7 +42,6 @@ public class Dice {
 	 * Initializes dice with default mapping.
 	 */
 	private void loadDefaultMapping() {
-		// TODO proper default mapping.
 		for (int i = 0; i < 12; i++) {
 			pointsMapping[i] = i % 3 + 1;
 			durationMapping[i] = ((i % 3) + 1) * 60;
@@ -62,16 +61,28 @@ public class Dice {
 		activityMapping[11] = "Rhime";
 	}
 
-	public int getPoints(final int facet) {
-		return pointsMapping[facet];
+	public Integer getPoints(final Integer facet) {
+		if (facet == null) {
+			return -1;
+		} else {
+			return pointsMapping[facet];
+		}
 	}
 
-	public int getDurationInSeconds(final int facet) {
-		return durationMapping[facet];
+	public Integer getDurationInSeconds(final Integer facet) {
+		if (facet == null) {
+			return -1;
+		} else {
+			return durationMapping[facet];
+		}
 	}
 
-	public String getActivity(final int facet) {
-		return activityMapping[facet];
+	public String getActivity(final Integer facet) {
+		if (facet == null) {
+			return null;
+		} else {
+			return activityMapping[facet];
+		}
 	}
 
 	public int[] getPointsMapping() {

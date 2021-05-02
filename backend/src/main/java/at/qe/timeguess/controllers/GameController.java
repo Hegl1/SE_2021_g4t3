@@ -146,7 +146,8 @@ public class GameController {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 
-		if (lobbyService.isUserInGame(authUser)) {
+		if (lobbyService.getGameContainingUser(authUser) != null
+				&& lobbyService.getGameContainingUser(authUser) != lobbyService.getGame(code)) {
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		}
 

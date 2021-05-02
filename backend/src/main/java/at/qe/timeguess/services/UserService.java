@@ -24,9 +24,6 @@ public class UserService {
     @Autowired
     private CompletedGameTeamRepository completedGameTeamRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     public List<User> getAllUsers() {
         return this.userRepository.findAll();
     }
@@ -70,10 +67,6 @@ public class UserService {
 
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new EmptyPasswordException("User can't be saved because given password is empty!");
-        }
-
-        if (existingUser == null || !user.getPassword().equals(existingUser.getPassword())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
         user.setUpdateDate(new Date(System.currentTimeMillis()));

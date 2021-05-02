@@ -1,6 +1,7 @@
 package at.qe.timeguess.tests;
 
 import at.qe.timeguess.dto.CategoryExpressionAsStringsDTO;
+import at.qe.timeguess.dto.ExpressionDTO;
 import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.Expression;
@@ -120,10 +121,13 @@ public class ExpressionServiceTest {
 
     @Test
     @DirtiesContext
-    public void testDeleteExpression() throws ExpressionService.ExpressionAlreadyExists, ExpressionService.ExpressionDoesNotExistAnymore, ExpressionService.ExpressionReferencedInGame {
-        NameDTO nameDTO = new NameDTO("Ballermann");
-        this.expressionService.saveExpression(0L, nameDTO);
-        this.expressionService.deleteExpression(this.expressionService.getExpressionById(1L));
+    public void testDeleteExpression() throws ExpressionService.ExpressionAlreadyExists, ExpressionService.ExpressionDoesNotExistAnymore, ExpressionService.ExpressionReferencedInGame, CategoryService.CategoryAlreadyExistsException {
+
+        NameDTO nameDTO = new NameDTO("Trump");
+        Category category = this.categoryService.saveCategory(new Category("Politics"));
+
+        this.expressionService.saveExpression(11L, nameDTO);
+        this.expressionService.deleteExpression(this.expressionService.getExpressionById(11L));
         Assertions.assertEquals(5, this.expressionService.getAllExpressions().size());
     }
 
@@ -132,5 +136,28 @@ public class ExpressionServiceTest {
     public void testExpressionAlreadyExistsException() {
         NameDTO nameDTO = new NameDTO("Bundestag");
         Assertions.assertThrows(ExpressionService.ExpressionAlreadyExists.class, () -> this.expressionService.saveExpression(0L, nameDTO));
+    }
+
+    @Test
+    @DirtiesContext
+    public void testExpressionDoesNotExistAnymoreException() throws ExpressionService.ExpressionDoesNotExistAnymore, ExpressionService.ExpressionReferencedInGame, ExpressionService.ExpressionAlreadyExists, CategoryService.CategoryAlreadyExistsException {
+        NameDTO nameDTO = new NameDTO("Trump");
+        Category category = this.categoryService.saveCategory(new Category("Politics"));
+        ExpressionDTO expressionDTO = this.expressionService.saveExpression(11L, nameDTO);
+
+        Long expressionId = expressionDTO.getId();
+        Expression expressionToDelete = this.expressionService.getExpressionById(expressionId);
+
+        this.expressionService.deleteExpression(expressionToDelete);
+        Expression expression = this.expressionService.getExpressionById(expressionId);
+
+        Assertions.assertThrows(ExpressionService.ExpressionDoesNotExistAnymore.class, () -> this.expressionService.deleteExpression(expression));
+    }
+
+    @Test
+    @DirtiesContext
+    public void testExpressionReferencedInGameException() {
+        Expression expression = this.expressionService.getExpressionById(0L);
+        Assertions.assertThrows(ExpressionService.ExpressionReferencedInGame.class, () -> this.expressionService.deleteExpression(expression));
     }
 }

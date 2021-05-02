@@ -16,10 +16,14 @@ public class Team {
 	private int currentPlayer;
 	private List<User> players;
 	private int index;
+	private int numberOfCorrectExpressions;
+	private int numberOfWrongExpressions;
 
 	public Team() {
 		this.score = 0;
 		this.currentPlayer = 0;
+		this.numberOfCorrectExpressions = 0;
+		this.numberOfWrongExpressions = 0;
 		this.players = new ArrayList<User>();
 	}
 
@@ -42,16 +46,56 @@ public class Team {
 	}
 
 	/**
-	 * Method to increment or decrement the score.
+	 * Method to increment the score.
 	 *
-	 * @param points positive amount for increment, negative for decrement.
+	 * @param points positive amount for increment.
 	 */
 	public void incrementScore(final int points) {
 		this.score += points;
 	}
 
+	/**
+	 * Method that decremetns the score. Score cannot be decremented to negative
+	 * numbers.
+	 * 
+	 * @param points positive amount of decrement.
+	 */
+	public void decrementScore(final int points) {
+		this.score -= points;
+		if (score < 0) {
+			score = 0;
+		}
+	}
+
+	/**
+	 * Method that increments number of correct expressions by one.
+	 */
+	public void incrementCorrectExpressions() {
+		this.numberOfCorrectExpressions += 1;
+	}
+
+	/**
+	 * Method that increments number of wrong expressions by one.
+	 */
+	public void incrementWrongExpressions() {
+		this.numberOfWrongExpressions += 1;
+	}
+
+	/**
+	 * Method that checks whether a user is in the team.
+	 * 
+	 * @param player User to check for.
+	 * @return true if user is in the team, else false.
+	 */
 	public boolean isInTeam(final User player) {
 		return players.contains(player);
+	}
+
+	/**
+	 * Method that switches the currently active player in the team.
+	 */
+	public void incrementCurrentPlayer() {
+		this.currentPlayer = (currentPlayer + 1) % players.size();
 	}
 
 	public int getScore() {
@@ -74,16 +118,24 @@ public class Team {
 		this.index = index;
 	}
 
-	public int getCurrentPlayer() {
+	public int getCurrentPlayerIndex() {
 		return currentPlayer;
 	}
 
-	public void setCurrentPlayer(final int currentPlayer) {
-		this.currentPlayer = currentPlayer;
+	public User getCurrentPlayer() {
+		return players.get(currentPlayer);
 	}
 
 	public List<User> getPlayers() {
 		return players;
+	}
+
+	public int getNumberOfCorrectExpressions() {
+		return numberOfCorrectExpressions;
+	}
+
+	public int getNumberOfWrongExpressions() {
+		return numberOfWrongExpressions;
 	}
 
 }
