@@ -1,0 +1,57 @@
+<ng-container *ngIf="game.finishedData">
+    <div class="winner mat-elevation-z2">
+        <mat-icon>emoji_events</mat-icon>
+        <span>
+            <strong>{{ game.finishedData.ranking[0].name }}</strong> has won! Congratulations!
+        </span>
+    </div>
+
+    <mat-card class="rankingCard">
+        <h2><mat-icon>groups</mat-icon>Ranking</h2>
+
+        <table class="data_table">
+            <tr *ngFor="let team of game.finishedData.ranking; let i = index">
+                <td>
+                    <span [class.currentTeam]="currentUserId != null && game.isUsersTeam(currentUserId, team.index)">{{
+                        team.name
+                    }}</span>
+                    <mat-icon *ngIf="i === 0">emoji_events</mat-icon>
+                </td>
+                <td>{{ team.score }} {{ team.score != 1 ? 'Points' : 'Point' }}</td>
+            </tr>
+        </table>
+    </mat-card>
+
+    <mat-card class="statisticsCard">
+        <h2><mat-icon>leaderboard</mat-icon>Statistics</h2>
+
+        <table class="data_table">
+            <tr>
+                <td>Played rounds:</td>
+                <td>{{ game.finishedData.rounds }}</td>
+            </tr>
+            <tr>
+                <td>Correct expressions:</td>
+                <td>{{ game.finishedData.correctExpressions }}</td>
+            </tr>
+            <tr>
+                <td>Wrong expressions:</td>
+                <td>{{ game.finishedData.wrongExpressions }}</td>
+            </tr>
+            <tr>
+                <td>Played category:</td>
+                <td>{{ game.currentState?.category?.name || '' }}</td>
+            </tr>
+            <tr>
+                <td>Duration:</td>
+                <td>{{ game.finishedData.duration | time }}</td>
+            </tr>
+        </table>
+    </mat-card>
+
+    <div class="actions">
+        <a routerLink="/home" mat-raised-button color="warn">
+            <mat-icon [inline]="true">logout</mat-icon> Leave game
+        </a>
+    </div>
+</ng-container>
