@@ -3,6 +3,7 @@ package at.qe.timeguess.gamelogic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +17,7 @@ import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.services.ExpressionService;
 import at.qe.timeguess.services.LobbyService;
+import at.qe.timeguess.services.StatisticsService;
 import at.qe.timeguess.services.WebSocketService;
 import at.qe.timeguess.websockDto.BatteryUpdateDTO;
 import at.qe.timeguess.websockDto.DiceConnectionUpdateDTO;
@@ -33,6 +35,7 @@ public class Game {
 	private static WebSocketService webSocketService;
 	private static ExpressionService expressionService;
 	private static LobbyService lobbyService;
+	private static StatisticsService statsService;
 
 	// general game information
 	private int gameCode;
@@ -389,7 +392,7 @@ public class Game {
 	 * Persist all the neccessary information of the finished game
 	 */
 	private void persistFinishedGame() {
-		// TODO implement after game logic
+		statsService.persistCompletedGame(new Date(gameStartTime * 1000L), new Date(), category, teams);
 	}
 
 	/**
@@ -707,6 +710,11 @@ public class Game {
 	@SuppressWarnings("static-access")
 	public void setLobbyService(final LobbyService lobServ) {
 		this.lobbyService = lobServ;
+	}
+
+	@SuppressWarnings("static-access")
+	public void setStatisticService(final StatisticsService statsServ) {
+		this.statsService = statsServ;
 	}
 
 	public int getGameCode() {
