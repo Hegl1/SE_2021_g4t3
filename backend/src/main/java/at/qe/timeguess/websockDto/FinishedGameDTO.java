@@ -6,17 +6,17 @@ import at.qe.timeguess.dto.TeamDTO;
 
 public class FinishedGameDTO implements AbstractDTO {
 
-	List<TeamDTO> ranking;
-	String category;
-	int correctExpressions;
-	int wrongExpressions;
-	long duration;
+	private List<TeamDTO> ranking;
+	private int rounds;
+	private int correctExpressions;
+	private int wrongExpressions;
+	private long duration;
 
-	public FinishedGameDTO(final List<TeamDTO> ranking, final String category, final int correctExpressions,
+	public FinishedGameDTO(final List<TeamDTO> ranking, final int rounds, final int correctExpressions,
 			final int wrongExpressions, final long duration) {
 		super();
 		this.ranking = ranking;
-		this.category = category;
+		this.rounds = rounds;
 		this.correctExpressions = correctExpressions;
 		this.wrongExpressions = wrongExpressions;
 		this.duration = duration;
@@ -26,8 +26,8 @@ public class FinishedGameDTO implements AbstractDTO {
 		return ranking;
 	}
 
-	public String getCategory() {
-		return category;
+	public int getRounds() {
+		return rounds;
 	}
 
 	public int getCorrectExpressions() {
