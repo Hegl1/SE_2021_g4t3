@@ -105,9 +105,14 @@ public class StatisticsService {
      * @param userId ID of the User
      * @return UserStatisticsDTO with Statistics of the User
      */
-    public UserStatisticsDTO getUserStatistics(final Long userId) {
+    public UserStatisticsDTO getUserStatistics(final Long userId) throws UserNotFoundException {
 
         User user = this.userService.getUserById(userId);
+
+        if (user == null) {
+            throw new UserNotFoundException("User not found!");
+        }
+
         List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
 
@@ -329,7 +334,6 @@ public class StatisticsService {
         return topGames;
     }
 
-    // TODO: round score_per_time to a sane amount of decimal places
     /**
      * Method that retrieves Statistics of one Game
      * private method, only used in getTopGamesStatistics method
@@ -348,7 +352,7 @@ public class StatisticsService {
 
         for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
             score = completedGameTeam.getScore();
-            score_per_time = (float) score / duration;
+            score_per_time = Math.round(((double) score / duration) * 100.0) / 100.0;
             number_correct = completedGameTeam.getNumberOfGuessedExpressions();
             number_incorrect = completedGameTeam.getNumberOfWrongExpressions();
             category = completedGame.getCategory();
@@ -357,5 +361,17 @@ public class StatisticsService {
         }
 
         return new TopGamesStatisticsDTO(teams, category, score_per_time, duration);
+    }
+
+    /**
+     * Gets thrown when a User is not found in the database
+     */
+    public static class UserNotFoundException extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+        public UserNotFoundException(final String message) {
+            super(message);
+        }
     }
 }

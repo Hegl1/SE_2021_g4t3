@@ -24,8 +24,6 @@ import java.util.List;
 @RestController
 public class CategoryController {
 
-    // TODO: check endpoints
-
     @Autowired
     private CategoryService categoryService;
 
@@ -67,7 +65,7 @@ public class CategoryController {
             );
             allCategoriesWithInfo.add(categoryInfoDTO);
         }
-        return new ResponseEntity<List<CategoryInfoDTO>>(allCategoriesWithInfo, HttpStatus.OK);
+        return new ResponseEntity<>(allCategoriesWithInfo, HttpStatus.OK);
     }
 
     /**
@@ -128,7 +126,7 @@ public class CategoryController {
             try {
                 this.categoryService.deleteCategory(categoryToDelete);
             } catch (CategoryService.CategoryIsReferencedInCompletedGamesException e) {
-                return new ResponseEntity<Category>(HttpStatus.FORBIDDEN);
+                return new ResponseEntity<Category>(HttpStatus.CONFLICT);
             }
             return new ResponseEntity<Category>(HttpStatus.OK);
         } else {

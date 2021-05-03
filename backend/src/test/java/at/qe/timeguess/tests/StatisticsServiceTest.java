@@ -59,7 +59,7 @@ public class StatisticsServiceTest {
     }
 
     @Test
-    public void testGetUserStatistics() {
+    public void testGetUserStatistics() throws StatisticsService.UserNotFoundException {
         UserStatisticsDTO userStatisticsDTO = this.statisticsService.getUserStatistics(0L);
 
         Assertions.assertEquals("Deutschland", userStatisticsDTO.getMost_played_category().getName());
