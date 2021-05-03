@@ -23,6 +23,8 @@ import java.util.List;
 @RestController
 public class StatisticsController {
 
+    // TODO: check endpoints
+
     @Autowired
     private StatisticsService statisticsService;
 

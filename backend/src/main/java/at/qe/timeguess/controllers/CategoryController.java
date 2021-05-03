@@ -24,6 +24,8 @@ import java.util.List;
 @RestController
 public class CategoryController {
 
+    // TODO: check endpoints
+
     @Autowired
     private CategoryService categoryService;
 

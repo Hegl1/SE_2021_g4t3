@@ -99,7 +99,6 @@ public class StatisticsService {
         return completedGame;
     }
 
-    // TODO: exclude the current User himself from played_with
     /**
      * Method that retrieves Statistics of a User
      *
@@ -330,6 +329,7 @@ public class StatisticsService {
         return topGames;
     }
 
+    // TODO: round score_per_time to a sane amount of decimal places
     /**
      * Method that retrieves Statistics of one Game
      * private method, only used in getTopGamesStatistics method
