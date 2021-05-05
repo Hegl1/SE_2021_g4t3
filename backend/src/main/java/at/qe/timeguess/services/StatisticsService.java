@@ -302,7 +302,6 @@ public class StatisticsService {
         return new CategoryStatisticsDTO(category, number_correct, number_incorrect);
     }
 
-    // TODO: test with more test data
     /**
      * Method that retrieves the top Games, sorted by score per time
      *
