@@ -98,7 +98,7 @@ public class CategoryControllerTest {
     @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testDeleteCategoryHttpStatusForbidden() {
         ResponseEntity<Category> response = this.categoryController.deleteCategory(0L);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     }
 
     @Test

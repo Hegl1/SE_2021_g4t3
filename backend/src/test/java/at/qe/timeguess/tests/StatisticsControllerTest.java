@@ -25,7 +25,7 @@ public class StatisticsControllerTest {
         ResponseEntity<UserStatisticsDTO> response = this.statisticsController.getUserStatistics(0L);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals("Deutschland", response.getBody().getMost_played_category().getName());
+        Assertions.assertEquals("Haskell", response.getBody().getMost_played_category().getName());
     }
 
     @Test

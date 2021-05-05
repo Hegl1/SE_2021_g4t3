@@ -74,7 +74,7 @@ public class StatisticsServiceTest {
         Assertions.assertEquals(80, globalStatisticsDTO.getNumber_correct());
         Assertions.assertEquals(70, globalStatisticsDTO.getNumber_incorrect());
         Assertions.assertEquals("Haskell", globalStatisticsDTO.getMostPlayedCategory().getName());
-        Assertions.assertTrue(globalStatisticsDTO.getMostGamesWon().stream().anyMatch(user -> user.getId().equals(7L)));
+        Assertions.assertTrue(globalStatisticsDTO.getMostGamesWon().stream().anyMatch(user -> user.getId().equals(1L)));
     }
 
     @Test
