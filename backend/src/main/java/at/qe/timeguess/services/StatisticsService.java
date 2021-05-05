@@ -75,6 +75,7 @@ public class StatisticsService {
         return completedGameTeams;
     }
 
+    // TODO: check for proper persisting
     /**
      * Method that persists a CompletedGame
      *
@@ -106,50 +107,33 @@ public class StatisticsService {
      * @return UserStatisticsDTO with Statistics of the User
      */
     public UserStatisticsDTO getUserStatistics(final Long userId) throws UserNotFoundException {
+        Collection<Category> allCategories = this.categoryService.getAllCategories();
+        PriorityQueue<GameStatisticsDTO> wonGames = new PriorityQueue<>();
+        PriorityQueue<GameStatisticsDTO> lostGames = new PriorityQueue<>();
+        int amountOfGamesPerCategory = 0;
+        Category mostPlayedCategory = null;
 
-        User user = this.userService.getUserById(userId);
+        for(Category category : allCategories) {
+            int won_games_per_category = this.completedGameRepository.getAmountWonByUserIdForCategoryId(userId, true, category.getId());
+            int lost_games_per_category = this.completedGameRepository.getAmountWonByUserIdForCategoryId(userId, false, category.getId());
 
-        if (user == null) {
-            throw new UserNotFoundException("User not found!");
-        }
+            if(won_games_per_category > 0) {
+                wonGames.add(new GameStatisticsDTO(category, won_games_per_category));
+            }
 
-        List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
-        List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
+            if(lost_games_per_category > 0) {
+                lostGames.add(new GameStatisticsDTO(category, lost_games_per_category));
+            }
 
-        List<GameStatisticsDTO> won_games = new LinkedList<>();
-        List<GameStatisticsDTO> lost_games = new LinkedList<>();
-        Category most_played_category = null;
-        int amountMostPlayedCategory = 0;
-
-        for(CompletedGame completedGame : allCompletedGames) {
-            for(Category category : allCategories) {
-                int wins = 0;
-                int losses = 0;
-
-                for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
-                    if(completedGameTeam.getPlayers().contains(user)) {
-                        if(completedGameTeam.getHasWon()) {
-                            wins++;
-                        } else {
-                            losses++;
-                        }
-                    }
-                }
-
-                if(amountMostPlayedCategory < (wins + losses)) {
-                    amountMostPlayedCategory = wins + losses;
-                    most_played_category = category;
-                }
-
-                won_games.add(new GameStatisticsDTO(category, wins));
-                lost_games.add(new GameStatisticsDTO(category, losses));
+            if(amountOfGamesPerCategory < (won_games_per_category + lost_games_per_category)) {
+                mostPlayedCategory = category;
             }
         }
 
-        int played_games = this.getPlayedGames(user);
-        List <UserDTO> played_with = this.getPlayedWith(user);
+        int playedGames = this.getPlayedGames(this.userService.getUserById(userId));
+        List <UserDTO> playedWith = this.getPlayedWith(this.userService.getUserById(userId));
 
-        return new UserStatisticsDTO(won_games, lost_games, most_played_category, played_games, played_with);
+        return new UserStatisticsDTO(wonGames, lostGames, mostPlayedCategory, playedGames, playedWith);
     }
 
     /**
