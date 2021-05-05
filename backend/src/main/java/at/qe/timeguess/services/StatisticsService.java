@@ -110,7 +110,7 @@ public class StatisticsService {
         Collection<Category> allCategories = this.categoryService.getAllCategories();
         PriorityQueue<GameStatisticsDTO> wonGames = new PriorityQueue<>();
         PriorityQueue<GameStatisticsDTO> lostGames = new PriorityQueue<>();
-        int amountOfGamesPerCategory = 0;
+        int maxAmountOfGamesPerCategory = 0;
         Category mostPlayedCategory = null;
 
         for(Category category : allCategories) {
@@ -125,8 +125,15 @@ public class StatisticsService {
                 lostGames.add(new GameStatisticsDTO(category, lost_games_per_category));
             }
 
-            if(amountOfGamesPerCategory < (won_games_per_category + lost_games_per_category)) {
+            int amountOfGamesPerCategory = won_games_per_category + lost_games_per_category;
+
+            if(maxAmountOfGamesPerCategory < amountOfGamesPerCategory) {
+                maxAmountOfGamesPerCategory = amountOfGamesPerCategory;
                 mostPlayedCategory = category;
+            } else if((maxAmountOfGamesPerCategory > 0) && (maxAmountOfGamesPerCategory == (won_games_per_category + lost_games_per_category))) {
+                if(mostPlayedCategory.getName().compareTo(category.getName()) > 0) {
+                    mostPlayedCategory = category;
+                }
             }
         }
 
@@ -185,7 +192,6 @@ public class StatisticsService {
         return played_with;
     }
 
-    // TODO: check for won most games players may be wrong
     /**
      * Method that retrieves global Statistics
      *
@@ -239,22 +245,24 @@ public class StatisticsService {
      * @return List of Users which have won the most games
      */
     private List<User> getMostWinningPlayers() {
-        List<User> mostGamesWon = new LinkedList<>();
+        List<User> mostGamesWonPlayers = new LinkedList<>();
         List<User> allUsers = this.userService.getAllUsers();
-        int numberOfWonGames = 0;
+        long maxNumberOfWonGames = 0;
 
         for(User user : allUsers) {
             List<CompletedGameTeam> completedGameTeams = this.completedGameTeamRepository.findByUser(user);
+            long numberOfWonGames = completedGameTeams.stream().filter(CompletedGameTeam::getHasWon).count();
 
-            if(completedGameTeams.stream().filter(CompletedGameTeam::getHasWon).count() > numberOfWonGames) {
-                mostGamesWon.clear();
-                mostGamesWon.add(user);
-            } else if(completedGameTeams.stream().filter(CompletedGameTeam::getHasWon).count() == numberOfWonGames) {
-                mostGamesWon.add(user);
+            if(numberOfWonGames > maxNumberOfWonGames) {
+                maxNumberOfWonGames = numberOfWonGames;
+                mostGamesWonPlayers.clear();
+                mostGamesWonPlayers.add(user);
+            } else if(numberOfWonGames == maxNumberOfWonGames) {
+                mostGamesWonPlayers.add(user);
             }
         }
 
-        return mostGamesWon;
+        return mostGamesWonPlayers;
     }
 
     /**

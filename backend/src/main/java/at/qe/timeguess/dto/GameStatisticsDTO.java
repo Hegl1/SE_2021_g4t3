@@ -25,6 +25,10 @@ public class GameStatisticsDTO implements Comparable<GameStatisticsDTO> {
 
     @Override
     public int compareTo(GameStatisticsDTO other) {
-        return Integer.compare(this.amount, other.amount);
+        int compareWins = Integer.compare(other.amount, this.amount);
+        if(compareWins == 0) {
+            return this.getCategory().getName().compareTo(other.getCategory().getName());
+        }
+        return compareWins;
     }
 }
