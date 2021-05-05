@@ -88,4 +88,9 @@ public class StatisticsServiceTest {
         List<TopGamesStatisticsDTO> topGamesStatisticsDTOs = this.statisticsService.getTopGamesStatistics();
         Assertions.assertEquals(3, topGamesStatisticsDTOs.size());
     }
+
+    @Test
+    public void testUserNotFoundException() {
+        Assertions.assertThrows(StatisticsService.UserNotFoundException.class, () -> this.statisticsService.getUserStatistics(1000L));
+    }
 }

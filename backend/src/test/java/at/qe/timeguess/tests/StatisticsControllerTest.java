@@ -47,4 +47,10 @@ public class StatisticsControllerTest {
         ResponseEntity<List<TopGamesStatisticsDTO>> response = this.statisticsController.getTopGames();
         Assertions.assertEquals(3, response.getBody().size());
     }
+
+    @Test
+    public void testUserNotFoundException() {
+        ResponseEntity<UserStatisticsDTO> response = this.statisticsController.getUserStatistics(1000L);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
 }

@@ -95,6 +95,7 @@ public class StatisticsService {
             this.completedGameTeamRepository.save(current);
         }
 
+        // TODO: check if completedGameTeams get persisted twice because of this line
         this.completedGameRepository.save(completedGame);
 
         return completedGame;
@@ -107,6 +108,10 @@ public class StatisticsService {
      * @return UserStatisticsDTO with Statistics of the User
      */
     public UserStatisticsDTO getUserStatistics(final Long userId) throws UserNotFoundException {
+        if(this.userService.getUserById(userId) == null) {
+            throw new UserNotFoundException("User not found!");
+        }
+
         Collection<Category> allCategories = this.categoryService.getAllCategories();
         PriorityQueue<GameStatisticsDTO> wonGames = new PriorityQueue<>();
         PriorityQueue<GameStatisticsDTO> lostGames = new PriorityQueue<>();
