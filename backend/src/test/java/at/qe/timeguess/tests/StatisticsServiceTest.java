@@ -62,7 +62,7 @@ public class StatisticsServiceTest {
     public void testGetUserStatistics() throws StatisticsService.UserNotFoundException {
         UserStatisticsDTO userStatisticsDTO = this.statisticsService.getUserStatistics(0L);
 
-        Assertions.assertEquals("Deutschland", userStatisticsDTO.getMost_played_category().getName());
+        Assertions.assertEquals("Haskell", userStatisticsDTO.getMost_played_category().getName());
         Assertions.assertEquals(2, userStatisticsDTO.getPlayed_games());
     }
 
@@ -77,35 +77,15 @@ public class StatisticsServiceTest {
         Assertions.assertTrue(globalStatisticsDTO.getMostGamesWon().stream().anyMatch(user -> user.getId().equals(7L)));
     }
 
-    // TODO: implement properly
-    // @Test
+    @Test
     public void testGetCategoryStatistics() {
         List<CategoryStatisticsDTO> categoryStatisticsDTOs = this.statisticsService.getCategoryStatistics();
-
-        for(CategoryStatisticsDTO categoryStatisticsDTO : categoryStatisticsDTOs) {
-            System.out.println("----------------------------------");
-            System.out.println("category name: " + categoryStatisticsDTO.getCategory().getName());
-            System.out.println("number correct: " + categoryStatisticsDTO.getNumber_correct());
-            System.out.println("number incorrect: " + categoryStatisticsDTO.getNumber_incorrect());
-        }
+        Assertions.assertEquals(3, categoryStatisticsDTOs.size());
     }
 
-    // TODO: implement properly
-    // @Test
+    @Test
     public void testGetTopGamesStatistics() {
         List<TopGamesStatisticsDTO> topGamesStatisticsDTOs = this.statisticsService.getTopGamesStatistics();
-
-        for(TopGamesStatisticsDTO topGamesStatisticsDTO : topGamesStatisticsDTOs) {
-
-            System.out.println("----------------------------------");
-            for(TeamStatisticsDTO teamStatisticsDTO : topGamesStatisticsDTO.getTeams()) {
-                System.out.println("score: " + teamStatisticsDTO.getScore());
-                System.out.println("correct: " + teamStatisticsDTO.getNumber_correct());
-                System.out.println("incorrect: " + teamStatisticsDTO.getNumber_incorrect());
-            }
-            System.out.println("category: " + topGamesStatisticsDTO.getCategory().getName());
-            System.out.println("score per time: " + topGamesStatisticsDTO.getScore_per_time());
-            System.out.println("duration: " + topGamesStatisticsDTO.getDuration());
-        }
+        Assertions.assertEquals(3, topGamesStatisticsDTOs.size());
     }
 }
