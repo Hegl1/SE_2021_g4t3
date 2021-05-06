@@ -61,76 +61,77 @@ public final class Main {
 	 *      "https://github.com/DI-GROUP/TimeFlip.Docs/blob/master/Hardware/BLE_device_commutication_protocol_v3.0_en.md"
 	 *      target="_top">BLE device communication protocol v3.0</a>
 	 */
-	public static void main(String[] args) throws InterruptedException {
-		final String findDeviceName = "TimeFlip";
-		BluetoothDevice device = connectDevice("TimeFlip");
+	public static void main(String[] args) {
+		BluetoothDevice device = null;
+		try {
+			final String findDeviceName = "TimeFlip";
+			device = connectDevice("TimeFlip");
 
-		Dice dice = new Dice(device);
+			if (device == null) {
+				return;
+			}
 
-		Lock lock = new ReentrantLock();
-		Condition cv = lock.newCondition();
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				running = false;
+			Dice dice = new Dice(device);
+
+			Lock lock = new ReentrantLock();
+			Condition cv = lock.newCondition();
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				public void run() {
+					running = false;
+					lock.lock();
+					try {
+						cv.signalAll();
+					} finally {
+						lock.unlock();
+					}
+				}
+			});
+			
+			/* C R E A T E   G A M E   -   S E T U P   D I C E */
+
+			boolean passwordSuccess = dice.inputPassword();
+			// TODO redo after every reconnect with TimeFlip dice
+
+			if (passwordSuccess) {
+
+				// TODO attempt reconnect after connect is lost, notify backend!
+
+				// starting a thread to check the connection status regularly
+				ConnectionThread connectionThread = new ConnectionThread(dice);
+				connectionThread.start();
+
+				// starting a thread to check the battery level regularly
+				BatteryThread batteryThread = new BatteryThread(dice);
+				batteryThread.start();
+
+				Thread.sleep(100);
+
+				/* I N G A M E   -   R E A D   F A C E T S */
+
+				dice.enableFacetsNotifications();
+
+				// get updates while game is running
 				lock.lock();
 				try {
-					cv.signalAll();
+					while (running) {
+						cv.await();
+					}
 				} finally {
 					lock.unlock();
 				}
 			}
-		});
-		
-		// TODO calibrate facets (coz they can be assigned randomly each time)
-		// TODO read facets: handle case when same facet twice in a row
-		// TODO make dice disconnect when program throws an exception during runtime
-		// TODO find out when dice connection is lost, notify backend!
-		// TODO attempt reconnect after connect is lost, notify backend!
 
-		/* C R E A T E   G A M E   -   S E T U P   D I C E */
+		//} catch (InterruptedException e) { // ?		
+		} catch (Exception e) {
+			e.printStackTrace(System.out);
 
-		dice.inputPassword();
-		// TODO check if passwort input was success. stop program otherwise.
-		// TODO redo after every reconnect with TimeFlip dice
-
-		// starting a thread to check the battery level regularly
-		BatteryThread batteryThread = new BatteryThread(dice);
-    	batteryThread.start();
-
-		//dice.readCalibrationVersion(); // totally useless?
-		// TODO manual mapping for each facet needed. with help of GUI? oh lord...
-		//dice.setCalibrationVersion();
-		//dice.readCalibrationVersion();
-		// doesn't work. after battery change it's random/different again, even if i set a value for the calibration version
-
-		/* I N G A M E   -   R E A D   F A C E T S */
-
-		dice.enableFacetsNotifications();
-
-		// TODO ???? make the ValueNotification method "run()" call following code:
-		// delete history to recognize a facet even if it's the same facet again? does
-		// it work that way? or maybe accelerometer data helps? probably none of this is
-		// useful at all.
-		// dice.deleteHistory();
-
-		// dice.readHistory();
-
-		// dice.readAccelerometerData();
-		// no clue how to use this yet or if it's even useful
-
-		// get updates while game is running
-		lock.lock();
-		try {
-			while (running) {
-				cv.await();
-			}
 		} finally {
-			lock.unlock();
+			if (device != null) {
+				device.disconnect();
+				System.out.println("Connection closed");
+			}
+			System.out.println("finally");
 		}
-
-		device.disconnect(); // TODO make sure the device disconnects in program failure cases, too
-		System.out.println("Connection closed");
-
 	}
 
 	/**
