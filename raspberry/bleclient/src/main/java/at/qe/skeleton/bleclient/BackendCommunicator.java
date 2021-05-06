@@ -25,6 +25,18 @@ public final class BackendCommunicator {
 		this.diceId = getDiceId();
 	}
 
+	public String getUrlPrefix() {
+		return this.urlPrefix;
+	}
+
+	public String getDiceIdFileName() {
+		return this.diceIdFileName;
+	}
+
+	public void setDiceIdFileName(String diceIdFileName) {
+		this.diceIdFileName = diceIdFileName;
+	}
+
 	/**
 	 * Gets the ID that is needed to uniquely identify the rasbperry 
 	 * and corresponding TimeFlip dice when starting a new TimeGuess game.
@@ -59,7 +71,7 @@ public final class BackendCommunicator {
 	 * 
 	 * @return the registered ID if a file with an ID exists, null otherwise
 	 */
-	private String readIdFromFile() {	
+	public String readIdFromFile() {	
 		File file = new File(this.diceIdFileName);
 		if (file.exists()) {
 			System.out.println("ID file exists");
@@ -84,7 +96,7 @@ public final class BackendCommunicator {
 	 * 
 	 * @param newDiceId the ID to be saved
 	 */
-	private void saveIdToFile(String newDiceId) {
+	public void saveIdToFile(String newDiceId) {
 		try {
 			File file = new File(this.diceIdFileName);
     		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
