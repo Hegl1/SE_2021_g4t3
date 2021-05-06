@@ -637,7 +637,8 @@ paths:
         required: true
       - schema:
           type: integer
-          minimum: 0
+          minimum: -1
+          description: The index of the new team or -1 if unassigned
         name: index
         in: path
         required: true
@@ -1314,6 +1315,7 @@ components:
                 description: The achived score of the team so far
                 minimum: 0
             required:
+              - index
               - name
               - players
               - score
@@ -1366,16 +1368,14 @@ components:
                   minimum: 1
                 round_pause_time:
                   type: integer
-                  nullable: true
-                  minimum: 0
+                  minimum: -1
                   example: 1619630315
-                  description: Round pause time as unix timestamp in seconds or null if not paused
+                  description: Round pause time as unix timestamp in seconds or -1 if not paused
                 round_start_time:
                   type: integer
-                  nullable: true
-                  minimum: 0
+                  minimum: -1
                   example: 1619630311
-                  description: Round start time as unix timestamp in seconds
+                  description: Round start time as unix timestamp in seconds or -1 if not started
                 current_team:
                   type: integer
                   minimum: 0
