@@ -112,16 +112,18 @@ public final class Dice {
 	 */
 	public boolean enableFacetsNotifications() {
 		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
-		BluetoothGattCharacteristic facetsCharacteristic = timeFlipService.find(facetsCharacteristicUuid);
-		if (facetsCharacteristic != null) {
-			try {
-				facetsCharacteristic.enableValueNotifications(new ValueNotification(this.backendCommunicator));
-				System.out.println("notifications should be turned on now");
-				return true;
-			} catch (Exception e) {
-				System.out.println("turning on notifications didn't work");
-			}
-		} 
+		if (timeFlipService != null) {
+			BluetoothGattCharacteristic facetsCharacteristic = timeFlipService.find(facetsCharacteristicUuid);
+			if (facetsCharacteristic != null) {
+				try {
+					facetsCharacteristic.enableValueNotifications(new ValueNotification(this.backendCommunicator));
+					System.out.println("notifications should be turned on now");
+					return true;
+				} catch (Exception e) {
+					System.out.println("turning on notifications didn't work");
+				}
+			} 
+		}
 		return false;
 	}
 

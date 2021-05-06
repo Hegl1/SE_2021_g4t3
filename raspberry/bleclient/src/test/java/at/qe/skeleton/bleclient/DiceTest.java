@@ -30,6 +30,10 @@ public class DiceTest {
         Assert.assertNotNull(dice);
         boolean success = dice.inputPassword();
         Assert.assertTrue(success);
+
+        // case when service is not found
+        success = dice.inputPassword();
+        Assert.assertFalse(success);
     }
 
     @Test
@@ -39,6 +43,10 @@ public class DiceTest {
         Assert.assertNotNull(dice);
         boolean success = dice.readBatteryLevel();
         Assert.assertTrue(success);
+
+        // case when service is not found
+        success = dice.readBatteryLevel();
+        Assert.assertFalse(success);
     }
 
     @Test
@@ -48,9 +56,11 @@ public class DiceTest {
         Assert.assertNotNull(dice);
         boolean success = dice.enableFacetsNotifications();
         Assert.assertTrue(success);
-    }
 
-    
+        // case when service is not found
+        success = dice.enableFacetsNotifications();
+        Assert.assertFalse(success);
+    }
 
     private BluetoothDevice utilMockDevice() {
         BluetoothDevice mockTimeFlip = Mockito.mock(BluetoothDevice.class);
@@ -59,20 +69,26 @@ public class DiceTest {
         when(mockTimeFlip.getRSSI()).thenReturn((short) -42);
 
         BluetoothGattService mockService = utilMockService();
-        when(mockTimeFlip.find(anyString())).thenReturn(mockService);
+        when(mockTimeFlip.find(anyString()))
+            .thenReturn(mockService)
+            .thenReturn(null);
         return mockTimeFlip;
     }
 
     private BluetoothGattService utilMockService() {
         BluetoothGattService mockService = Mockito.mock(BluetoothGattService.class);
         BluetoothGattCharacteristic mockCharacteristic = utilMockCharacteristic();
-        when(mockService.find(anyString())).thenReturn(mockCharacteristic);
+        when(mockService.find(anyString()))
+            .thenReturn(mockCharacteristic)
+            .thenReturn(null);
         return mockService;
     }
 
     private BluetoothGattCharacteristic utilMockCharacteristic() {
         BluetoothGattCharacteristic mockCharacteristic = Mockito.mock(BluetoothGattCharacteristic.class);
-        when(mockCharacteristic.writeValue(any(byte[].class))).thenReturn(true);
+        when(mockCharacteristic.writeValue(any(byte[].class)))
+            .thenReturn(true)
+            .thenReturn(false);
         byte[] mockData = { 0x11 };
         when(mockCharacteristic.readValue()).thenReturn(mockData);
         return mockCharacteristic;

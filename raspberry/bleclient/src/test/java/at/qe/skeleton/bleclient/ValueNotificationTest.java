@@ -46,6 +46,28 @@ public class ValueNotificationTest {
     }
 
     @Test
+    public void testGetMappedFacetValueNoMoreAvailableValues() {
+        BackendCommunicator backendCommunicator = new BackendCommunicator();
+        ValueNotification valueNotification = new ValueNotification(backendCommunicator);
+        Assert.assertNotNull(valueNotification);
+        
+        Assert.assertEquals(0, valueNotification.getFacetMapping().size());
+        Assert.assertEquals(12, valueNotification.getAvailableFacetValues().size());
+
+        for (int i = 10; i <=21; i++) {
+            valueNotification.getMappedFacetValue(i);
+        }
+        valueNotification.getMappedFacetValue(14);
+
+        Assert.assertEquals(12, valueNotification.getFacetMapping().size());
+        Assert.assertEquals(0, valueNotification.getAvailableFacetValues().size());
+
+        int number = 42;
+        int mappedNumber = valueNotification.getMappedFacetValue(number);
+        Assert.assertEquals(number % 12, mappedNumber);
+    }
+
+    @Test
     public void testRun() {
         BackendCommunicator backendCommunicator = new BackendCommunicator();
         ValueNotification valueNotification = new ValueNotification(backendCommunicator);
