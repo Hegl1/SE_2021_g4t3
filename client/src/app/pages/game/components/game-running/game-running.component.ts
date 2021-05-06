@@ -66,6 +66,14 @@ export class GameRunningComponent implements OnInit {
       return null;
     }
 
+    if (!this.game.websocketConnected) {
+      return {
+        color: 'warn',
+        icon: 'error',
+        message: 'No server connection!',
+      };
+    }
+
     if (!this.game.currentState?.dice_info.connected) {
       return {
         color: 'warn',

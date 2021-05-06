@@ -82,7 +82,7 @@
       }
     }
 
-    &:not(.current_team) {
+    &:not(.current_team):not(.disabled) {
       cursor: pointer;
     }
 

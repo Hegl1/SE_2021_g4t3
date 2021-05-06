@@ -285,9 +285,12 @@ export class GameService {
   /**
    * leaves from the current game, disconnectes the websocket and
    * redirects to the homepage
+   *
+   * @param confirm whether to ask the user for confirmation
    */
-  async leave() {
+  async leave(confirm = true) {
     if (
+      confirm &&
       !(await this.dialog
         .open(ConfirmDialogComponent, {
           data: {
@@ -306,7 +309,7 @@ export class GameService {
 
     let res = await this.api.leaveIngame(this.code);
 
-    if (!res.isOK()) {
+    if (!res.isOK() && !res.isNotFound()) {
       this.snackBar.open('Error leaving game!', 'OK', {
         duration: 10000,
         panelClass: 'action-warn',
@@ -339,6 +342,13 @@ export class GameService {
    * Disconnects from the websocket
    */
   private disconnectWebsocket() {
-    // TODO: disconnect websocket
+    this.websocket.disconnect();
+  }
+
+  /**
+   * Whether the websocket is connected or not
+   */
+  get websocketConnected() {
+    return this.websocket.isConnected;
   }
 }

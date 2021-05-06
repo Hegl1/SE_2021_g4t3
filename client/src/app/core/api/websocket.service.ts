@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfigService } from '../config/config.service';
 import { WebsocketResponse } from './ApiInterfaces';
 
@@ -12,7 +13,7 @@ export class WebsocketService {
   private stompClient: any | null = null;
   private connected: Promise<void> | null = null;
 
-  constructor(private config: ConfigService) {}
+  constructor(private config: ConfigService, private snackBar: MatSnackBar) {}
 
   /**
    * Connects to the websocket and returns itself for fluent-api
@@ -25,11 +26,22 @@ export class WebsocketService {
     const ws = new SockJS(this.config.get('websocket_url', 'http://localhost:8080/websocket'));
     this.stompClient = Stomp.over(ws);
 
+    ws.addEventListener('close', (e: any) => {
+      this.stompClient = null;
+      this.connected = null;
+
+      if (!e.wasClean) {
+        // TODO: ignore on reload
+        this.snackBar.open('The connection to the server was interrupted. Please reload the page!', 'OK', {
+          panelClass: 'action-warn',
+        });
+      }
+    });
+
     if (!debug) {
       this.stompClient.debug = null;
     }
 
-    // TODO: handle error
     this.connected = new Promise((res) => {
       this.stompClient.connect({}, () => {
         res();
@@ -39,7 +51,14 @@ export class WebsocketService {
     return this;
   }
 
-  // TODO: add function to close websocket
+  /**
+   * Closes the websocket if it is connected
+   */
+  disconnect() {
+    if (this.stompClient !== null && this.stompClient.connected) {
+      this.stompClient.ws.close();
+    }
+  }
 
   /**
    * Subscribes to the supplied message queue, calling the callback
@@ -78,5 +97,12 @@ export class WebsocketService {
     }
 
     await this.connected;
+  }
+
+  /**
+   * Returns whether the websocket is connected or not
+   */
+  get isConnected(): boolean {
+    return this.stompClient && this.stompClient.connected;
   }
 }
