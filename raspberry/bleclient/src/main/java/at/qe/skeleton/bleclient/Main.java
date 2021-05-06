@@ -39,8 +39,6 @@ import java.util.concurrent.locks.*;
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// TODO: use logging instead of System.out/System.err ?
-
 /**
  * Entry point for program to search for Bluetooth devices and communicate with
  * them
@@ -90,12 +88,8 @@ public final class Main {
 			/* C R E A T E   G A M E   -   S E T U P   D I C E */
 
 			boolean passwordSuccess = dice.inputPassword();
-			// TODO redo after every reconnect with TimeFlip dice
 
 			if (passwordSuccess) {
-
-				// TODO attempt reconnect after connect is lost, notify backend!
-
 				// starting a thread to check the connection status regularly
 				ConnectionThread connectionThread = new ConnectionThread(dice);
 				connectionThread.start();
