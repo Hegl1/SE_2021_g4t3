@@ -42,6 +42,10 @@ public final class Dice {
 		return this.backendCommunicator;
 	}
 
+	public String getId() {
+		return this.id;
+	}
+
 	/**
 	 * Inputs the password into the TimeFlip dice. This is necessary to be able to
 	 * read further values from the TimeFlip service's characteristics. TimeFlip
@@ -53,7 +57,6 @@ public final class Dice {
 	public boolean inputPassword() {
 		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
 		if (timeFlipService != null) {
-			// System.out.println("TimeFlip Service is available");
 			BluetoothGattCharacteristic passwordCharacteristic = timeFlipService.find(passwordCharacteristicUuid);
 			if (passwordCharacteristic != null) {
 				boolean success = passwordCharacteristic.writeValue(passwordConfig);
@@ -61,12 +64,8 @@ public final class Dice {
 					System.out.println("TimeFlip password input successful");
 					return success;
 				}
-			} else {
-				// System.out.println("TimeFlip password characteristic not found");
-			}
-		} else {
-			// System.out.println("TimeFlip Service is not available");
-		}
+			} 
+		} 
 		System.out.println("TimeFlip password input failed");
 		return false;
 	}
@@ -80,7 +79,6 @@ public final class Dice {
 	public boolean readBatteryLevel() {
 		BluetoothGattService batteryService = device.find(batteryServiceUuid);
 		if (batteryService != null) {
-			// System.out.println("Battery Service is available");
 			BluetoothGattCharacteristic batteryLevelCharacteristic = batteryService
 					.find(batteryLevelCharacteristicUuid);
 			byte[] batteryLevel = batteryLevelCharacteristic.readValue();
@@ -88,9 +86,7 @@ public final class Dice {
 			System.out.println("Battery level: " + batteryLevelValue);
 			backendCommunicator.postBatteryStatus(batteryLevelValue);
 			return true;
-		} else {
-			// System.out.println("Battery Service is not available");	
-		}
+		} 
 		return false;
 	}
 
@@ -118,7 +114,6 @@ public final class Dice {
 		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
 		BluetoothGattCharacteristic facetsCharacteristic = timeFlipService.find(facetsCharacteristicUuid);
 		if (facetsCharacteristic != null) {
-			// System.out.println("facets characteristic is available");
 			try {
 				facetsCharacteristic.enableValueNotifications(new ValueNotification(this.backendCommunicator));
 				System.out.println("notifications should be turned on now");
@@ -126,9 +121,7 @@ public final class Dice {
 			} catch (Exception e) {
 				System.out.println("turning on notifications didn't work");
 			}
-		} else {
-			// System.out.println("facets characteristic is not available");
-		}
+		} 
 		return false;
 	}
 
