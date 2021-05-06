@@ -14,7 +14,7 @@ public final class BackendCommunicator {
 	private String diceIdFileName;
 
 	public BackendCommunicator() {
-		this.urlPrefix = "http://192.168.0.220:8080/dice";
+		this.urlPrefix = "http://tg-client.mtse.cc/dice";
 		this.diceIdFileName = "timeGuessDiceId.txt";
 		this.diceId = getDiceId();
 	}
@@ -155,7 +155,7 @@ public final class BackendCommunicator {
 			if (status == 200) {	
 				return;
 			} else if (status == 404) {
-				System.out.println(urlString + " not found (please check dice id)");
+				System.out.println(urlString + " not found (please check url prefix or dice id)");
 				// TODO maybe delete id-file and request new id if id != null and 404 is received from backend due to wrong id?
 			} else if (status == 400 && urlString.contains("update")) {
 				System.out.println("dice position not in between 0-11");
@@ -171,7 +171,6 @@ public final class BackendCommunicator {
 			// TODO catch all possible exceptions?
 			// this might just be a temporary catch phrase
 		}
-	
 	}
 
 	/**
