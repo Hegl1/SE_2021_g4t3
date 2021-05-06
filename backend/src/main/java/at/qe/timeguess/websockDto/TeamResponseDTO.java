@@ -2,20 +2,20 @@ package at.qe.timeguess.websockDto;
 
 import java.util.List;
 
-import at.qe.timeguess.gamelogic.Team;
+import at.qe.timeguess.dto.TeamDTO;
 
 public class TeamResponseDTO implements AbstractDTO {
 
-	private List<Team> teams;
+	private List<TeamDTO> teams;
 
 	public TeamResponseDTO() {
 	}
 
-	public TeamResponseDTO(final List<Team> teams) {
+	public TeamResponseDTO(final List<TeamDTO> teams) {
 		this.teams = teams;
 	}
 
-	public List<Team> getTeams() {
+	public List<TeamDTO> getTeams() {
 		return teams;
 	}
 

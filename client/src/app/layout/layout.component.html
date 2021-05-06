@@ -18,9 +18,12 @@
                 </mat-nav-list>
             </div>
 
-            <div class="home">
+            <div class="nav">
                 <mat-nav-list>
                     <a mat-list-item routerLink="/home" routerLinkActive="active"> <mat-icon>home</mat-icon> Home </a>
+                    <a mat-list-item routerLink="/game" routerLinkActive="active" *ngIf="inGame">
+                        <mat-icon>gamepad</mat-icon> Current game
+                    </a>
                 </mat-nav-list>
             </div>
 
@@ -44,7 +47,9 @@
 
             <div class="bottom_nav">
                 <mat-nav-list>
-                    <a mat-list-item (click)="openSettings()"> <mat-icon>settings</mat-icon> Settings </a>
+                    <a mat-list-item (click)="openSettings()" [disabled]="inGame">
+                        <mat-icon>settings</mat-icon> Settings
+                    </a>
                     <a mat-list-item routerLink="/logout" class="warn">
                         <mat-icon>power_settings_new</mat-icon> Logout
                     </a>

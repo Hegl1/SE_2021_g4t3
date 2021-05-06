@@ -32,7 +32,7 @@ public class CategoryControllerTest {
         List<Category> allCategories = response.getBody();
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(1, allCategories.size());
+        Assertions.assertEquals(3, allCategories.size());
     }
 
     @Test
@@ -41,7 +41,7 @@ public class CategoryControllerTest {
         List<CategoryInfoDTO> allCategoriesWithInfo = response.getBody();
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(1, allCategoriesWithInfo.size());
+        Assertions.assertEquals(3, allCategoriesWithInfo.size());
         Assertions.assertEquals("Deutschland", allCategoriesWithInfo.get(0).getName());
     }
 
@@ -68,7 +68,7 @@ public class CategoryControllerTest {
 
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Assertions.assertEquals("Politics", response.getBody().getName());
-        Assertions.assertEquals(2, this.categoryService.getAllCategories().size());
+        Assertions.assertEquals(4, this.categoryService.getAllCategories().size());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class CategoryControllerTest {
         ResponseEntity<Category> response = this.categoryController.createCategory(nameDTO);
 
         Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-        Assertions.assertEquals(1, this.categoryService.getAllCategories().size());
+        Assertions.assertEquals(3, this.categoryService.getAllCategories().size());
     }
 
     @Test
@@ -98,7 +98,7 @@ public class CategoryControllerTest {
     @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testDeleteCategoryHttpStatusForbidden() {
         ResponseEntity<Category> response = this.categoryController.deleteCategory(0L);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     }
 
     @Test
