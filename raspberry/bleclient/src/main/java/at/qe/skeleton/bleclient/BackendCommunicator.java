@@ -19,8 +19,8 @@ public final class BackendCommunicator {
 		if (urlPrefix == null) {
 			throw new NullPointerException("BACKEND environment variable is not set");
 		} 
+		System.out.println("URL of backend: " + urlPrefix);
 		urlPrefix += "/dice";
-		System.out.println(urlPrefix);
 		this.diceIdFileName = "timeGuessDiceId.txt";
 		this.diceId = getDiceId();
 	}

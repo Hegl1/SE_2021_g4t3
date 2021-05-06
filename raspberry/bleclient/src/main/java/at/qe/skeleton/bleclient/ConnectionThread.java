@@ -2,6 +2,9 @@ package at.qe.skeleton.bleclient;
 
 import tinyb.BluetoothDevice;
 
+/**
+ * The ConnectionThread class provides a method to regularly check the connection status after the thread is started.
+ */
 public class ConnectionThread extends Thread {
     private Dice dice;
     private boolean connected;
@@ -13,6 +16,10 @@ public class ConnectionThread extends Thread {
         this.connected = true;
     }
 
+    /**
+	 * Method that runs after the thread is started. The connection status is being checked regularly.
+     * If the bluetooth device has no connection the method tries to reconnect.
+	 */
     public void run() {
         System.out.println("Connection thread started.");
         while(true) {
@@ -52,6 +59,12 @@ public class ConnectionThread extends Thread {
         }
     }
 
+    /**
+	 * Tries to reconnect a disconnected bluetooth device, i.e. the Timeflip dice.
+	 * 
+	 * @param device the disconnected bluetooth device
+     * @return true if reconnecting was successful, false otherwise
+	 */
     private boolean reconnectDevice(BluetoothDevice device) {
         System.out.println("Trying to reconnect to the TimeFlip device");
         boolean reconnected = false;
