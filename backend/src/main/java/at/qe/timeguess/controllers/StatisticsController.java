@@ -35,7 +35,12 @@ public class StatisticsController {
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<UserStatisticsDTO> getUserStatistics(@PathVariable final Long id) {
-        UserStatisticsDTO userStatisticsDTO = this.statisticsService.getUserStatistics(id);
+        UserStatisticsDTO userStatisticsDTO = null;
+        try {
+            userStatisticsDTO = this.statisticsService.getUserStatistics(id);
+        } catch (StatisticsService.UserNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(userStatisticsDTO, HttpStatus.OK);
     }
 

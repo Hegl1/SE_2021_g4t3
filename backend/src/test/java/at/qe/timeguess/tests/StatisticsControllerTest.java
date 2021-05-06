@@ -25,7 +25,7 @@ public class StatisticsControllerTest {
         ResponseEntity<UserStatisticsDTO> response = this.statisticsController.getUserStatistics(0L);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals("Deutschland", response.getBody().getMost_played_category().getName());
+        Assertions.assertEquals("Haskell", response.getBody().getMost_played_category().getName());
     }
 
     @Test
@@ -46,5 +46,11 @@ public class StatisticsControllerTest {
     public void testGetTopGames() {
         ResponseEntity<List<TopGamesStatisticsDTO>> response = this.statisticsController.getTopGames();
         Assertions.assertEquals(3, response.getBody().size());
+    }
+
+    @Test
+    public void testUserNotFoundException() {
+        ResponseEntity<UserStatisticsDTO> response = this.statisticsController.getUserStatistics(1000L);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }
