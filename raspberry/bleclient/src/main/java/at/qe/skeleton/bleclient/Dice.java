@@ -34,6 +34,14 @@ public final class Dice {
 		this.id = this.backendCommunicator.getDiceId();
 	}
 
+	public BluetoothDevice getDevice() {
+		return this.device;
+	}
+
+	public BackendCommunicator getBackendCommunicator() {
+		return this.backendCommunicator;
+	}
+
 	/**
 	 * Inputs the password into the TimeFlip dice. This is necessary to be able to
 	 * read further values from the TimeFlip service's characteristics. TimeFlip
@@ -48,15 +56,18 @@ public final class Dice {
 			// System.out.println("TimeFlip Service is available");
 			BluetoothGattCharacteristic passwordCharacteristic = timeFlipService.find(passwordCharacteristicUuid);
 			if (passwordCharacteristic != null) {
-				passwordCharacteristic.writeValue(passwordConfig);
-				System.out.println("TimeFlip password input done");
-				return true;
+				boolean success = passwordCharacteristic.writeValue(passwordConfig);
+				if (success) {
+					System.out.println("TimeFlip password input successful");
+					return success;
+				}
 			} else {
 				// System.out.println("TimeFlip password characteristic not found");
 			}
 		} else {
 			// System.out.println("TimeFlip Service is not available");
 		}
+		System.out.println("TimeFlip password input failed");
 		return false;
 	}
 
@@ -87,7 +98,7 @@ public final class Dice {
 	 * Finds out which services are available on the device and returns their UUIDs.
 	 * 
 	 * @return all available service UUIDs
-	 */
+	 *//*
 	public String[] getServiceUuids() {
 		String[] serviceUuids = device.getUUIDs();
 		System.out.println("Service UUIDs available: " + serviceUuids.length);
@@ -95,7 +106,7 @@ public final class Dice {
 			System.out.println(serviceUuid);
 		}
 		return serviceUuids;
-	}
+	}*/
 
 	/**
 	 * Enables notifications for when the TimeFlip dice lands on a new facet after
@@ -125,7 +136,7 @@ public final class Dice {
 	 * Deletes the history of the TimeFlip dice.
 	 * 
 	 * @return true if history got deleted, false otherwise
-	 */
+	 *//*
 	public boolean deleteHistory() {
 		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
 		BluetoothGattCharacteristic commandCharacteristic = timeFlipService.find(commandCharacteristicUuid);
@@ -144,13 +155,13 @@ public final class Dice {
 			// System.out.println("command characteristic is not available");
 		}
 		return false;
-	}
+	}*/
 
 	/**
 	 * Read the history from the TimeFlip dice.
 	 * 
 	 * @return true if history was read out, false otherwise
-	 */
+	 *//*
 	public boolean readHistory() {
 		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
 		BluetoothGattCharacteristic commandCharacteristic = timeFlipService.find(commandCharacteristicUuid);
@@ -186,14 +197,14 @@ public final class Dice {
 			// System.out.println("command characteristic is not available");
 		}
 		return false;
-	}
+	}*/
 
 	/**
 	 * Reads the accelerometer data from the TimeFlip dice.
 	 * 
 	 * @return true if the data was read out, false otherwise
 	 */
-	public boolean readAccelerometerData() {
+	/*public boolean readAccelerometerData() {
 		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
 		BluetoothGattCharacteristic accelerometerDataCharacteristic = timeFlipService
 				.find(accelerometerDataCharacteristicUuid);
@@ -209,8 +220,8 @@ public final class Dice {
 			// System.out.println("accelerometer data characteristic is not available");
 		}
 		return false;
-	}
-
+	}*/
+	/*
 	public boolean readCalibrationVersion() {
 		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
 		BluetoothGattCharacteristic calibrationVersionCharacteristic = timeFlipService
@@ -244,4 +255,5 @@ public final class Dice {
 		}
 		return false;
 	}
+	*/
 }

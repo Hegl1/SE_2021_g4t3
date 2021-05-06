@@ -1,5 +1,8 @@
 package at.qe.skeleton.bleclient;
 
+/**
+ * The BatteryThread class provides a method to regularly check the battery status after the thread is started.
+ */
 public class BatteryThread extends Thread {
     private Dice dice;
 
@@ -7,6 +10,9 @@ public class BatteryThread extends Thread {
         this.dice = dice;
     }
 
+    /**
+	 * Method that runs after the thread is started. The battery status is being checked regularly.
+	 */
     public void run() {
         System.out.println("Battery thread started.");
         while(true) {
