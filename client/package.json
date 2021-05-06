@@ -6,6 +6,7 @@
     "start": "ng serve",
     "open": "ng s -o",
     "build": "ng build",
+    "build-prod": "ng build --prod",
     "mock-api": "prism mock ../docs/TimeGuess.v1.yaml -h localhost -p 8080"
   },
   "private": true,

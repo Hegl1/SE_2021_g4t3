@@ -1,9 +1,8 @@
-version: '3.0'
- 
+version: "3.0"
+
 services:
   mysql:
     image: mysql:8.0.19
-    container_name: db
     environment:
       MYSQL_ROOT_PASSWORD: secret
       MYSQL_DATABASE: timeguess
@@ -11,7 +10,7 @@ services:
       MYSQL_PASSWORD: db_user_pass
     ports:
       - "3306:3306"
-      
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5.0.2
     restart: always
@@ -21,7 +20,7 @@ services:
       PMA_PASSWORD: secret
     ports:
       - "9090:80"
-      
+
   spring-backend:
     depends_on:
       - "mysql"
@@ -29,4 +28,11 @@ services:
       context: backend
       dockerfile: Dockerfile
     ports:
-        - "8080:8080"
+      - "8080:8080"
+
+  angular-client:
+    build:
+      context: client
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
