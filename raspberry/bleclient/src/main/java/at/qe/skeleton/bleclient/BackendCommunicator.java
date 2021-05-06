@@ -14,7 +14,13 @@ public final class BackendCommunicator {
 	private String diceIdFileName;
 
 	public BackendCommunicator() {
-		this.urlPrefix = "http://tg-client.mtse.cc/dice";
+		//System.out.println(System.getenv());
+		this.urlPrefix = System.getenv("BACKEND");
+		if (urlPrefix == null) {
+			throw new NullPointerException("BACKEND environment variable is not set");
+		} 
+		System.out.println("URL of backend: " + urlPrefix);
+		urlPrefix += "/dice";
 		this.diceIdFileName = "timeGuessDiceId.txt";
 		this.diceId = getDiceId();
 	}
