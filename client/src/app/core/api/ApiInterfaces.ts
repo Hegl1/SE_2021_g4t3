@@ -25,16 +25,53 @@ export interface User {
   role: Role;
 }
 
+export interface Team {
+  index: number;
+  name: string;
+  players: User[];
+  score: number;
+}
+
 export interface RunningGame {
   code: number;
   max_score: number;
-  teams: {
-    name: string;
-    players: User[];
-    score: number;
-  }[];
+  teams: Team[];
   host: User;
   category: Category;
+}
+
+export enum GameStatus {
+  Waiting = 'WAITING',
+  Running = 'RUNNING',
+  Finished = 'FINISHED',
+}
+
+export interface RunningGameState extends RunningGame {
+  status: GameStatus;
+  waiting_data: {
+    unassigned_players: User[];
+    ready_players: User[];
+    startable: boolean;
+  } | null;
+  running_data: {
+    round: number;
+    round_pause_time: number;
+    round_start_time: number;
+    current_team: number;
+    current_player: User;
+    expression: string | null;
+    points: number;
+    total_time: number;
+    action: string;
+  } | null;
+}
+
+export interface FinishedData {
+  ranking: Team[];
+  rounds: number;
+  correctExpressions: number;
+  wrongExpressions: number;
+  duration: number;
 }
 
 export interface UserStats {
@@ -80,4 +117,9 @@ export interface DiceMapping {
   action: string;
   time: number;
   points: number;
+}
+
+export interface WebsocketResponse {
+  identifier: string;
+  data: any;
 }

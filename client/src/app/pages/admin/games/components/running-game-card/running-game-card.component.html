@@ -9,7 +9,9 @@
             </tr>
             <tr>
                 <td>Host:</td>
-                <td>{{ runningGame.host.username }}</td>
+                <td>
+                    <tg-player-name [player]="runningGame.host" (click)="$event.stopPropagation()"></tg-player-name>
+                </td>
             </tr>
             <tr>
                 <td>Players:</td>

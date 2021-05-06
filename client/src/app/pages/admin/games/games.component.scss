@@ -1,7 +1,7 @@
 .runningGames {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-gap: 2em;
+  gap: 2em;
 
   @media screen and (max-width: 1600px) {
     grid-template-columns: repeat(3, 1fr);

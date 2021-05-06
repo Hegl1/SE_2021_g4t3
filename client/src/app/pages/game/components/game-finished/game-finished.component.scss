@@ -1,0 +1,48 @@
+@import '../../../../../variables.scss';
+
+.winner {
+  background-color: limegreen;
+  border-radius: 5px;
+  padding: 1rem;
+  font-size: 1.5em;
+  text-align: center;
+
+  width: fit-content;
+
+  margin-bottom: 2rem;
+
+  > * {
+    vertical-align: middle;
+  }
+
+  mat-icon {
+    color: yellow;
+    font-size: 1.5em;
+    margin-right: 0.25em;
+    height: 1em;
+    width: 1ch;
+  }
+}
+
+mat-card {
+  display: inline-block;
+  margin-bottom: 2em;
+
+  &:not(:last-child) {
+    margin-right: 2em;
+  }
+
+  width: fit-content;
+
+  &.rankingCard {
+    tr mat-icon {
+      vertical-align: middle;
+      margin-left: 0.25em;
+      color: yellow;
+    }
+
+    tr span.currentTeam {
+      color: mat-color($accent);
+    }
+  }
+}

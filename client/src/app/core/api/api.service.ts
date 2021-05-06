@@ -3,6 +3,7 @@ import { Expression } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { UserService } from '../auth/user.service';
 import { ConfigService } from '../config/config.service';
+import { GameService } from '../game/game.service';
 import {
   Category,
   CategoryInfo,
@@ -11,6 +12,7 @@ import {
   GlobalStats,
   Role,
   RunningGame,
+  RunningGameState,
   TopGameStats,
   User,
   UserStats,
@@ -134,6 +136,12 @@ export class ApiService {
     return this.handleResponse<{}>(this.http.delete<{}>(`${this.URL}/users/${id}`, this.httpOptions).toPromise());
   }
 
+  isUserIngame(id: number) {
+    return this.handleResponse<boolean>(
+      this.http.get<boolean>(`${this.URL}/users/${id}/ingame`, this.httpOptions).toPromise()
+    );
+  }
+
   // Statistics
 
   getUserStats(id: number) {
@@ -202,8 +210,65 @@ export class ApiService {
     return this.handleResponse<{}>(this.http.get<{}>(`${this.URL}/games/${code}/exists`, this.httpOptions).toPromise());
   }
 
+  joinGame(code: number) {
+    return this.handleResponse<{}>(
+      this.http.post<{}>(`${this.URL}/games/${code}/join`, null, this.httpOptions).toPromise()
+    );
+  }
+
   deleteGame(code: number) {
     return this.handleResponse<{}>(this.http.delete<{}>(`${this.URL}/games/${code}`, this.httpOptions).toPromise());
+  }
+
+  // Ingame
+
+  getIngame() {
+    return this.handleResponse<boolean>(this.http.get<boolean>(`${this.URL}/ingame`, this.httpOptions).toPromise());
+  }
+
+  leaveIngame(code: number) {
+    return this.handleResponse<{}>(
+      this.http.delete<{}>(`${this.URL}/ingame/${code}/leave`, this.httpOptions).toPromise()
+    );
+  }
+
+  getIngameState() {
+    return this.handleResponse<RunningGameState>(
+      this.http.get<RunningGameState>(`${this.URL}/ingame/state`, this.httpOptions).toPromise()
+    );
+  }
+
+  setIngameReady(code: number, state: boolean) {
+    return this.handleResponse<{}>(
+      this.http.post<{}>(`${this.URL}/ingame/${code}/ready`, state, this.httpOptions).toPromise()
+    );
+  }
+
+  joinIngameTeam(code: number, team: number) {
+    return this.handleResponse<{}>(
+      this.http.post<{}>(`${this.URL}/ingame/${code}/teams/${team}/join`, null, this.httpOptions).toPromise()
+    );
+  }
+
+  addIngamePlayerToTeam(code: number, team: number, username: string, password: string) {
+    return this.handleResponse<{}>(
+      this.http
+        .post<{}>(
+          `${this.URL}/ingame/${code}/teams/${team}/players`,
+          {
+            username: username,
+            password: password,
+          },
+          this.httpOptions
+        )
+        .toPromise()
+    );
+  }
+
+  confirmIngame(code: number, confirmation: 'CORRECT' | 'WRONG' | 'INVALID') {
+    return this.handleResponse<{}>(
+      this.http.post<{}>(`${this.URL}/ingame/${code}/confirm`, confirmation, this.httpOptions).toPromise()
+    );
   }
 
   // Expression

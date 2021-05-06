@@ -368,16 +368,16 @@ public class Game {
 			@Override
 			public int compare(final Team o1, final Team o2) {
 				if (o1.getScore() < o2.getScore()) {
-					return -1;
+					return 1;
 				} else if (o1.getScore() == o2.getScore()) {
 					return 0;
 				} else {
-					return 1;
+					return -1;
 				}
 			}
 		});
 
-		FinishedGameDTO finishedGame = new FinishedGameDTO(buildTeamDTOs(teams), category.getName(),
+		FinishedGameDTO finishedGame = new FinishedGameDTO(buildTeamDTOs(teams), roundCounter,
 				getTotalNumberOfCorrectExpressions(), getTotalNumberOfWrongExpressions(), endTime - gameStartTime);
 
 		if (usedExpressions.size() == expressionService.getAllExpressionsByCategory(category).size()) {

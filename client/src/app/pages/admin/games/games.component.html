@@ -31,7 +31,6 @@
         [loading]="loading"
         (closeGame)="closeGame(game.code)"
     ></tg-running-game-card>
-    <!-- TODO: grid -->
 </div>
 
 <mat-spinner diameter="32" style="margin: 1em auto" *ngIf="runningGames === null && !error"></mat-spinner>
