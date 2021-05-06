@@ -55,34 +55,39 @@
   .teamCard {
     overflow: hidden;
 
+    &.current_team {
+      box-shadow: 0 0 13px 1px rgba(0, 0, 0, 0.5);
+      border: 1px solid mat-color($primary);
+
+      .current_team_marker {
+        display: block;
+
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        width: 2em;
+        height: 2em;
+        background-color: mat-color($primary);
+        border-bottom-left-radius: 5px;
+
+        font-size: 0.75rem;
+
+        mat-icon {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+      }
+    }
+
     &:not(.current_team) {
       cursor: pointer;
     }
 
     .current_team_marker {
       display: none;
-    }
-
-    &.current_team .current_team_marker {
-      display: block;
-
-      position: absolute;
-      right: 0;
-      top: 0;
-
-      width: 2em;
-      height: 2em;
-      background-color: mat-color($primary);
-      border-bottom-left-radius: 5px;
-
-      font-size: 0.75rem;
-
-      mat-icon {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
     }
 
     ul.players {
