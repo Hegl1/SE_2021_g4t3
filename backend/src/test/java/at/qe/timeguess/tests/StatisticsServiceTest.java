@@ -6,6 +6,7 @@ import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.CompletedGame;
 import at.qe.timeguess.model.CompletedGameTeam;
 import at.qe.timeguess.repositories.CompletedGameRepository;
+import at.qe.timeguess.repositories.CompletedGameTeamRepository;
 import at.qe.timeguess.services.CategoryService;
 import at.qe.timeguess.services.StatisticsService;
 import at.qe.timeguess.services.UserService;
@@ -32,6 +33,9 @@ public class StatisticsServiceTest {
     private CompletedGameRepository completedGameRepository;
 
     @Autowired
+    private CompletedGameTeamRepository completedGameTeamRepository;
+
+    @Autowired
     private UserService userService;
 
     @Test
@@ -56,6 +60,7 @@ public class StatisticsServiceTest {
 
         CompletedGame completedGame = this.statisticsService.persistCompletedGame(new Date(), new Date(), category, teams);
         Assertions.assertEquals(4, this.completedGameRepository.findAll().size());
+        Assertions.assertEquals(8, this.completedGameTeamRepository.findAll().size());
     }
 
     @Test

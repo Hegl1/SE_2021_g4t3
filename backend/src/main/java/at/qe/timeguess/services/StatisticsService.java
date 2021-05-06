@@ -75,7 +75,6 @@ public class StatisticsService {
         return completedGameTeams;
     }
 
-    // TODO: check for proper persisting
     /**
      * Method that persists a CompletedGame
      *
@@ -89,13 +88,6 @@ public class StatisticsService {
                                               final List<Team> teams) {
 
         CompletedGame completedGame = buildCompletedGame(startTime, endTime, category, teams);
-        List<CompletedGameTeam> completedGameTeams = this.buildCompletedGameTeams(teams);
-
-        for(CompletedGameTeam current : completedGameTeams) {
-            this.completedGameTeamRepository.save(current);
-        }
-
-        // TODO: check if completedGameTeams get persisted twice because of this line
         this.completedGameRepository.save(completedGame);
 
         return completedGame;
