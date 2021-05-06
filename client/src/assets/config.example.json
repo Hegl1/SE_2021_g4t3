@@ -1,4 +1,5 @@
 {
   "api_url": "http://localhost:8080",
-  "websocket_url": "http://localhost:8080/websocket"
+  "websocket_url": "http://localhost:8080/websocket",
+  "critical_battery_level": 10
 }

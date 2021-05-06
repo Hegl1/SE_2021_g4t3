@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserService } from 'src/app/core/auth/user.service';
+import { ConfigService } from 'src/app/core/config/config.service';
 import { GameService } from 'src/app/core/game/game.service';
 
 @Component({
@@ -13,7 +14,12 @@ export class GameRunningComponent implements OnInit {
 
   timer: any = null;
 
-  constructor(public game: GameService, private user: UserService, private snackBar: MatSnackBar) {}
+  constructor(
+    public game: GameService,
+    private user: UserService,
+    private snackBar: MatSnackBar,
+    private config: ConfigService
+  ) {}
 
   ngOnInit() {
     this.startTimer();
@@ -47,6 +53,44 @@ export class GameRunningComponent implements OnInit {
 
   get currentPlayerUser() {
     return this.game.currentState?.running_data?.current_player || null;
+  }
+
+  get isCriticalBatteryLevel() {
+    if (!this.game.currentState) return false;
+
+    return this.game.currentState.dice_info.level <= this.config.get('critical_battery_level', 10);
+  }
+
+  get diceInfo(): { color: string; icon: string; message: string } | null {
+    if (!this.game.currentState) {
+      return null;
+    }
+
+    if (!this.game.currentState?.dice_info.connected) {
+      return {
+        color: 'warn',
+        icon: 'error',
+        message: 'Dice is not connected!',
+      };
+    }
+
+    if (this.game.currentState.running_data?.points === -1) {
+      return {
+        color: 'primary',
+        icon: 'info',
+        message: 'Waiting for next dice throw...',
+      };
+    }
+
+    if (this.isCriticalBatteryLevel) {
+      return {
+        color: 'warn',
+        icon: 'battery_alert',
+        message: `Dice has a critical battery level!`,
+      };
+    }
+
+    return null;
   }
 
   /**

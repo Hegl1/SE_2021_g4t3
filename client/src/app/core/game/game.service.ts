@@ -7,6 +7,7 @@ import { ApiService } from '../api/api.service';
 import { FinishedData, GameStatus, Role, RunningGameState, Team, User } from '../api/ApiInterfaces';
 import { WebsocketService } from '../api/websocket.service';
 import { UserService } from '../auth/user.service';
+import { ConfigService } from '../config/config.service';
 
 const INGAME_QUEUE = '/messagequeue/ingame';
 
@@ -27,7 +28,8 @@ export class GameService {
     private api: ApiService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private user: UserService
+    private user: UserService,
+    private config: ConfigService
   ) {}
 
   /**
@@ -205,6 +207,36 @@ export class GameService {
 
           this.disconnectWebsocket();
 
+          if (data.identifier === 'EARLY_FINISH') {
+            this.snackBar.open(
+              'The game was terminated early, since there are no more unused expressions in this category',
+              'OK',
+              {
+                duration: 5000,
+              }
+            );
+          }
+
+          break;
+        case 'BAT_UPDATE':
+          this._currentState.dice_info.level = data.data.batLevel;
+
+          if (data.data.batLevel <= this.config.get('critical_battery_level', 10)) {
+            this.snackBar.open('Battery level is critical!', 'OK', {
+              duration: 10000,
+              panelClass: 'action-warn',
+            });
+          }
+          break;
+        case 'CONN_UPDATE':
+          this._currentState.dice_info.connected = data.data.connectionStatus;
+
+          if (!data.data.connectionStatus) {
+            this.snackBar.open('Connection to dice lost!', 'OK', {
+              duration: 10000,
+              panelClass: 'action-warn',
+            });
+          }
           break;
       }
     });
@@ -219,8 +251,11 @@ export class GameService {
       this.websocket.subscribeQueue(`${INGAME_QUEUE}/team/${this.code}/${team}`, (data) => {
         if (!this._currentState) return;
 
-        this._currentState.running_data = data.data;
-        this.update.emit('RUNNING_DATA');
+        switch (data.identifier) {
+          case 'RUNNING_DATA':
+            this._currentState.running_data = data.data;
+            this.update.emit('RUNNING_DATA');
+        }
       });
 
       this.teamQueueConnected = true;
