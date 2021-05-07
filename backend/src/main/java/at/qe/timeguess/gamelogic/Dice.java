@@ -16,12 +16,13 @@ public class Dice {
 	 * Default constructor that initializes the dice with the default mapping.
 	 */
 	public Dice() {
-		pointsMapping = new int[12];
-		activityMapping = new String[12];
-		durationMapping = new int[12];
-		this.raspberryConnected = true;
-		loadDefaultMapping();
-	}
+        pointsMapping = new int[12];
+        activityMapping = new String[12];
+        durationMapping = new int[12];
+        this.raspberryConnected = true;
+        this.batteryPower = 100;
+        loadDefaultMapping();
+    }
 
 	/**
 	 * Constructor that initializes the dice with a given mapping. All arrays
