@@ -60,10 +60,9 @@ public final class Main {
 	 *      target="_top">BLE device communication protocol v3.0</a>
 	 */
 	public static void main(String[] args) {
-		BluetoothDevice device = null;
 		try {
 			final String findDeviceName = "TimeFlip";
-			device = connectDevice("TimeFlip");
+			final BluetoothDevice device = connectDevice("TimeFlip");
 
 			if (device == null) {
 				return;
@@ -76,6 +75,10 @@ public final class Main {
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
 					running = false;
+					if(device.getConnected()) {
+						device.disconnect();
+						System.out.println("Connection closed");
+					}
 					lock.lock();
 					try {
 						cv.signalAll();
@@ -119,13 +122,7 @@ public final class Main {
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
 
-		} finally {
-			if (device != null) {
-				device.disconnect();
-				System.out.println("Connection closed");
-			}
-			System.out.println("finally");
-		}
+		} 
 	}
 
 	/**

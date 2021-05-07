@@ -199,26 +199,22 @@ public final class BackendCommunicator {
 			}
 
 			// read the response
-			int status = con.getResponseCode(); // is this sufficient?
+			int status = con.getResponseCode();
 			System.out.println("POST request response status: " + status);
 			if (status == 200) {	
 				return;
 			} else if (status == 404) {
 				System.out.println(urlString + " not found (please check url prefix or dice id)");
-				// TODO maybe delete id-file and request new id if id != null and 404 is received from backend due to wrong id?
 			} else if (status == 400 && urlString.contains("update")) {
 				System.out.println("dice position not in between 0-11");
 			} else if (status == 204 && urlString.contains("connection")) {
 				System.out.println("dice not in a game");
 			} else {
 				System.out.println("POST request response code is not mentioned in REST documentaion");
-				// TODO do i need to read the response body at all or is response code sufficient?
 			} 
 			con.disconnect();
 		} catch (Exception e) {
 			System.out.println("POST request failed. exception caught. please check if central backend is running properly.");
-			// TODO catch all possible exceptions?
-			// this might just be a temporary catch phrase
 		}
 	}
 
@@ -248,18 +244,13 @@ public final class BackendCommunicator {
 					return response.toString();
 				} catch (Exception e) {
 					System.out.println("GET request response exception caught. couldn't read answer.");
-					// TODO handle different responses - catch all possible exceptions?
-					// maybe throw them so the calling method can hande it accordingly?
 				}
 			} else {
 				System.out.println("GET request response code is not mentioned in REST documentaion");
-				// TODO do I need to do anything here?
 			}
 			con.disconnect();
 		} catch (Exception e) {
 			System.out.println("GET request failed. exception caught. please check if central backend is running properly.");
-			// TODO catch all possible exceptions?
-			// this might just be a temporary catch phrase
 		}
 		return null;
 	}
