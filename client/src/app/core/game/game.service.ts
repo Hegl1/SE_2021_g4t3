@@ -211,7 +211,7 @@ export class GameService {
                 'The game was terminated early, since there are no more unused expressions in this category',
                 'OK',
                 {
-                  duration: 5000,
+                  duration: 10000,
                 }
               );
             }
@@ -228,7 +228,7 @@ export class GameService {
             }
             break;
           case 'CONN_UPDATE':
-            this._currentState.dice_info.connected = data.data.connectionStatus;
+            this._currentState.dice_info.status = data.data.connectionStatus;
 
             if (!data.data.connectionStatus) {
               this.snackBar.open('Connection to dice lost!', 'OK', {

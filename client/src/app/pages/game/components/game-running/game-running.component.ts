@@ -74,7 +74,7 @@ export class GameRunningComponent implements OnInit {
       };
     }
 
-    if (!this.game.currentState?.dice_info.connected) {
+    if (!this.game.currentState?.dice_info.status) {
       return {
         color: 'warn',
         icon: 'error',

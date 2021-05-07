@@ -66,7 +66,7 @@ export interface RunningGameState extends RunningGame {
   } | null;
   dice_info: {
     level: number;
-    connected: boolean;
+    status: boolean;
   };
 }
 

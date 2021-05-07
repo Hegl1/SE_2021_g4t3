@@ -32,10 +32,11 @@ export class WebsocketService {
       this.connected = null;
 
       if (!e.wasClean) {
-        // TODO: ignore on reload
-        this.snackBar.open('The connection to the server was interrupted. Please reload the page!', 'OK', {
-          panelClass: 'action-warn',
-        });
+        setTimeout(() => {
+          this.snackBar.open('The connection to the server was interrupted. Please reload the page!', 'OK', {
+            panelClass: 'action-warn',
+          });
+        }, 200);
       }
     });
 
