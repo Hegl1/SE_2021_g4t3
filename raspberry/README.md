@@ -3,9 +3,7 @@ You can find step-by-step instructions on how to get the raspberry side on the T
 
 ## Installation
 
-The installation script contains all commands needed to install **TODO**.
-
-Locate the file installScript.sh in the raspberry folder. 
+Locate the file `installScript.sh` in the `raspberry` folder. 
 
 Run it: ```sudo bash installScript.sh```
 
@@ -13,21 +11,23 @@ If any problems occur, please have a look at [Java und Bluetooth Low Energy auf 
 
 ## Build
 
-Locate the file buildScript.sh in the raspberry folder. 
+Locate the file `buildScript.sh` in the `raspberry` folder. 
 
 Run it: ```sudo bash buildScript.sh```
 
 If you decide, for whatever reason, to build it with tests and javadoc, by replacing in the script the line  ```mvn clean package -Dmaven.test.skip=true -Dmaven.javadoc.skip=true``` with ```mvn clean package```, you need to make sure that:
 - the central backend is up and running 
-- the file timeGuessBackendUrl.txt in the folder bleclient contains the **correct URL of the backend**
+- the file `timeGuessBackendUrl.txt` in the folder bleclient contains the **correct URL of the backend**
 
 Those steps are also **essential** steps before running the execution script.
 
 ## Execution
 
-Make sure that the **backend is running** and that you write the **correct URL of the backend** into the file timeGuessBackendUrl.txt in the folder bleclient or create such a file if it doesn't exist, **before** running the execution script. **TODO** how to find the right IP/URL?
+Make sure that the **backend is running** and that you write the **correct URL of the backend** into the file `timeGuessBackendUrl.txt` in the folder `bleclient` or create such a file if it doesn't exist, **before** running the execution script. You can get the IP of the backend by executing the following command on the computer you are running the backend on: 
+- windows: `ipconfig`
+- linux: `ifconfig`
 
-Also make sure to **delete the file timeGuessDiceId.txt** (if existent) in the bleclient folder before execution of the program, **if it's going to be the first execution** of the program on the raspberry **after a fresh start of the central backend**. The ID which is saved in that file is only valid and registered with the backend as long as the backend is running.
+Also make sure to **delete the file `timeGuessDiceId.txt`** (if existent) in the bleclient folder before execution of the program, **if it's going to be the first execution** of the program on the raspberry **after a fresh start of the central backend**. The ID which is saved in that file is only valid and registered with the backend as long as the backend is running.
 
 The dice should be assembled and lying on a straight surface.
 
@@ -56,7 +56,7 @@ notifications should be turned on now
 ```
 After this point you can start throwing your dice. I recommend cleanly putting the dice on each of its facets at least once, ideally on a straight surface. That way the mapping of the facets of the TimeFlip dice will work the best.
 
-To stop the program at any time, just press CTRL+C.
+To stop the program at any time, just press `CTRL+C`.
 
 ### You're having problems?
 - If there occurs a fatal error after starting the program, please try to just re-run the program. It usually just magically works the second time, in case that error occurred.
