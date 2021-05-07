@@ -1,4 +1,4 @@
-# TimeGuess on the Raspberry (UNFINISHED)
+# TimeGuess on the Raspberry
 You can find step-by-step instructions on how to get the raspberry side on the TimeGuess game running below.
 
 ## Installation
@@ -17,7 +17,7 @@ Run it: ```sudo bash buildScript.sh```
 
 If you decide, for whatever reason, to build it with tests and javadoc, by replacing in the script the line  ```mvn clean package -Dmaven.test.skip=true -Dmaven.javadoc.skip=true``` with ```mvn clean package```, you need to make sure that:
 - the central backend is up and running 
-- the file `timeGuessBackendUrl.txt` in the folder bleclient contains the **correct URL of the backend**
+- the file `timeGuessBackendUrl.txt` in the folder `bleclient` contains the **correct URL of the backend**
 
 Those steps are also **essential** steps before running the execution script.
 
@@ -31,7 +31,7 @@ Also make sure to **delete the file `timeGuessDiceId.txt`** (if existent) in the
 
 The dice should be assembled and lying on a straight surface.
 
-Locate the file executeScript.sh in the raspberry folder. 
+Locate the file `executeScript.sh` in the `raspberry` folder. 
 
 Run it: ```sudo bash executeScript.sh```
 
