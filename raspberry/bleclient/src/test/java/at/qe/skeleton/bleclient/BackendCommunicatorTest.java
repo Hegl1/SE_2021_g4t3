@@ -14,7 +14,7 @@ public class BackendCommunicatorTest {
     public void testBackendCommunicator() {
         BackendCommunicator backendCommunicator = new BackendCommunicator();
         Assert.assertNotNull(backendCommunicator);
-        Assert.assertNotNull(backendCommunicator.getUrlPrefix());
+        Assert.assertNotNull(backendCommunicator.getBackendUrlPrefix());
         Assert.assertNotNull(backendCommunicator.getDiceId());
         Assert.assertNotNull(backendCommunicator.getDiceIdFileName());
     }
@@ -22,7 +22,7 @@ public class BackendCommunicatorTest {
     @Test
     public void testSendGetRequest() {
         BackendCommunicator backendCommunicator = new BackendCommunicator();
-        String urlString = backendCommunicator.getUrlPrefix() + "/register";
+        String urlString = backendCommunicator.getBackendUrlPrefix() + "/register";
         String response = backendCommunicator.sendGetRequest(urlString);
         Assert.assertNotNull(response);
     }

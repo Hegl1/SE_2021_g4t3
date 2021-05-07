@@ -80,5 +80,3 @@ nbdist/
 *.iws
 *.iml
 out
-
-.env

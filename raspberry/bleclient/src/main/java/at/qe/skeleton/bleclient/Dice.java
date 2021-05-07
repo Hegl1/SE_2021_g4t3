@@ -28,7 +28,7 @@ public final class Dice {
 
 	private static final byte[] passwordConfig = { 0x30, 0x30, 0x30, 0x30, 0x30, 0x30 };
 
-	public Dice(BluetoothDevice device) {
+	public Dice(BluetoothDevice device) throws NullPointerException {
 		this.device = device;
 		this.backendCommunicator = new BackendCommunicator();
 		this.id = this.backendCommunicator.getDiceId();

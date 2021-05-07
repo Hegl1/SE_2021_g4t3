@@ -104,7 +104,7 @@ public class FindDevicesManagerTest {
         Assert.assertNotNull(findDevicesManager3.getFoundDevices());
     }
 
-    private List<BluetoothDevice> utilMockDevices() {
+    public List<BluetoothDevice> utilMockDevices() {
         List<BluetoothDevice> mockDevices = new ArrayList<>();
 
         BluetoothDevice mockTimeFlip1 = Mockito.mock(BluetoothDevice.class);
