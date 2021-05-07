@@ -1,5 +1,5 @@
 # TimeGuess on the Raspberry
-You can find step-by-step instructions on how to get the raspberry side on the TimeGuess game running below.
+You can find step-by-step instructions on how to get the raspberry side of the TimeGuess game running below.
 
 ## Installation
 
@@ -36,6 +36,7 @@ Locate the file `executeScript.sh` in the `raspberry` folder.
 Run it: ```sudo bash executeScript.sh```
 
 I strongly recommend to have a look at your terminal to check if everythings works as it's supposed to. 
+
 Example of an ideal output:
 ```The discovery started: true
 ...
