@@ -9,20 +9,33 @@ import java.io.*;
  * Class that contains methods to send HTTP requests to the backend.
  */
 public final class BackendCommunicator {
-	private String urlPrefix;
 	private String diceId;
 	private String diceIdFileName;
+	private String backendUrlPrefix;
+	private String backendUrlFileName;
 
-	public BackendCommunicator() {
-		//System.out.println(System.getenv());
-		this.urlPrefix = System.getenv("BACKEND");
-		if (urlPrefix == null) {
-			throw new NullPointerException("BACKEND environment variable is not set");
-		} 
-		System.out.println("URL of backend: " + urlPrefix);
-		urlPrefix += "/dice";
+	public BackendCommunicator() throws NullPointerException {
+		this.backendUrlFileName = "timeGuessBackendUrl.txt";
+		this.backendUrlPrefix = readBackendUrlFromFile();
+		if (backendUrlPrefix == null) {
+			throw new NullPointerException("backend URL");
+		}
+		System.out.println("URL of backend: " + backendUrlPrefix);
+		backendUrlPrefix += "/dice";
 		this.diceIdFileName = "timeGuessDiceId.txt";
 		this.diceId = getDiceId();
+	}
+
+	public String getBackendUrlPrefix() {
+		return this.backendUrlPrefix;
+	}
+
+	public String getDiceIdFileName() {
+		return this.diceIdFileName;
+	}
+
+	public void setDiceIdFileName(String diceIdFileName) {
+		this.diceIdFileName = diceIdFileName;
 	}
 
 	/**
@@ -38,7 +51,7 @@ public final class BackendCommunicator {
 		if (this.diceId == null) { 
 			String savedDiceId = readIdFromFile();
 			if (savedDiceId == null) {
-				String urlString = urlPrefix + "/register";
+				String urlString = backendUrlPrefix + "/register";
 				String newDiceId = sendGetRequest(urlString);
 				if (newDiceId == null) {
 					System.out.println("couldn't get an ID from the central backend");
@@ -55,11 +68,41 @@ public final class BackendCommunicator {
 	}
 
 	/**
+	 * Reads the URL of the central backend from a file if that file exists. 
+	 * NOTE:
+	 * The backend URL file should always exist and contain the correct URL.
+	 * The backend should already be up and running when this program gets executed on the raspberry.
+	 * 
+	 * @return the backend URL if a file with a backend URL exists, null otherwise
+	 */
+	public String readBackendUrlFromFile() {
+		File file = new File(this.backendUrlFileName);
+		if (file.exists()) {
+			System.out.println("backend URL file exists");
+			try { 
+				BufferedReader reader = new BufferedReader(new FileReader(file));
+    			String backendUrl = reader.readLine();
+   				reader.close();
+				System.out.println("backend URL successfully read from file");
+				return backendUrl;
+			} catch (IOException e) {
+				System.out.println("backend URL couldn't be read from file");
+				return null;
+			}		
+		} else {
+			System.out.println("~~~~~~ WRONG USAGE OF PROGRAM DETECTED ~~~~~~");
+			System.out.println("file 'timeGuessBackendUrl.txt' doesn't exist in folder 'bleclient'. please make sure the file exists and contains the correct URL of the central backend");
+			System.out.println("(also make sure the central backend is up and running when running this program on the raspberry)");
+			return null;
+		}	
+	}
+
+	/**
 	 * Reads the already registered raspberry/dice ID from a file if that file exists.
 	 * 
 	 * @return the registered ID if a file with an ID exists, null otherwise
 	 */
-	private String readIdFromFile() {	
+	public String readIdFromFile() {	
 		File file = new File(this.diceIdFileName);
 		if (file.exists()) {
 			System.out.println("ID file exists");
@@ -84,7 +127,7 @@ public final class BackendCommunicator {
 	 * 
 	 * @param newDiceId the ID to be saved
 	 */
-	private void saveIdToFile(String newDiceId) {
+	public void saveIdToFile(String newDiceId) {
 		try {
 			File file = new File(this.diceIdFileName);
     		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
@@ -104,7 +147,7 @@ public final class BackendCommunicator {
 	 */
 	public void postDicePosition(int dicePosition) {
 		String body = String.valueOf(dicePosition);
-		String urlString = urlPrefix + "/" + diceId + "/update";
+		String urlString = backendUrlPrefix + "/" + diceId + "/update";
 		sendPostRequest(urlString, body);
 	}
 
@@ -116,7 +159,7 @@ public final class BackendCommunicator {
 	 */
 	public void postBatteryStatus(int batteryLevel) {
 		String body = String.valueOf(batteryLevel);
-		String urlString = urlPrefix + "/" + diceId + "/notify/battery";
+		String urlString = backendUrlPrefix + "/" + diceId + "/notify/battery";
 		sendPostRequest(urlString, body);
 	}
 
@@ -127,7 +170,7 @@ public final class BackendCommunicator {
 	 */
 	public void postConnectionStatus(boolean connectionStatus) {
 		String body = String.valueOf(connectionStatus);
-		String urlString = urlPrefix + "/" + diceId + "/notify/connection";
+		String urlString = backendUrlPrefix + "/" + diceId + "/notify/connection";
 		sendPostRequest(urlString, body);
 	}
 

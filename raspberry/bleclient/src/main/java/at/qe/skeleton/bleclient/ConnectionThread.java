@@ -65,7 +65,7 @@ public class ConnectionThread extends Thread {
 	 * @param device the disconnected bluetooth device
      * @return true if reconnecting was successful, false otherwise
 	 */
-    private boolean reconnectDevice(BluetoothDevice device) {
+    public boolean reconnectDevice(BluetoothDevice device) {
         System.out.println("Trying to reconnect to the TimeFlip device");
         boolean reconnected = false;
         for (int i = 1; i <= ATTEMPTS_TO_FIND; i++) {

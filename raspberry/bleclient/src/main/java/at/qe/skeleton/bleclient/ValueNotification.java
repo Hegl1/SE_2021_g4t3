@@ -20,6 +20,14 @@ class ValueNotification implements BluetoothNotification<byte[]> {
         this.availableFacetValues = fillListWithValues(new ArrayList<>());
     }
 
+    public Map<Integer, Integer> getFacetMapping() {
+        return this.facetMapping;
+    }
+
+    public List<Integer> getAvailableFacetValues() {
+        return this.availableFacetValues;
+    }
+
     /**
 	 * Method that runs each time the TimeFlip dice sends a notification for new facet values.
      * 
