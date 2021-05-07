@@ -10,17 +10,17 @@ WORKDIR=$PWD
 apt update
 apt upgrade
 
-apt install git
-apt install cmake
+apt install git -y
+apt install cmake -y
 
-apt install openjdk-8-jdk
+apt install openjdk-8-jdk -y
 update-alternatives --config java
 
 echo "\nexport JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/" >> ~/.bashrc
 source ~/.bashrc
 
-apt install maven
-apt install libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline-dev
+apt install maven -y
+apt install libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline-dev -y
 
 mkdir ~/bluez
 cd ~/bluez
@@ -32,20 +32,22 @@ make install
 
 cd $WORKDIR
 
-# TODO:
-#sed -i '27i\\
-#  <policy group="bluetooth">\\
-#    <allow send_destination="org.bluez"/>\\
-#  </policy>\\
-#' /etc/dbus-1/system.d/bluetooth.conf 
+bluetoothConfig=$(cat /etc/dbus-1/system.d/bluetooth.conf)
+insertText=( "<policy group=\"bluetooth\">\n"
+        "<allow send_destination=\"org.bluez\"/>\n"
+"</policy>" )
+if [[ $bluetoothConfig != *"${insertText[*]}"* ]];
+then
+        sed -i '/<\/busconfig>/i'\ "${insertText[*]}\ " /etc/dbus-1/system.d/bluetooth.conf
+fi
 
 adduser --system --no-create-home --group --disabled-login openhab
 usermod -a -G bluetooth openhab
 systemctl daemon-reload
 systemctl restart bluetooth
 
-apt install graphviz
-apt install doxygen
+apt install graphviz -y
+apt install doxygen -y
 
 git clone https://github.com/intel-iot-devkit/tinyb.git && cd tinyb
 mkdir build
