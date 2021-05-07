@@ -78,6 +78,32 @@
       }
     }
   }
+
+  .dice_battery {
+    > * {
+      vertical-align: middle;
+    }
+
+    mat-icon {
+      margin-right: 0.25em;
+      font-size: 1.5em;
+    }
+  }
+
+  .dice_info {
+    background: $foreground;
+    color: $background;
+    border-radius: 2px;
+    padding: 0.5em;
+
+    > * {
+      vertical-align: middle;
+    }
+
+    mat-icon {
+      margin-right: 0.5em;
+    }
+  }
 }
 
 .teams {

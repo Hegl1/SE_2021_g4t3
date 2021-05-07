@@ -27,7 +27,10 @@
 
         <h3>TimeFlip configuration</h3>
         <h4>
-            Connection <button mat-icon-button (click)="showHelpConnection()"><mat-icon>help_outline</mat-icon></button>
+            Connection
+            <button mat-icon-button (click)="showHelpConnection()" type="button" tabindex="-1">
+                <mat-icon>help_outline</mat-icon>
+            </button>
         </h4>
         <mat-form-field
             appearance="outline"
@@ -35,7 +38,13 @@
             style="display: inline-block; vertical-align: sub; margin-right: 1em"
         >
             <mat-label>TimeFlip code</mat-label>
-            <input matInput type="text" formControlName="dice_code" [matAutocomplete]="auto" />
+            <input
+                matInput
+                type="text"
+                formControlName="dice_code"
+                [matAutocomplete]="auto"
+                (keyup.enter)="!loading_dice && dice_code?.value && checkDice()"
+            />
 
             <mat-autocomplete #auto="matAutocomplete">
                 <mat-option *ngFor="let option of diceHistory" [value]="option">
@@ -59,7 +68,10 @@
         </button>
 
         <h4>
-            Mapping <button mat-icon-button (click)="showHelpMapping()"><mat-icon>help_outline</mat-icon></button>
+            Mapping
+            <button mat-icon-button (click)="showHelpMapping()" type="button" tabindex="-1">
+                <mat-icon>help_outline</mat-icon>
+            </button>
         </h4>
         <mat-form-field
             appearance="outline"

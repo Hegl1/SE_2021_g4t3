@@ -35,9 +35,9 @@ export class JoinGameCardComponent {
       joinCode = joinCode.substr(0, 8);
     }
 
-    let code = parseInt(joinCode) || null;
+    let code = parseInt(joinCode);
 
-    if (code === null) {
+    if (isNaN(code)) {
       this.input = '';
       return;
     }
