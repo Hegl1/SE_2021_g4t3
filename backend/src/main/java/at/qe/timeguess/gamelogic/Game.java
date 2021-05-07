@@ -18,54 +18,54 @@ import java.util.*;
  */
 public class Game {
 
-	private static WebSocketService webSocketService;
-	private static ExpressionService expressionService;
-	private static LobbyService lobbyService;
-	private static StatisticsService statsService;
+    private static WebSocketService webSocketService;
+    private static ExpressionService expressionService;
+    private static LobbyService lobbyService;
+    private static StatisticsService statsService;
 
-	// general game information
-	private int gameCode;
-	private String raspberryId;
-	private Dice dice;
-	private int maxPoints;
-	private int numberOfTeams;
-	private Category category;
-	private User host;
-	private boolean active;
-	private List<Team> teams;
-	private List<User> usersWithDevices;
+    // general game information
+    private int gameCode;
+    private String raspberryId;
+    private Dice dice;
+    private int maxPoints;
+    private int numberOfTeams;
+    private Category category;
+    private User host;
+    private boolean active;
+    private List<Team> teams;
+    private Set<User> usersWithDevices;
 
-	// setup phase
-	private Map<User, Boolean> readyPlayers;
-	private List<User> unassignedUsers;
+    // setup phase
+    private Map<User, Boolean> readyPlayers;
+    private List<User> unassignedUsers;
 
-	// ingame phase
-	private int currentTeam;
-	private int roundCounter;
-	private Integer currentFacet;
-	private Set<Long> usedExpressions;
-	private Expression currentExpression;
-	private Long roundStartTime;
-	private Long roundEndTime;
-	private long gameStartTime;
-	private boolean expressionConfirmed;
+    // ingame phase
+    private int currentTeam;
+    private int roundCounter;
+    private Integer currentFacet;
+    private Set<Long> usedExpressions;
+    private Expression currentExpression;
+    private Long roundStartTime;
+    private Long roundEndTime;
+    private long gameStartTime;
+    private boolean expressionConfirmed;
 
-	/**
-	 * Minimal constructor for testing purposes
-	 *
-	 * @param code the gamecode
-	 */
-	public Game(final int code) {
-		this.teams = new ArrayList<>();
-		this.readyPlayers = new HashMap<>();
-		this.usersWithDevices = new LinkedList<>();
-		this.usedExpressions = new TreeSet<>();
-		this.unassignedUsers = new LinkedList<>();
-		this.active = false;
-		this.gameCode = code;
-		this.dice = new Dice();
-		dice.setRaspberryConnected(true);
-	}
+    /**
+     * Minimal constructor for testing purposes
+     *
+     * @param code the gamecode
+     */
+    public Game(final int code) {
+        this.teams = new ArrayList<>();
+        this.readyPlayers = new HashMap<>();
+        this.usersWithDevices = new HashSet<>();
+        this.usedExpressions = new TreeSet<>();
+        this.unassignedUsers = new LinkedList<>();
+        this.active = false;
+        this.gameCode = code;
+        this.dice = new Dice();
+        dice.setRaspberryConnected(true);
+    }
 
 	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
 			final String raspberryId) throws GameCreationException {
@@ -112,13 +112,13 @@ public class Game {
 			addToReadyMapIfNotAlreadyExists(player, false);
 		} else if (!isInGame(player) && active) {
 			throw new GameAlreadyRunningException();
-		} else {
-			if (!active) {
-				readyPlayers.put(player, false);
-				usersWithDevices.add(player);
-				webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
-			}
-		}
+        } else {
+            usersWithDevices.add(player);
+            if (!active) {
+                readyPlayers.put(player, false);
+                webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+            }
+        }
 	}
 
 	/**
@@ -720,26 +720,26 @@ public class Game {
 
 	public Dice getDice() {
 		return dice;
-	}
+    }
 
-	public List<User> getUnassignedUsers() {
-		return this.unassignedUsers;
-	}
+    public List<User> getUnassignedUsers() {
+        return this.unassignedUsers;
+    }
 
-	public int getMaxPoints() {
-		return this.maxPoints;
-	}
+    public int getMaxPoints() {
+        return this.maxPoints;
+    }
 
-	public List<User> getUsersWithDevices() {
-		return this.usersWithDevices;
-	}
+    public Set<User> getUsersWithDevices() {
+        return this.usersWithDevices;
+    }
 
-	public boolean isActive() {
-		return active;
-	}
+    public boolean isActive() {
+        return active;
+    }
 
-	public class UserStateException extends Exception {
-		private static final long serialVersionUID = 1L;
+    public class UserStateException extends Exception {
+        private static final long serialVersionUID = 1L;
 
 		public UserStateException(final String message) {
 			super(message);
