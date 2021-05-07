@@ -214,12 +214,12 @@ public class Game {
 	}
 
 	/**
-	 * Method to update the ready status of a user. Also sneds messages to frontend
-	 * via websocket.
-	 *
-	 * @param user    user to update the ready status of.
-	 * @param isReady new ready status.
-	 */
+     * Method to update the ready status of a user. Also sends messages to frontend
+     * via websocket.
+     *
+     * @param user    user to update the ready status of.
+     * @param isReady new ready status.
+     */
 	public void updateReadyStatus(final User user, final Boolean isReady) {
         if (user.equals(host) && isReady.equals(false)) {
             // hosts sets ready to false
@@ -278,31 +278,31 @@ public class Game {
 	 * accepts updates in appropriate situations, otherwise does nothing.
 	 */
 	public void diceUpdate(final int facet) {
-		if (roundStartTime == -1 && dice.isRaspberryConnected()) {
-			// between round phase - start timer
-			roundStartTime = System.currentTimeMillis() / 1000L;
-			currentFacet = facet;
-			sendRunningDataToTeams();
+        if (roundStartTime == -1 && dice.isRaspberryConnected()) {
+            // between round phase - start timer
+            roundStartTime = System.currentTimeMillis() / 1000L;
+            currentFacet = facet;
+            sendRunningDataToTeams();
 
-		} else {
-			if (roundStartTime != -1L && roundEndTime == -1L && dice.isRaspberryConnected()) {
-				roundEndTime = System.currentTimeMillis() / 1000L;
-				sendRunningDataToTeams();
-			}
-		}
-	}
+        } else {
+            if (roundStartTime != -1L && roundEndTime == -1L && dice.isRaspberryConnected()) {
+                roundEndTime = System.currentTimeMillis() / 1000L;
+                sendRunningDataToTeams();
+            }
+        }
+    }
 
-	/**
-	 * Method that handles when a team confirms whether the current team guessed
-	 * correct, wrong or invald. only changes gameflow in appropriate situations -
-	 * in other situations it does nothing.
-	 *
-	 * @param descision can either be CORRECT, IVALID or WRONG
-	 */
-	public synchronized void confirmExpression(final String descision) {
+    /**
+     * Method that handles when a team confirms whether the current team guessed
+     * correct, wrong or invalid. only changes game flow in appropriate situations -
+     * in other situations it does nothing.
+     *
+     * @param decision can either be CORRECT, INVALID or WRONG
+     */
+    public synchronized void confirmExpression(final String decision) {
         if (roundStartTime != -1 && !expressionConfirmed && dice.isRaspberryConnected()) {
             expressionConfirmed = true;
-            if (descision.equals("CORRECT")) {
+            if (decision.equals("CORRECT")) {
                 teams.get(currentTeam).incrementScore(dice.getPoints(currentFacet));
                 teams.get(currentTeam).incrementCorrectExpressions();
                 webSocketService.sendScoreChangeToFrontend(gameCode,
@@ -311,7 +311,7 @@ public class Game {
                     finishGame(false);
                     return;
                 }
-            } else if (descision.equals("INVALID")) {
+            } else if (decision.equals("INVALID")) {
                 teams.get(currentTeam).decrementScore(1);
                 teams.get(currentTeam).incrementWrongExpressions();
                 webSocketService.sendScoreChangeToFrontend(gameCode,
@@ -337,11 +337,11 @@ public class Game {
      * Can get called by an admin to force close the game.
      */
     public void forceClose() {
-        webSocketService.sendGameNotContinueableToFrontend(gameCode);
+        webSocketService.sendGameNotContinuableToFrontend(gameCode);
     }
 
     /**
-     * Method that finishes the game properly. Users get notfied of an early end if
+     * Method that finishes the game properly. Users get notified of an early end if
      * no expressions are left in the category.
      */
     public void finishGame(final boolean earlyFinish) {
@@ -372,27 +372,27 @@ public class Game {
 
     }
 
-	/**
-	 * Persist all the neccessary information of the finished game
-	 */
-	private void persistFinishedGame() {
-		statsService.persistCompletedGame(new Date(gameStartTime * 1000L), new Date(), category, teams);
-	}
+    /**
+     * Persist all the necessary information of the finished game
+     */
+    private void persistFinishedGame() {
+        statsService.persistCompletedGame(new Date(gameStartTime * 1000L), new Date(), category, teams);
+    }
 
-	/**
-	 * Method that updates the dices battery status
-	 */
-	public void updateDiceBattery(final int batteryStatus) {
-		this.dice.setBatteryPower(batteryStatus);
-		webSocketService.sendBatteryUpdateToFrontend(gameCode, new BatteryUpdateDTO(batteryStatus));
-	}
+    /**
+     * Method that updates the dices battery status
+     */
+    public void updateDiceBattery(final int batteryStatus) {
+        this.dice.setBatteryPower(batteryStatus);
+        webSocketService.sendBatteryUpdateToFrontend(gameCode, new BatteryUpdateDTO(batteryStatus));
+    }
 
-	/**
-	 * Method that updates the dices connection status. Blocks active gameflow if
-	 * dice is disconected and starts a fresh round with a fresh expression upon
-	 * reconnection.
-	 */
-	public void updateDiceConnection(final boolean isConnected) {
+    /**
+     * Method that updates the dices connection status. Blocks active game flow if
+     * dice is disconnected and starts a fresh round with a fresh expression upon
+     * reconnection.
+     */
+    public void updateDiceConnection(final boolean isConnected) {
 
         currentFacet = null;
         roundStartTime = -1L;
@@ -449,7 +449,7 @@ public class Game {
 	 * @return true iff no unassigneds, enough devices and all teams > 2 users.
 	 */
 	private boolean checkGameStartable() {
-        final boolean unassigneds = this.unassignedUsers.size() == 0;
+        final boolean unassigned = this.unassignedUsers.size() == 0;
         final boolean devices = allTeamsEnoughPlayersWithDevice();
         boolean teamSizes = true;
         for (final Team t : teams) {
@@ -458,7 +458,7 @@ public class Game {
                 break;
             }
         }
-        return unassigneds && devices && teamSizes;
+        return unassigned && devices && teamSizes;
     }
 
 	/**
@@ -558,12 +558,12 @@ public class Game {
 		}
 	}
 
-	/**
-	 * Method that calculates the total number of correct expressions.
-	 *
-	 * @return total number of correct expressions.
-	 */
-	private int getTotalNumberOfCorrectExpressions() {
+    /**
+     * Method that calculates the total number of correct expressions.
+     *
+     * @return total number of correct expressions.
+     */
+    private int getTotalNumberOfCorrectExpressions() {
         int result = 0;
         for (final Team t : teams) {
             result += t.getNumberOfCorrectExpressions();
@@ -571,12 +571,12 @@ public class Game {
         return result;
     }
 
-	/**
-	 * Method that calulcates the total number of wrong expressions.
-	 *
-	 * @return total number of wrong expressions.
-	 */
-	private int getTotalNumberOfWrongExpressions() {
+    /**
+     * Method that calculates the total number of wrong expressions.
+     *
+     * @return total number of wrong expressions.
+     */
+    private int getTotalNumberOfWrongExpressions() {
         int result = 0;
         for (final Team t : teams) {
             result += t.getNumberOfCorrectExpressions();
@@ -584,12 +584,12 @@ public class Game {
         return result;
     }
 
-	/**
-	 * Builds a List of all ready players
-	 *
+    /**
+     * Builds a List of all ready players
+     *
 	 * @return List of ready players.
-	 */
-	public List<User> buildReadyPlayerList() {
+     */
+    public List<User> buildReadyPlayerList() {
         final List<User> result = new LinkedList<>();
         for (final User current : readyPlayers.keySet()) {
             if (readyPlayers.get(current)) {
@@ -599,25 +599,25 @@ public class Game {
         return result;
     }
 
-	/**
-	 * Builds a WaitingDataDTO from current game information.
-	 *
-	 * @return a correct WaitingDataDTO.
-	 */
-	public WaitingDataDTO buildWaitingDataDTO() {
-		return new WaitingDataDTO(unassignedUsers, buildReadyPlayerList(), checkGameStartable());
-	}
+    /**
+     * Builds a WaitingDataDTO from current game information.
+     *
+     * @return a correct WaitingDataDTO.
+     */
+    public WaitingDataDTO buildWaitingDataDTO() {
+        return new WaitingDataDTO(unassignedUsers, buildReadyPlayerList(), checkGameStartable());
+    }
 
-	/**
-	 * Builds a RunningDataDTO from current game information. If isCurrendTeam is
-	 * true, category is omitted.
-	 *
-	 * @param isCurrendTeam true when building for currently guessing team, else
-	 *                      false.
-	 * @return a correct RunningDataDTO
-	 */
-	public RunningDataDTO buildRunningDataDTO(final boolean isCurrendTeam) {
-        if (isCurrendTeam) {
+    /**
+     * Builds a RunningDataDTO from current game information. If isCurrentTeam is
+     * true, category is omitted.
+     *
+     * @param isCurrentTeam true when building for currently guessing team, else
+     *                      false.
+     * @return a correct RunningDataDTO
+     */
+    public RunningDataDTO buildRunningDataDTO(final boolean isCurrentTeam) {
+        if (isCurrentTeam) {
             return new RunningDataDTO(roundCounter / numberOfTeams, roundEndTime, roundStartTime, currentTeam, getCurrentPlayer(), null,
                 dice.getPoints(currentFacet), dice.getDurationInSeconds(currentFacet),
                 dice.getActivity(currentFacet));
@@ -628,13 +628,13 @@ public class Game {
         }
     }
 
-	/**
-	 * Method that builds a StateUpdateDTO from currenct game information. If game
-	 * is active, waiting information gets omitted and vice versa.
-	 *
-	 * @return a correct StateUpdateDTO
-	 */
-	public StateUpdateDTO buildStateUpdate() {
+    /**
+     * Method that builds a StateUpdateDTO from current game information. If game
+     * is active, waiting information gets omitted and vice versa.
+     *
+     * @return a correct StateUpdateDTO
+     */
+    public StateUpdateDTO buildStateUpdate() {
 
         if (isActive()) {
             final RunningDataDTO runningData = buildRunningDataDTO(false);

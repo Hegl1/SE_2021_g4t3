@@ -1,8 +1,8 @@
 package at.qe.timeguess.controllers;
 
+import at.qe.timeguess.dto.CreateUserDTO;
 import at.qe.timeguess.dto.Login;
 import at.qe.timeguess.dto.LoginResult;
-import at.qe.timeguess.dto.CreateUserDTO;
 import at.qe.timeguess.dto.UpdateUserDTO;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.model.UserRole;
@@ -42,7 +42,7 @@ public class UserController {
      * Method that returns a JWT Token needed for authorization upon successful login.
      *
      * @param login DTO that contains username and password
-     * @return ResponseEntity: Status 401 when wrong credenentials are entered, Status 200 with LoginResult DTO when
+     * @return ResponseEntity: Status 401 when wrong credentials are entered, Status 200 with LoginResult DTO when
      * login was successful
      */
     @PostMapping("/login")
@@ -238,7 +238,7 @@ public class UserController {
     /**
      * Method searches users by username  based on the given search parameter.
      *
-     * @param username string that is used to seach usernames
+     * @param username string that is used to search usernames
      * @return a list of usernames that match search pattern
      */
     @GetMapping("search/{username}")

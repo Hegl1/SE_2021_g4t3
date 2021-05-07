@@ -27,7 +27,7 @@ import java.util.Map;
 public class WebSocketService {
 
     @Autowired
-    private SimpMessagingTemplate simpMessageingTemplate;
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -60,16 +60,16 @@ public class WebSocketService {
      * @param content waitingDataDTO
      */
     public void sendWaitingDataToFrontend(final int id, final WaitingDataDTO content) {
-        simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("READY_UPDATE", content));
+        simpMessagingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("READY_UPDATE", content));
     }
 
     /**
-     * Method that notifies content that the game is not continueable.
+     * Method that notifies content that the game is not continuable.
      *
      * @param id the gamecode
      */
-    public void sendGameNotContinueableToFrontend(final int id) {
-        simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("GAME_NOT_CONTINUEABLE", null));
+    public void sendGameNotContinuableToFrontend(final int id) {
+        simpMessagingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("GAME_NOT_CONTINUEABLE", null));
     }
 
     /**
@@ -79,7 +79,7 @@ public class WebSocketService {
      * @param teams List of teamDTOs to update frontend with.
      */
     public void sendTeamUpdateToFrontend(final int id, final List<TeamDTO> teams) {
-        simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id,
+        simpMessagingTemplate.convertAndSend(INGAMEQUEUE + id,
             new ResponseDTO("TEAM_UPDATE", new TeamResponseDTO(teams)));
     }
 
@@ -91,7 +91,7 @@ public class WebSocketService {
      * @param content   RunningDataDTO containgn updates
      */
     public void sendRunningDataToTeam(final int id, final int teamIndex, final RunningDataDTO content) {
-        simpMessageingTemplate.convertAndSend(TEAMQUEUE + id + "/" + teamIndex,
+        simpMessagingTemplate.convertAndSend(TEAMQUEUE + id + "/" + teamIndex,
             new ResponseDTO("RUNNING_DATA", content));
     }
 
@@ -102,7 +102,7 @@ public class WebSocketService {
      * @param update ScoreUpdateDTO
      */
     public void sendScoreChangeToFrontend(final int id, final ScoreUpdateDTO update) {
-        simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("SCORE_UPDATE", update));
+        simpMessagingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("SCORE_UPDATE", update));
     }
 
     /**
@@ -112,17 +112,17 @@ public class WebSocketService {
      * @param update BatteryUpdateDTO
      */
     public void sendBatteryUpdateToFrontend(final int id, final BatteryUpdateDTO update) {
-        simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("BAT_UPDATE", update));
+        simpMessagingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("BAT_UPDATE", update));
     }
 
     /**
-     * Method taht sends Dice-Raspberry connection updates to frontend.
+     * Method that sends Dice-Raspberry connection updates to frontend.
      *
      * @param id     the gamecode
      * @param update DiceConnectionUpdateDTO
      */
     public void sendConnectionUpdateToFrontend(final int id, final DiceConnectionUpdateDTO update) {
-        simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("CONN_UPDATE", update));
+        simpMessagingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("CONN_UPDATE", update));
     }
 
     /**
@@ -135,20 +135,20 @@ public class WebSocketService {
      */
     public void sendFinishGameToFrontend(final int id, final FinishedGameDTO content, final boolean earlyFinish) {
         if (earlyFinish) {
-            simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("EARLY_FINISH", content));
+            simpMessagingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("EARLY_FINISH", content));
         } else {
-            simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("REGULAR_FINISH", content));
+            simpMessagingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("REGULAR_FINISH", content));
         }
     }
 
     /**
-     * Method that sends complete game information to fronend
+     * Method that sends complete game information to frontend
      *
      * @param id     the gamecode
      * @param update all available information of the game.
      */
     public void sendCompleteGameUpdateToFrontend(final int id, final StateUpdateDTO update) {
-        simpMessageingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("FULL_INFO", update));
+        simpMessagingTemplate.convertAndSend(INGAMEQUEUE + id, new ResponseDTO("FULL_INFO", update));
     }
 
     @EventListener

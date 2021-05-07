@@ -1,9 +1,9 @@
 package at.qe.timeguess.gamelogic;
 
+import at.qe.timeguess.model.User;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import at.qe.timeguess.model.User;
 
 /**
  * Class that represents one team in a running game.
@@ -54,12 +54,12 @@ public class Team {
 		this.score += points;
 	}
 
-	/**
-	 * Method that decremetns the score. Score cannot be decremented to negative
-	 * numbers.
-	 * 
-	 * @param points positive amount of decrement.
-	 */
+    /**
+     * Method that decrements the score. Score cannot be decremented to negative
+     * numbers.
+     *
+     * @param points positive amount of decrement.
+     */
 	public void decrementScore(final int points) {
 		this.score -= points;
 		if (score < 0) {
@@ -83,7 +83,7 @@ public class Team {
 
 	/**
 	 * Method that checks whether a user is in the team.
-	 * 
+	 *
 	 * @param player User to check for.
 	 * @return true if user is in the team, else false.
 	 */

@@ -1,20 +1,5 @@
 package at.qe.timeguess.controllers;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import at.qe.timeguess.dto.CreateGame;
 import at.qe.timeguess.dto.GameDTO;
 import at.qe.timeguess.dto.TeamDTO;
@@ -31,6 +16,14 @@ import at.qe.timeguess.services.LobbyService;
 import at.qe.timeguess.services.LobbyService.GameNotFoundException;
 import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
 import at.qe.timeguess.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Class that controls creating, viewing and deleting games via REST.
@@ -46,7 +39,7 @@ public class GameController {
 
 	@Autowired
 	private UserService userService;
-	// TODO change to service as soon as availalbe
+
 	@Autowired
 	private CategoryRepository categoryRepository;
 
@@ -60,29 +53,29 @@ public class GameController {
 	@PostMapping("")
 	public ResponseEntity<Integer> createGame(@RequestBody final CreateGame game) {
 
-		Category gameCateogry = categoryRepository.findFirstById((long) game.getCategory_id());
-		if (gameCateogry == null) {
-			return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
-		}
-		try {
-			Game newGame;
-			if (game.getMapping() == null) {
-				newGame = lobbyService.createGame(game.getMax_score(), game.getNumber_of_teams(), gameCateogry,
-						game.getDice_code());
-			} else {
-				newGame = lobbyService.createGame(game.getMax_score(), game.getNumber_of_teams(), gameCateogry,
-						buildDice(game), game.getDice_code());
-			}
+        Category gameCategory = categoryRepository.findFirstById((long) game.getCategory_id());
+        if (gameCategory == null) {
+            return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            Game newGame;
+            if (game.getMapping() == null) {
+                newGame = lobbyService.createGame(game.getMax_score(), game.getNumber_of_teams(), gameCategory,
+                    game.getDice_code());
+            } else {
+                newGame = lobbyService.createGame(game.getMax_score(), game.getNumber_of_teams(), gameCategory,
+                    buildDice(game), game.getDice_code());
+            }
 
-			return new ResponseEntity<Integer>(newGame.getGameCode(), HttpStatus.CREATED);
+            return new ResponseEntity<Integer>(newGame.getGameCode(), HttpStatus.CREATED);
 
-		} catch (at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException e) {
-			return new ResponseEntity<Integer>(HttpStatus.FORBIDDEN);
-		} catch (GameCreationException e) {
-			return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
-		} catch (RaspberryNotFoundException e) {
-			return new ResponseEntity<Integer>(HttpStatus.NOT_FOUND);
-		}
+        } catch (at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException e) {
+            return new ResponseEntity<Integer>(HttpStatus.FORBIDDEN);
+        } catch (GameCreationException e) {
+            return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
+        } catch (RaspberryNotFoundException e) {
+            return new ResponseEntity<Integer>(HttpStatus.NOT_FOUND);
+        }
 	}
 
 	/**
@@ -92,13 +85,13 @@ public class GameController {
 	 */
 	@GetMapping("")
 	public ResponseEntity<List<GameDTO>> getAllRunningGames() {
-		Collection<Game> runninGames = lobbyService.getAllRunningGames();
-		List<GameDTO> gameDTOs = new LinkedList<>();
-		for (Game g : runninGames) {
-			gameDTOs.add(buildGameDTO(g));
-		}
-		return new ResponseEntity<>(gameDTOs, HttpStatus.OK);
-	}
+        Collection<Game> runningGames = lobbyService.getAllRunningGames();
+        List<GameDTO> gameDTOs = new LinkedList<>();
+        for (Game g : runningGames) {
+            gameDTOs.add(buildGameDTO(g));
+        }
+        return new ResponseEntity<>(gameDTOs, HttpStatus.OK);
+    }
 
 	/**
 	 * Method to fetch one currently running game by its gamecode as a GameDTO. Code
