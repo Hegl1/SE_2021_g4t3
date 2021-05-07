@@ -47,6 +47,8 @@ export class CreateGameDialogComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.loadDiceHistory();
+
     let res = await this.api.getAllCategories();
 
     this.category?.enable();
@@ -157,7 +159,7 @@ export class CreateGameDialogComponent implements OnInit {
     let history = this.diceHistory;
     let value = this.dice_code?.value;
 
-    if (value !== null && history !== null) {
+    if (value !== null && history !== null && !history.includes(value)) {
       history.push(value);
       localStorage.setItem(StorageNames.DiceCodeHistory, JSON.stringify(history));
     }
