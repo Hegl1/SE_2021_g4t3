@@ -4,12 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import tinyb.BluetoothDevice;
-import tinyb.BluetoothGattService;
-import tinyb.BluetoothGattCharacteristic;
 
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.any;
 
 public class ConnectionThreadTest {
 

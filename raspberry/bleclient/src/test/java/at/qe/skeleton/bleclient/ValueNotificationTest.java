@@ -2,14 +2,9 @@ package at.qe.skeleton.bleclient;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.any;
 
 public class ValueNotificationTest {
 
@@ -76,8 +71,8 @@ public class ValueNotificationTest {
         Assert.assertEquals(0, valueNotification.getFacetMapping().size());
         Assert.assertEquals(12, valueNotification.getAvailableFacetValues().size());
 
-        byte[] mockData = { 0x11 };
-        valueNotification.run(mockData);
+        byte[] testData = { 0x11 };
+        valueNotification.run(testData);
 
         Assert.assertEquals(1, valueNotification.getFacetMapping().size());
         Assert.assertEquals(11, valueNotification.getAvailableFacetValues().size());
