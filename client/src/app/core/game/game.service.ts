@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { ApiService } from '../api/api.service';
-import { FinishedData, GameStatus, Role, RunningGameState, Team, User } from '../api/ApiInterfaces';
+import { FinishedData, GameStatus, RunningGameState, Team, User } from '../api/ApiInterfaces';
 import { WebsocketService } from '../api/websocket.service';
 import { UserService } from '../auth/user.service';
 import { ConfigService } from '../config/config.service';
@@ -16,9 +16,9 @@ const INGAME_QUEUE = '/messagequeue/ingame';
 })
 export class GameService {
   private _currentState: RunningGameState | null = null;
-  private _connected = false;
   private teamQueueConnected = false;
   private _finishedData: FinishedData | null = null;
+  private _ignoreQueues = false;
 
   readonly update = new EventEmitter<string>();
 
@@ -39,10 +39,10 @@ export class GameService {
    * - Listenes to the message-queues
    */
   async connectToGame() {
-    this._connected = false;
     this._currentState = null;
     this.teamQueueConnected = false;
     this._finishedData = null;
+    this._ignoreQueues = false;
 
     let res_state = await this.api.getIngameState();
 
@@ -62,27 +62,25 @@ export class GameService {
       return;
     }
 
-    await this.websocket.connect(true).afterConnected(); // TODO: remove debug
+    try {
+      await this.websocket.connect().afterConnected();
 
-    this._connected = true;
-    this._currentState = res_state.value;
+      this._currentState = res_state.value;
 
-    this.subscribeGameQueue();
+      this.subscribeGameQueue();
 
-    if (this._currentState.running_data) {
-      this.subscribeTeamQueue();
-    }
+      if (this._currentState.running_data) {
+        this.subscribeTeamQueue();
+      }
+    } catch (e) {
+      console.error('Error connecting to websocket!');
 
-    let res_join = await this.api.joinGame(res_state.value?.code);
-
-    if (!res_join.isOK()) {
-      this.snackBar.open('Error joining game!', 'OK', {
+      this.snackBar.open('Error opening connection to server!', 'OK', {
         duration: 10000,
         panelClass: 'action-warn',
       });
 
       this.router.navigateByUrl('/home');
-      return;
     }
   }
 
@@ -96,7 +94,7 @@ export class GameService {
     return this._finishedData;
   }
   get connected() {
-    return this._connected;
+    return this.websocket.isConnected;
   }
   get totalPlayers() {
     if (!this._currentState) return 0;
@@ -143,122 +141,130 @@ export class GameService {
   /**
    * Subscribes to the game queue and handles the responses
    */
-  subscribeGameQueue() {
-    this.websocket.subscribeQueue(`${INGAME_QUEUE}/${this.code}`, (data) => {
-      if (!this._currentState) return;
+  async subscribeGameQueue() {
+    try {
+      await this.websocket.subscribeQueue(`${INGAME_QUEUE}/${this.code}`, (data) => {
+        if (!this._currentState || this._ignoreQueues) return;
 
-      switch (data.identifier) {
-        case 'FULL_INFO':
-          let full_info = <RunningGameState>data.data;
+        switch (data.identifier) {
+          case 'FULL_INFO':
+            let full_info = <RunningGameState>data.data;
 
-          this._currentState = full_info;
+            this._currentState = full_info;
 
-          if (full_info.running_data && !this.teamQueueConnected) {
-            this.subscribeTeamQueue();
-          }
+            if (full_info.running_data && !this.teamQueueConnected) {
+              this.subscribeTeamQueue();
+            }
 
-          break;
-        case 'TEAM_UPDATE':
-          let team_update = <{ teams: Team[] }>data.data;
+            break;
+          case 'TEAM_UPDATE':
+            let team_update = <{ teams: Team[] }>data.data;
 
-          this._currentState.teams = team_update.teams;
-          break;
-        case 'READY_UPDATE':
-          if (!this._currentState.waiting_data) return;
-          let ready_update = <{ unassigned_players: User[]; ready_players: User[]; startable: boolean }>data.data;
+            this._currentState.teams = team_update.teams;
+            break;
+          case 'READY_UPDATE':
+            if (!this._currentState.waiting_data) return;
+            let ready_update = <{ unassigned_players: User[]; ready_players: User[]; startable: boolean }>data.data;
 
-          this._currentState.waiting_data.unassigned_players = ready_update.unassigned_players;
-          this._currentState.waiting_data.ready_players = ready_update.ready_players;
-          this._currentState.waiting_data.startable = ready_update.startable;
-          break;
-        case 'ERROR':
-          let error = <{ message: string }>data.data;
+            this._currentState.waiting_data.unassigned_players = ready_update.unassigned_players;
+            this._currentState.waiting_data.ready_players = ready_update.ready_players;
+            this._currentState.waiting_data.startable = ready_update.startable;
+            break;
+          case 'ERROR':
+            let error = <{ message: string }>data.data;
 
-          this.snackBar.open(error.message, 'OK', {
-            duration: 10000,
-            panelClass: 'action-warn',
-          });
-          break;
-        case 'GAME_NOT_CONTINUEABLE':
-          this.snackBar.open("The game can't be continued and was therefore terminated!", 'OK', {
-            duration: 10000,
-            panelClass: 'action-warn',
-          });
-
-          this.reset();
-
-          break;
-        case 'RUNNING_DATA':
-          this._currentState.running_data = data.data;
-          this.update.emit('RUNNING_DATA');
-
-          break;
-        case 'SCORE_UPDATE':
-          let score_update = <{ index: number; score: number }>data.data;
-
-          this._currentState.teams[score_update.index].score = score_update.score;
-          break;
-        case 'REGULAR_FINISH':
-        case 'EARLY_FINISH':
-          this._currentState.running_data = null;
-          this._currentState.status = GameStatus.Finished;
-
-          this._finishedData = data.data;
-
-          this.disconnectWebsocket();
-
-          if (data.identifier === 'EARLY_FINISH') {
-            this.snackBar.open(
-              'The game was terminated early, since there are no more unused expressions in this category',
-              'OK',
-              {
-                duration: 5000,
-              }
-            );
-          }
-
-          break;
-        case 'BAT_UPDATE':
-          this._currentState.dice_info.level = data.data.batLevel;
-
-          if (data.data.batLevel <= this.config.get('critical_battery_level', 10)) {
-            this.snackBar.open('Battery level is critical!', 'OK', {
+            this.snackBar.open(error.message, 'OK', {
               duration: 10000,
               panelClass: 'action-warn',
             });
-          }
-          break;
-        case 'CONN_UPDATE':
-          this._currentState.dice_info.connected = data.data.connectionStatus;
-
-          if (!data.data.connectionStatus) {
-            this.snackBar.open('Connection to dice lost!', 'OK', {
+            break;
+          case 'GAME_NOT_CONTINUEABLE':
+            this.snackBar.open("The game can't be continued and was therefore terminated!", 'OK', {
               duration: 10000,
               panelClass: 'action-warn',
             });
-          }
-          break;
-      }
-    });
+
+            this.reset();
+
+            break;
+          case 'RUNNING_DATA':
+            this._currentState.running_data = data.data;
+            this.update.emit('RUNNING_DATA');
+
+            break;
+          case 'SCORE_UPDATE':
+            let score_update = <{ index: number; score: number }>data.data;
+
+            this._currentState.teams[score_update.index].score = score_update.score;
+            break;
+          case 'REGULAR_FINISH':
+          case 'EARLY_FINISH':
+            this._currentState.running_data = null;
+            this._currentState.status = GameStatus.Finished;
+
+            this._finishedData = data.data;
+
+            this.disconnectWebsocket();
+
+            if (data.identifier === 'EARLY_FINISH') {
+              this.snackBar.open(
+                'The game was terminated early, since there are no more unused expressions in this category',
+                'OK',
+                {
+                  duration: 5000,
+                }
+              );
+            }
+
+            break;
+          case 'BAT_UPDATE':
+            this._currentState.dice_info.level = data.data.batLevel;
+
+            if (data.data.batLevel <= this.config.get('critical_battery_level', 10)) {
+              this.snackBar.open('Battery level is critical!', 'OK', {
+                duration: 10000,
+                panelClass: 'action-warn',
+              });
+            }
+            break;
+          case 'CONN_UPDATE':
+            this._currentState.dice_info.connected = data.data.connectionStatus;
+
+            if (!data.data.connectionStatus) {
+              this.snackBar.open('Connection to dice lost!', 'OK', {
+                duration: 10000,
+                panelClass: 'action-warn',
+              });
+            }
+            break;
+        }
+      });
+    } catch (e) {
+      console.error('Error connecting to game queue: ', e);
+    }
   }
 
   /**
    * Subscribes to the team queue and handles the responses
    */
-  subscribeTeamQueue() {
-    let team;
-    if (this.user.user && (team = this.getUsersTeam(this.user.user.id)) !== null) {
-      this.websocket.subscribeQueue(`${INGAME_QUEUE}/team/${this.code}/${team}`, (data) => {
-        if (!this._currentState) return;
+  async subscribeTeamQueue() {
+    try {
+      let team;
+      if (this.user.user && (team = this.getUsersTeam(this.user.user.id)) !== null) {
+        this.websocket.subscribeQueue(`${INGAME_QUEUE}/team/${this.code}/${team}`, (data) => {
+          if (!this._currentState || this._ignoreQueues) return;
 
-        switch (data.identifier) {
-          case 'RUNNING_DATA':
-            this._currentState.running_data = data.data;
-            this.update.emit('RUNNING_DATA');
-        }
-      });
+          switch (data.identifier) {
+            case 'RUNNING_DATA':
+              this._currentState.running_data = data.data;
+              this.update.emit('RUNNING_DATA');
+          }
+        });
 
-      this.teamQueueConnected = true;
+        this.teamQueueConnected = true;
+      }
+    } catch (e) {
+      console.error('Error connecting to team queue: ', e);
     }
   }
 
@@ -307,6 +313,8 @@ export class GameService {
       return;
     }
 
+    this._ignoreQueues = true;
+
     let res = await this.api.leaveIngame(this.code);
 
     if (!res.isOK() && !res.isNotFound()) {
@@ -314,6 +322,8 @@ export class GameService {
         duration: 10000,
         panelClass: 'action-warn',
       });
+
+      this._ignoreQueues = false;
 
       return;
     }
@@ -326,10 +336,10 @@ export class GameService {
    * @param redirect whether to redirect to the homepage or not
    */
   reset(redirect = true) {
-    this._connected = false;
     this._currentState = null;
     this.teamQueueConnected = false;
     this._finishedData = null;
+    this._ignoreQueues = false;
 
     this.disconnectWebsocket();
 
@@ -343,12 +353,5 @@ export class GameService {
    */
   private disconnectWebsocket() {
     this.websocket.disconnect();
-  }
-
-  /**
-   * Whether the websocket is connected or not
-   */
-  get websocketConnected() {
-    return this.websocket.isConnected;
   }
 }

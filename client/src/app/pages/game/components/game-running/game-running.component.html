@@ -92,19 +92,19 @@
             <mat-card-actions class="confirm_actions">
                 <button
                     (click)="confirmAnswer('CORRECT')"
-                    [disabled]="!game.currentState.running_data.action || !game.websocketConnected"
+                    [disabled]="!game.currentState.running_data.action || !game.connected"
                 >
                     <mat-icon style="color: limegreen">thumb_up</mat-icon>
                 </button>
                 <button
                     (click)="confirmAnswer('WRONG')"
-                    [disabled]="!game.currentState.running_data.action || !game.websocketConnected"
+                    [disabled]="!game.currentState.running_data.action || !game.connected"
                 >
                     <mat-icon style="color: orange">thumb_down</mat-icon>
                 </button>
                 <button
                     (click)="confirmAnswer('INVALID')"
-                    [disabled]="!game.currentState.running_data.action || !game.websocketConnected"
+                    [disabled]="!game.currentState.running_data.action || !game.connected"
                 >
                     <mat-icon color="warn">gpp_bad</mat-icon>
                 </button>

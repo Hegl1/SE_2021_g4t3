@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserService } from '../auth/user.service';
 import { ConfigService } from '../config/config.service';
 import { WebsocketResponse } from './ApiInterfaces';
 
@@ -13,7 +14,7 @@ export class WebsocketService {
   private stompClient: any | null = null;
   private connected: Promise<void> | null = null;
 
-  constructor(private config: ConfigService, private snackBar: MatSnackBar) {}
+  constructor(private config: ConfigService, private snackBar: MatSnackBar, private user: UserService) {}
 
   /**
    * Connects to the websocket and returns itself for fluent-api
@@ -42,10 +43,8 @@ export class WebsocketService {
       this.stompClient.debug = null;
     }
 
-    this.connected = new Promise((res) => {
-      this.stompClient.connect({}, () => {
-        res();
-      });
+    this.connected = new Promise((res, rej) => {
+      this.stompClient.connect({ token: this.user.token }, res, rej);
     });
 
     return this;

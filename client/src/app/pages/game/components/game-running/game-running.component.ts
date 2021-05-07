@@ -66,7 +66,7 @@ export class GameRunningComponent implements OnInit {
       return null;
     }
 
-    if (!this.game.websocketConnected) {
+    if (!this.game.connected) {
       return {
         color: 'warn',
         icon: 'error',
