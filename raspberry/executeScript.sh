@@ -6,4 +6,4 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 cd bleclient
-java -cp target/bleclient.jar:./lib/tinyb.jar:./target/dependencies/* at.qe.skeleton.bleclient.Main
+LD_BIND_NOW=1 java -cp target/bleclient.jar:./lib/tinyb.jar:./target/dependencies/* at.qe.skeleton.bleclient.Main
