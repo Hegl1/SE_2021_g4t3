@@ -1,18 +1,105 @@
 @import '~@angular/material/theming';
-
 // https://material.io/design/color/
-$primary: mat-palette($mat-light-green, A700);
-$accent: mat-palette($mat-orange, 500);
-$warn: mat-palette($mat-red);
 
-$navigation-background: #1f1f1f;
-$navigation-foreground: #ffffff;
 $navigation-backdrop: rgba(0, 0, 0, 0.8);
 
 $snackbar-background: #333333;
 $snackbar-foreground: #fff;
 
-$background: #262626;
-$foreground: #ffffff;
-
 $link: #1693ff;
+
+// dark theme
+$dark-primary: mat-palette($mat-light-green, A700);
+$dark-accent: mat-palette($mat-orange, 500);
+$dark-warn: mat-palette($mat-red);
+
+$dark-navigation-background: #1f1f1f;
+$dark-navigation-foreground: #ffffff;
+
+$dark-background: #262626;
+$dark-foreground: #ffffff;
+
+$dark-login-curve: darken(mat-color($dark-primary), 5%);
+
+$dark-theme: mat-dark-theme(
+  (
+    color: (
+      primary: $dark-primary,
+      accent: $dark-accent,
+      warn: $dark-warn,
+    ),
+  )
+);
+
+// light theme
+$light-primary: mat-palette($mat-blue, 300);
+$light-accent: mat-palette($mat-blue, 300);
+$light-warn: mat-palette($mat-red);
+
+$light-navigation-background: rgb(218, 218, 218);
+$light-navigation-foreground: rgb(0, 0, 0);
+
+$light-background: rgb(255, 255, 255);
+$light-foreground: rgb(0, 0, 0);
+
+$light-login-curve: darken(mat-color($light-primary), 5%);
+
+$light-theme: mat-light-theme(
+  (
+    color: (
+      primary: $light-primary,
+      accent: $light-accent,
+      warn: $light-warn,
+    ),
+  )
+);
+
+@mixin theme {
+  html:not(.theme_dark):not(.theme_light) {
+    @include angular-material-theme($dark-theme);
+  }
+  html.theme_dark {
+    @include angular-material-theme($dark-theme);
+  }
+  html.theme_light {
+    @include angular-material-theme($light-theme);
+
+    mat-card {
+      background: lighten($light-navigation-background, 10%) !important;
+      color: $light-navigation-foreground !important;
+    }
+  }
+}
+
+html {
+  &:not(.theme_dark):not(.theme_light) {
+    --primary: #{mat-color($dark-primary)};
+    --accent: #{mat-color($dark-accent)};
+    --warn: #{mat-color($dark-warn)};
+    --navigation-background: #{$dark-navigation-background};
+    --navigation-foreground: #{$dark-navigation-foreground};
+    --background: #{$dark-background};
+    --foreground: #{$dark-foreground};
+    --login-curve: #{$dark-login-curve};
+  }
+  &.theme_dark {
+    --primary: #{mat-color($dark-primary)};
+    --accent: #{mat-color($dark-accent)};
+    --warn: #{mat-color($dark-warn)};
+    --navigation-background: #{$dark-navigation-background};
+    --navigation-foreground: #{$dark-navigation-foreground};
+    --background: #{$dark-background};
+    --foreground: #{$dark-foreground};
+    --login-curve: #{$dark-login-curve};
+  }
+  &.theme_light {
+    --primary: #{mat-color($light-primary)};
+    --accent: #{mat-color($light-accent)};
+    --warn: #{mat-color($light-warn)};
+    --navigation-background: #{$light-navigation-background};
+    --navigation-foreground: #{$light-navigation-foreground};
+    --background: #{$light-background};
+    --foreground: #{$light-foreground};
+    --login-curve: #{$light-login-curve};
+  }
+}

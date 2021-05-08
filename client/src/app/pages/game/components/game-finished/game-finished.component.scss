@@ -1,7 +1,7 @@
 @import '../../../../../variables.scss';
 
 .winner {
-  background-color: limegreen;
+  background: limegreen;
   border-radius: 5px;
   padding: 1rem;
   font-size: 1.5em;
@@ -38,11 +38,12 @@ mat-card {
     tr mat-icon {
       vertical-align: middle;
       margin-left: 0.25em;
-      color: yellow;
+      color: #f7d000;
     }
 
     tr span.currentTeam {
-      color: mat-color($accent);
+      color: mat-color($dark-accent);
+      color: var(--accent);
     }
   }
 }

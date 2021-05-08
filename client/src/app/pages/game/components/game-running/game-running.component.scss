@@ -37,7 +37,8 @@
 
     border-radius: 5px;
 
-    background-color: mat-color($accent);
+    background: mat-color($dark-accent);
+    background: var(--accent);
 
     > * {
       vertical-align: middle;
@@ -72,7 +73,9 @@
           cursor: default;
 
           mat-icon {
-            color: darken($foreground, 20%) !important;
+            opacity: 30%;
+            color: $dark-foreground !important;
+            color: var(--foreground) !important;
           }
         }
       }
@@ -91,8 +94,8 @@
   }
 
   .dice_info {
-    background: $foreground;
-    color: $background;
+    background: lighten($dark-foreground, 90%);
+    color: darken($dark-background, 90%);
     border-radius: 2px;
     padding: 0.5em;
 
@@ -139,7 +142,8 @@
 
     &.current_team {
       box-shadow: 0 0 13px 1px rgba(0, 0, 0, 0.5);
-      border: 1px solid mat-color($primary);
+      border: 1px solid mat-color($dark-primary);
+      border: 1px solid var(--primary);
     }
 
     h2 {
@@ -161,7 +165,8 @@
         top: 50%;
         transform: translateY(-50%);
 
-        background-color: mat-color($primary);
+        background: mat-color($dark-primary);
+        background: var(--primary);
       }
     }
 
@@ -219,7 +224,7 @@
 
       outline: none;
 
-      background-color: rgba(0, 0, 0, 0.25);
+      background: rgba(0, 0, 0, 0.25);
     }
   }
 }
