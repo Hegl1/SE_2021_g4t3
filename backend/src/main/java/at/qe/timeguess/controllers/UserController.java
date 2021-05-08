@@ -135,7 +135,7 @@ public class UserController {
         }
 
         if (lobbyService.isUserInGame(user)) {
-            return new ResponseEntity("User cannot be deleted because he is currently in a game.", HttpStatus.CONFLICT);
+            return new ResponseEntity("User cannot be changed because he is currently in a game.", HttpStatus.CONFLICT);
         }
 
         //if no changes in user do not update
@@ -265,6 +265,15 @@ public class UserController {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
 
+    }
+
+    /**
+     * Returns an ok response code if user is authenticated.
+     * @return 401 if user not authenticated, 200 if user authenticated
+     */
+    @GetMapping("/auth")
+    public ResponseEntity<?> isAuthenticated() {
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 }
