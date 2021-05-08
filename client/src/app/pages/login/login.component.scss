@@ -1,8 +1,5 @@
 @import '../../../variables.scss';
 
-$login-background: #4e4e4e;
-$curve-background: darken(mat-color($primary), 5%);
-
 .bg-curve {
   position: fixed;
   bottom: 0;
@@ -12,7 +9,8 @@ $curve-background: darken(mat-color($primary), 5%);
   z-index: 0;
 
   path {
-    fill: $curve-background;
+    fill: $dark-login-curve;
+    fill: var(--login-curve);
   }
 }
 
@@ -34,7 +32,8 @@ main {
 
   font-size: 0;
 
-  background-color: $login-background;
+  background: $dark-navigation-background;
+  background: var(--navigation-background);
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.6);
 
   > div {
@@ -99,9 +98,11 @@ main {
     }
 
     p > a.disabled {
-      color: darken($foreground, 20%);
+      color: $dark-foreground;
+      color: var(--foreground);
       cursor: default;
       pointer-events: none;
+      text-decoration: none;
     }
   }
 
@@ -149,7 +150,8 @@ main {
     width: 100%;
     max-width: unset;
 
-    background: $background;
+    background: $dark-background;
+    background: var(--background);
     box-shadow: none;
     border-radius: 0;
 
@@ -175,11 +177,13 @@ main {
 
   .bg-curve {
     position: relative;
-    background-color: $background;
+    background-color: $dark-background;
+    color: var(--background);
   }
 
   .wrapper {
-    background: $background;
+    background: $dark-background;
+    background: var(--background);
     position: relative;
     z-index: 1;
 
@@ -190,7 +194,8 @@ main {
       left: 0;
       right: 0;
       bottom: 0;
-      background: $curve-background;
+      background: $dark-login-curve;
+      background: var(--login-curve);
       z-index: -1;
     }
   }
