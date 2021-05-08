@@ -113,11 +113,23 @@ public class Game {
 		} else if (!isInGame(player) && active) {
 			throw new GameAlreadyRunningException();
         } else {
-            usersWithDevices.add(player);
-            if (!active) {
-                readyPlayers.put(player, false);
-                webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+
+            if (!usersWithDevices.contains((player))) {
+                usersWithDevices.add(player);
+                if (!active) {
+                    readyPlayers.put(player, false);
+                    new Thread(() -> {
+                        try {
+                            //dirty workaround
+                            Thread.sleep(100);
+                            webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+                        } catch (InterruptedException ignored) {
+                        }
+                    }).start();
+                    // webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+                }
             }
+
         }
 	}
 
@@ -205,9 +217,9 @@ public class Game {
 			usersWithDevices.remove(player);
 			webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
 		} else {
-			updateReadyStatus(player, true);
-			usersWithDevices.remove(player);
-		}
+            usersWithDevices.remove(player);
+            updateReadyStatus(player, true);
+        }
 		if (player.equals(host) || (!allTeamsEnoughPlayersWithDevice() && active)) {
 			lobbyService.abortRunningGame(gameCode);
 		}
