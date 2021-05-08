@@ -80,3 +80,4 @@ nbdist/
 *.iws
 *.iml
 out
+tinyb
