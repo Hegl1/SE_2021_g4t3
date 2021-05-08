@@ -5,6 +5,7 @@ import javax.persistence.*;
 @Entity
 public class Category {
 
+    // TODO: add deletable attribute?
 	@Id
     @SequenceGenerator(name = "category_sequence", initialValue = 11)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "category_sequence")

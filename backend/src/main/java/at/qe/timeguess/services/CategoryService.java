@@ -58,6 +58,7 @@ public class CategoryService {
         return this.categoryRepository.findFirstByName(name);
     }
 
+    // TODO: check running games as well
     /**
      * Checks if a Category is deletable, based on occurrences in completed Games
      *
@@ -83,6 +84,7 @@ public class CategoryService {
         return this.categoryRepository.save(category);
     }
 
+    // TODO: use isDeletable method
     /**
      * Deletes a Category, except when it is referenced in the completed games
      *

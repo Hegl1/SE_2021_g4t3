@@ -165,6 +165,7 @@ public class ExpressionService {
         return categoryExpressionDTOs;
     }
 
+    // TODO: Expressions should be deletable, even if Category is referenced
     /**
      * Deletes an Expression
      *
