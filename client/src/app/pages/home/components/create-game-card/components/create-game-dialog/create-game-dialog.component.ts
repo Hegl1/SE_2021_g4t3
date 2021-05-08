@@ -96,7 +96,7 @@ export class CreateGameDialogComponent implements OnInit {
         this.dice_icon.value = 'error';
       }
 
-      this.snackBar.open(message || 'Error loading dice information', 'OK', {
+      this.snackBar.open(message || res.error || 'Error loading dice information', 'OK', {
         duration: 5000,
         panelClass: 'action-warn',
       });
@@ -140,8 +140,12 @@ export class CreateGameDialogComponent implements OnInit {
       this.dialogRef.close(res.value);
 
       return;
+    } else if (res.isNotFound()) {
+      this.error = 'The selected dice does not exist';
+    } else if (res.isConflict()) {
+      this.error = 'The selected dice is already in a game';
     } else {
-      this.error = 'Error creating game'; // TODO: error
+      this.error = res.error || 'Error creating game';
     }
   }
 

@@ -89,7 +89,7 @@ export class JoinGameCardComponent {
       this.icon.color = 'warn';
       this.icon.value = 'error';
 
-      this.snackBar.open('Error loading game information!', 'OK', {
+      this.snackBar.open(res.error || 'Error loading game information!', 'OK', {
         duration: 5000,
         panelClass: 'action-warn',
       });

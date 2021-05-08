@@ -79,7 +79,7 @@ export class AddExpressionsDialogComponent {
       });
       this.dialogRef.close(true);
     } else {
-      this.error = 'Error saving expressions!';
+      this.error = res.error || 'Error saving expressions!';
     }
   }
 }

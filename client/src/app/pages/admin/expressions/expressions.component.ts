@@ -160,7 +160,7 @@ export class ExpressionsComponent implements OnInit {
             error = 'A category with this name exists already';
           }
 
-          this.snackBar.open(error || 'An error occured!', 'OK', {
+          this.snackBar.open(error || res.error || 'An error occured!', 'OK', {
             panelClass: 'action-warn',
             duration: 10000,
           });
@@ -219,7 +219,7 @@ export class ExpressionsComponent implements OnInit {
 
             await this.reload();
           } else {
-            this.snackBar.open('An error occured!', 'OK', {
+            this.snackBar.open(res.error || 'An error occured!', 'OK', {
               panelClass: 'action-warn',
               duration: 10000,
             });
@@ -304,7 +304,7 @@ export class ExpressionsComponent implements OnInit {
           } else if (res.isNotFound()) {
             throw new Error('The category was not found');
           } else {
-            throw new Error();
+            throw new Error(res.error || undefined);
           }
         } catch (e) {
           this.snackBar.open('Error importing data' + (e.message ? ': ' + e.message : ''), 'OK', {

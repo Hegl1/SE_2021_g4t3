@@ -3,7 +3,11 @@ export class ApiResponse<T> {
    * @param status the http status
    * @param value the received value, or null if an error occured
    */
-  constructor(public readonly status: number, public readonly value: T | null = null) {}
+  constructor(
+    public readonly status: number,
+    public readonly value: T | null = null,
+    public readonly error: string | null = null
+  ) {}
 
   /**
    * @returns true, if the status-code is between 200 and 299
