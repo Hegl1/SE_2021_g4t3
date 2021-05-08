@@ -60,7 +60,7 @@ After this point you can start throwing your dice. I recommend cleanly putting t
 To stop the program at any time, just press `CTRL+C`.
 
 ### You're having problems?
-- If there occurs a fatal error after starting the program, please try to just re-run the program. It usually just magically works the second time, in case that error occurred.
+- If there occurs a fatal error or any other exception after starting the program for the first time, please try to just re-run the program. It usually just magically works the second time, in case that error occurred.
 - If no TimeFlip device is found during discovery, please try taking the battery out of the dice and putting it back in. (this is a universal fix for any dice related problem)
 - If all fails, please don't hestitate to contact me, Diana Gründlinger (diana.gruendlinger@student.uibk.ac.at), and I will do my best to make it work for you! :)
 

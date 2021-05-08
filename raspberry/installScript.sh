@@ -7,8 +7,8 @@ fi
 
 WORKDIR=$PWD
 
-apt update
-apt upgrade
+apt update -y
+apt upgrade -y
 
 apt install git -y
 apt install cmake -y
