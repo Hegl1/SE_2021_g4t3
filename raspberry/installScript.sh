@@ -16,7 +16,9 @@ apt install cmake -y
 apt install openjdk-8-jdk -y
 update-alternatives --config java
 
-echo "\nexport JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/" >> ~/.bashrc
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/
+
+echo -en "\r\nexport JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/" >> ~/.bashrc
 source ~/.bashrc
 
 apt install maven -y
@@ -49,6 +51,7 @@ systemctl restart bluetooth
 apt install graphviz -y
 apt install doxygen -y
 
+rm -rf tinyb/
 git clone https://github.com/intel-iot-devkit/tinyb.git && cd tinyb
 mkdir build
 cd build
@@ -57,3 +60,6 @@ make
 make install
 
 cd $WORKDIR
+
+mkdir -p bleclient/lib/
+cp tinyb/build/java/tinyb.jar bleclient/lib/
