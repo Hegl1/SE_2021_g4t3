@@ -4,7 +4,6 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ApiService } from 'src/app/core/api/api.service';
 import { UserService } from 'src/app/core/auth/user.service';
-import ThemeService, { ThemeType } from 'src/app/core/theme/theme.service';
 
 @Component({
   selector: 'tg-settings-dialog',
@@ -23,8 +22,7 @@ export class SettingsDialogComponent {
     private api: ApiService,
     private user: UserService,
     private dialogRef: MatDialogRef<SettingsDialogComponent>,
-    private snackBar: MatSnackBar,
-    private theme: ThemeService
+    private snackBar: MatSnackBar
   ) {
     this.settingsForm = this.fb.group({
       username: [''],
@@ -39,11 +37,6 @@ export class SettingsDialogComponent {
           return null;
         },
       ],
-      theme: [theme.getTheme()],
-    });
-
-    this.settingsForm.get('theme')?.valueChanges.subscribe((theme) => {
-      this.theme.setTheme(theme);
     });
   }
 

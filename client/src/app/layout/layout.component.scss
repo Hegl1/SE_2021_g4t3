@@ -69,6 +69,31 @@ mat-drawer-container {
         bottom: 0;
         left: 0;
         right: 0;
+
+        .theme_switcher {
+          > * {
+            transition: background 0.2s;
+            width: calc(100% / 3);
+            display: inline-block;
+            text-align: center;
+            cursor: pointer;
+            padding: 0.5em;
+            box-sizing: border-box;
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.1);
+            }
+
+            &.current {
+              background: mat-color($dark-accent);
+              background: var(--accent);
+            }
+          }
+
+          mat-icon {
+            margin: 0;
+          }
+        }
       }
     }
 

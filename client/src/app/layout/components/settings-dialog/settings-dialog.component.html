@@ -30,15 +30,6 @@
                 }}</mat-error>
             </mat-form-field>
         </ng-container>
-
-        <div class="theme">
-            <span>Theme</span>
-            <mat-button-toggle-group formControlName="theme">
-                <mat-button-toggle value="theme_default">System</mat-button-toggle>
-                <mat-button-toggle value="theme_dark">Dark</mat-button-toggle>
-                <mat-button-toggle value="theme_light">Light</mat-button-toggle>
-            </mat-button-toggle-group>
-        </div>
     </form>
     <p *ngIf="error" class="error warn">{{ error }}</p>
 </mat-dialog-content>

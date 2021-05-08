@@ -84,7 +84,7 @@ export default class ThemeService {
   /**
    * @returns the current set theme
    */
-  getTheme() {
+  get currentTheme() {
     return this.isPreferredSet ? this.theme : ThemeType.Default;
   }
 
