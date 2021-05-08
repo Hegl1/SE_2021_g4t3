@@ -55,14 +55,10 @@ $light-theme: mat-light-theme(
 );
 
 @mixin theme {
-  html:not(.theme_dark):not(.theme_light) {
-    @include angular-material-theme($dark-theme);
-  }
-  html.theme_dark {
-    @include angular-material-theme($dark-theme);
-  }
+  @include angular-material-theme($dark-theme);
+
   html.theme_light {
-    @include angular-material-theme($light-theme);
+    @include angular-material-color($light-theme);
 
     mat-card {
       background: lighten($light-navigation-background, 10%) !important;
