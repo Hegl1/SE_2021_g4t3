@@ -42,7 +42,7 @@ public class ExpressionServiceTest {
     @Test
     public void testGetAllExpressions() {
         Collection<Expression> allExpressions = this.expressionService.getAllExpressions();
-        Assertions.assertEquals(92, allExpressions.size());
+        Assertions.assertEquals(275, allExpressions.size());
         Assertions.assertTrue(allExpressions.stream().anyMatch(expression -> expression.getName().equals("Bundestag")));
     }
 
@@ -74,7 +74,7 @@ public class ExpressionServiceTest {
 
     @Test
     @DirtiesContext
-    public void testSaveExpression() throws ExpressionService.ExpressionAlreadyExists {
+    public void testSaveExpression() throws ExpressionService.ExpressionAlreadyExistsException {
 
         NameDTO nameDTO = new NameDTO("Ballermann");
         this.expressionService.saveExpression(0L, nameDTO);
@@ -86,7 +86,7 @@ public class ExpressionServiceTest {
 
     @Test
     @DirtiesContext
-    public void testImportExpressionsByCategory() throws ExpressionService.ExpressionAlreadyExists {
+    public void testImportExpressionsByCategory() throws ExpressionService.ExpressionAlreadyExistsException {
         Collection<String> expressionNamesToImport = new ArrayList<>();
 
         for(int i = 1; i < 6; i++) {
@@ -101,7 +101,7 @@ public class ExpressionServiceTest {
 
     @Test
     @DirtiesContext
-    void testImportExpressions() throws CategoryService.CategoryAlreadyExistsException, ExpressionService.ExpressionAlreadyExists {
+    void testImportExpressions() throws CategoryService.CategoryAlreadyExistsException, ExpressionService.ExpressionAlreadyExistsException {
         Collection<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOS = new ArrayList<>();
 
         List<String> expressionNames = new ArrayList<>();
@@ -114,32 +114,32 @@ public class ExpressionServiceTest {
         categoryExpressionAsStringsDTOS.add(categoryExpressionAsStringsDTO);
         this.expressionService.importExpressions(categoryExpressionAsStringsDTOS);
 
-        Assertions.assertEquals(3, this.categoryService.getAllCategories().size());
+        Assertions.assertEquals(8, this.categoryService.getAllCategories().size());
         Assertions.assertEquals(35, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryByName("Deutschland")).size());
     }
 
     @Test
     @DirtiesContext
-    public void testDeleteExpression() throws ExpressionService.ExpressionAlreadyExists, ExpressionService.ExpressionDoesNotExistAnymore, ExpressionService.ExpressionReferencedInGame, CategoryService.CategoryAlreadyExistsException {
+    public void testDeleteExpression() throws ExpressionService.ExpressionAlreadyExistsException, ExpressionService.ExpressionDoesNotExistAnymoreException, ExpressionService.ExpressionReferencedInGameException, CategoryService.CategoryAlreadyExistsException {
 
         NameDTO nameDTO = new NameDTO("Trump");
         Category category = this.categoryService.saveCategory(new Category("Politics"));
 
         this.expressionService.saveExpression(11L, nameDTO);
-        this.expressionService.deleteExpression(this.expressionService.getExpressionById(106L));
-        Assertions.assertEquals(92, this.expressionService.getAllExpressions().size());
+        this.expressionService.deleteExpression(this.expressionService.getExpressionById(300L));
+        Assertions.assertEquals(275, this.expressionService.getAllExpressions().size());
     }
 
     @Test
     @DirtiesContext
     public void testExpressionAlreadyExistsException() {
         NameDTO nameDTO = new NameDTO("Bundestag");
-        Assertions.assertThrows(ExpressionService.ExpressionAlreadyExists.class, () -> this.expressionService.saveExpression(0L, nameDTO));
+        Assertions.assertThrows(ExpressionService.ExpressionAlreadyExistsException.class, () -> this.expressionService.saveExpression(0L, nameDTO));
     }
 
     @Test
     @DirtiesContext
-    public void testExpressionDoesNotExistAnymoreException() throws ExpressionService.ExpressionDoesNotExistAnymore, ExpressionService.ExpressionReferencedInGame, ExpressionService.ExpressionAlreadyExists, CategoryService.CategoryAlreadyExistsException {
+    public void testExpressionDoesNotExistAnymoreException() throws ExpressionService.ExpressionDoesNotExistAnymoreException, ExpressionService.ExpressionReferencedInGameException, ExpressionService.ExpressionAlreadyExistsException, CategoryService.CategoryAlreadyExistsException {
         NameDTO nameDTO = new NameDTO("Trump");
         Category category = this.categoryService.saveCategory(new Category("Politics"));
         ExpressionDTO expressionDTO = this.expressionService.saveExpression(11L, nameDTO);
@@ -150,13 +150,6 @@ public class ExpressionServiceTest {
         this.expressionService.deleteExpression(expressionToDelete);
         Expression expression = this.expressionService.getExpressionById(expressionId);
 
-        Assertions.assertThrows(ExpressionService.ExpressionDoesNotExistAnymore.class, () -> this.expressionService.deleteExpression(expression));
-    }
-
-    @Test
-    @DirtiesContext
-    public void testExpressionReferencedInGameException() {
-        Expression expression = this.expressionService.getExpressionById(0L);
-        Assertions.assertThrows(ExpressionService.ExpressionReferencedInGame.class, () -> this.expressionService.deleteExpression(expression));
+        Assertions.assertThrows(ExpressionService.ExpressionDoesNotExistAnymoreException.class, () -> this.expressionService.deleteExpression(expression));
     }
 }

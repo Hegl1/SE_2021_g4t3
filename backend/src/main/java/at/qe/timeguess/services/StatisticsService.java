@@ -100,7 +100,9 @@ public class StatisticsService {
      * @return UserStatisticsDTO with Statistics of the User
      */
     public UserStatisticsDTO getUserStatistics(final Long userId) throws UserNotFoundException {
-        if(this.userService.getUserById(userId) == null) {
+        User user = this.userService.getUserById(userId);
+
+        if(user == null) {
             throw new UserNotFoundException("User not found!");
         }
 
@@ -134,8 +136,8 @@ public class StatisticsService {
             }
         }
 
-        int playedGames = this.getPlayedGames(this.userService.getUserById(userId));
-        List <UserDTO> playedWith = this.getPlayedWith(this.userService.getUserById(userId));
+        int playedGames = this.getPlayedGames(user);
+        List <UserDTO> playedWith = this.getPlayedWith(user);
 
         return new UserStatisticsDTO(wonGames, lostGames, mostPlayedCategory, playedGames, playedWith);
     }
@@ -171,16 +173,17 @@ public class StatisticsService {
      * @return the list of players
      */
     private List<UserDTO> getPlayedWith(User user) {
-        List<CompletedGameTeam> completedGamesOfUser = this.completedGameTeamRepository.findByUser(user);
+
+        List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         List<UserDTO> played_with = new LinkedList<>();
         Set<User> distinct_played_with = new HashSet<>();
 
-        for(CompletedGameTeam current : completedGamesOfUser) {
-            if(current.getPlayers().contains(user)) {
-                current.getPlayers().remove(user);
+        for(CompletedGame completedGame : allCompletedGames) {
+            for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
+                distinct_played_with.addAll(completedGameTeam.getPlayers());
             }
-            distinct_played_with.addAll(current.getPlayers());
         }
+        distinct_played_with.remove(user);
 
         for(User current : distinct_played_with) {
             played_with.add(new UserDTO(current.getId(), current.getUsername(), current.getRole().toString()));

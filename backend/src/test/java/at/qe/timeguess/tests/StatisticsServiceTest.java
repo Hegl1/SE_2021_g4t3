@@ -85,7 +85,7 @@ public class StatisticsServiceTest {
     @Test
     public void testGetCategoryStatistics() {
         List<CategoryStatisticsDTO> categoryStatisticsDTOs = this.statisticsService.getCategoryStatistics();
-        Assertions.assertEquals(3, categoryStatisticsDTOs.size());
+        Assertions.assertEquals(8, categoryStatisticsDTOs.size());
     }
 
     @Test

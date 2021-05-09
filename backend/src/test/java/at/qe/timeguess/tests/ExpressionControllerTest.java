@@ -43,7 +43,7 @@ public class ExpressionControllerTest {
 
     @Test
     public void testGetAllExpressionsOfCategoryHttpStatusNotFound() {
-        ResponseEntity<List<ExpressionDTO>> response = this.expressionController.getAllExpressionsOfCategory(5L);
+        ResponseEntity<List<ExpressionDTO>> response = this.expressionController.getAllExpressionsOfCategory(100L);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
@@ -64,7 +64,7 @@ public class ExpressionControllerTest {
     @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testCreateExpressionHttpStatusNotFound() {
         NameDTO nameDTO = new NameDTO("Stefan Raab");
-        ResponseEntity<ExpressionDTO> response = this.expressionController.createExpression(5L, nameDTO);
+        ResponseEntity<ExpressionDTO> response = this.expressionController.createExpression(100L, nameDTO);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
@@ -80,11 +80,11 @@ public class ExpressionControllerTest {
     @Test
     @DirtiesContext
     @WithMockUser(username = "admin", authorities = { "ADMIN" })
-    public void testDeleteExpressionHttpStatusOk() throws ExpressionService.ExpressionAlreadyExists, CategoryService.CategoryAlreadyExistsException {
+    public void testDeleteExpressionHttpStatusOk() throws ExpressionService.ExpressionAlreadyExistsException, CategoryService.CategoryAlreadyExistsException {
         Category category = this.categoryService.saveCategory(new Category("Politics"));
         NameDTO nameDTO = new NameDTO("Trump");
         this.expressionService.saveExpression(11L, nameDTO);
-        ResponseEntity<Expression> response = this.expressionController.deleteExpression(106L);
+        ResponseEntity<Expression> response = this.expressionController.deleteExpression(300L);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertEquals(0, this.expressionService.getAllExpressionsByCategory(category).size());
@@ -96,14 +96,6 @@ public class ExpressionControllerTest {
     public void testDeleteExpressionHttpStatusNotFound() {
         ResponseEntity<Expression> response = this.expressionController.deleteExpression(500L);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "admin", authorities = { "ADMIN" })
-    public void testDeleteExpressionHttpStatusConflict() {
-        ResponseEntity<Expression> response = this.expressionController.deleteExpression(1L);
-        Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     }
 
     @Test
@@ -149,7 +141,7 @@ public class ExpressionControllerTest {
         ResponseEntity<List<CategoryExpressionDTO>> response = this.expressionController.importExpressions(categoryExpressionAsStringsDTOS);
 
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        Assertions.assertEquals(5, this.categoryService.getAllCategories().size());
+        Assertions.assertEquals(10, this.categoryService.getAllCategories().size());
         Assertions.assertEquals(30, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(0L)).size());
         Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(11L)).size());
         Assertions.assertEquals(5, this.expressionService.getAllExpressionsByCategory(this.categoryService.getCategoryById(12L)).size());

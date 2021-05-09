@@ -75,7 +75,7 @@ public class ExpressionController {
             try {
                 ExpressionDTO expressionDTO = this.expressionService.saveExpression(categoryId, nameDTO);
                 return new ResponseEntity<>(expressionDTO, HttpStatus.OK);
-            } catch (ExpressionService.ExpressionAlreadyExists e) {
+            } catch (ExpressionService.ExpressionAlreadyExistsException e) {
                 return new ResponseEntity<>(HttpStatus.CONFLICT);
             }
         } else {
@@ -100,10 +100,8 @@ public class ExpressionController {
         try {
             this.expressionService.deleteExpression(expression);
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (ExpressionService.ExpressionDoesNotExistAnymore e) {
+        } catch (ExpressionService.ExpressionDoesNotExistAnymoreException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (ExpressionService.ExpressionReferencedInGame e) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
 
@@ -122,7 +120,7 @@ public class ExpressionController {
 
         try {
             expressionDTOs = this.expressionService.importExpressionsIntoCategory(categoryId, expressionNames);
-        } catch (ExpressionService.ExpressionAlreadyExists ignored) {
+        } catch (ExpressionService.ExpressionAlreadyExistsException ignored) {
 
         }
         return new ResponseEntity<>(expressionDTOs, HttpStatus.CREATED);
@@ -142,7 +140,7 @@ public class ExpressionController {
 
         try {
             importedCategoriesAndExpressions.addAll(this.expressionService.importExpressions(categoryExpressionAsStringsDTOS));
-        } catch (CategoryService.CategoryAlreadyExistsException | ExpressionService.ExpressionAlreadyExists ignored) {
+        } catch (CategoryService.CategoryAlreadyExistsException | ExpressionService.ExpressionAlreadyExistsException ignored) {
 
         }
         return new ResponseEntity<>(importedCategoriesAndExpressions, HttpStatus.CREATED);
