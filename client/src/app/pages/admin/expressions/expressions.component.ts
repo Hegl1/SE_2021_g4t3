@@ -6,6 +6,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
+import { HelpDialogComponent } from 'src/app/components/help-dialog/help-dialog.component';
 import { InputDialogComponent } from 'src/app/components/input-dialog/input-dialog.component';
 import { ApiService } from 'src/app/core/api/api.service';
 import { CategoryInfo } from 'src/app/core/api/ApiInterfaces';
@@ -348,7 +349,10 @@ export class ExpressionsComponent implements OnInit {
    * Shows a help dialog for importing expressions
    */
   showHelpImport() {
-    // TODO: show help
-    throw new Error('Not implemented');
+    this.dialog.open(HelpDialogComponent, {
+      data: {
+        key: 'IMPORT_EXPRESSIONS',
+      },
+    });
   }
 }

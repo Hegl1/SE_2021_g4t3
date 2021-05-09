@@ -39,6 +39,10 @@ import { AddPlayerToTeamDialogComponent } from './pages/game/components/game-wai
 import { TimePipe } from './core/pipes/time.pipe';
 import { PlayerNameComponent } from './components/player-name/player-name.component';
 import ThemeService from './core/theme/theme.service';
+import { HelpDialogComponent } from './components/help-dialog/help-dialog.component';
+import { HelpImportExpressionsComponent } from './components/help-dialog/components/help-import-expressions/help-import-expressions.component';
+import { HelpDiceConnectionComponent } from './components/help-dialog/components/help-dice-connection/help-dice-connection.component';
+import { HelpDiceMappingComponent } from './components/help-dialog/components/help-dice-mapping/help-dice-mapping.component';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();
@@ -82,6 +86,10 @@ export function setupTheme(service: ThemeService) {
     AddPlayerToTeamDialogComponent,
     TimePipe,
     PlayerNameComponent,
+    HelpDialogComponent,
+    HelpImportExpressionsComponent,
+    HelpDiceConnectionComponent,
+    HelpDiceMappingComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, HttpClientModule],
   providers: [

@@ -1,0 +1,87 @@
+<p>You can import expressions using CSV and JSON. For importing expressions there are two options:</p>
+
+<h3>1. Importing expressions for a category</h3>
+<div>
+    <ul>
+        <li>At first you have to select the category for which to import the expressions</li>
+        <li>Then you need to select the file to import expressions from</li>
+        <li>The expressions are now imported</li>
+    </ul>
+    <span
+        ><i>Note:</i> If an expression already exists in this category, it is not created again and will not produce a
+        warning/error.</span
+    >
+
+    <p>The files have to have the following format:</p>
+
+    <i>*.csv</i>
+    <pre>
+expression1
+expression2
+.
+.
+.</pre
+    >
+    <p style="margin-bottom: 2em">
+        <a href="assets/examples/import_expressions.csv" download>Example file (.csv)</a>
+    </p>
+
+    <i>*.json</i>
+    <pre>[ "expression1", "expression2", ... ]</pre>
+    <p>
+        <a href="assets/examples/import_expressions.json" download>Example file (.json)</a>
+    </p>
+</div>
+
+<mat-divider style="margin-bottom: 1em"></mat-divider>
+
+<h3>2. Importing expressions for multiple categories</h3>
+<div>
+    <ul>
+        <li>At first you need to select the file to import from</li>
+        <li>Then the expressions and categories are importet</li>
+    </ul>
+    <span
+        ><i>Note:</i> If an expression (in this category)/category already exists, it is not created again and will not
+        produce a warning/error.</span
+    >
+
+    <p>The files have to have the following format:</p>
+
+    <i>*.csv</i>
+    <pre>
+category1;expression1_1
+category1;expression1_2
+.
+.
+.
+category2;expression2_1
+category2;expression2_2
+.
+.
+.</pre
+    >
+    <p style="margin-bottom: 2em">
+        <a href="assets/examples/import_categories.csv" download>Example file (.csv)</a>
+    </p>
+
+    <i>*.json</i>
+    <pre>
+[
+{{ '{' }}
+"category": "category1",
+"expressions": [ "expression1_1", "expression1_2", ... ]
+},
+{{ '{' }}
+"category": "category2",
+"expressions": [ "expression2_1", "expression2_2", ... ]
+},
+.
+.
+.
+]</pre
+    >
+    <p>
+        <a href="assets/examples/import_categories.json" download>Example file (.json)</a>
+    </p>
+</div>
