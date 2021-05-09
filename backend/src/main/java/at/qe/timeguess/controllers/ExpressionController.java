@@ -117,12 +117,8 @@ public class ExpressionController {
     @PostMapping("/categories/{categoryId}/expressions/import")
     public ResponseEntity<List<ExpressionDTO>> importExpressionsIntoCategory(@PathVariable final Long categoryId, @RequestBody final List<String> expressionNames) {
         List<ExpressionDTO> expressionDTOs = null;
+        expressionDTOs = this.expressionService.importExpressionsIntoCategory(categoryId, expressionNames);
 
-        try {
-            expressionDTOs = this.expressionService.importExpressionsIntoCategory(categoryId, expressionNames);
-        } catch (ExpressionService.ExpressionAlreadyExistsException ignored) {
-
-        }
         return new ResponseEntity<>(expressionDTOs, HttpStatus.CREATED);
     }
 
@@ -137,12 +133,8 @@ public class ExpressionController {
     @PostMapping("/expressions/import")
     public ResponseEntity<List<CategoryExpressionDTO>> importExpressions(@RequestBody final List<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOS) {
         List<CategoryExpressionDTO> importedCategoriesAndExpressions = new LinkedList<>();
+        importedCategoriesAndExpressions.addAll(this.expressionService.importExpressions(categoryExpressionAsStringsDTOS));
 
-        try {
-            importedCategoriesAndExpressions.addAll(this.expressionService.importExpressions(categoryExpressionAsStringsDTOS));
-        } catch (CategoryService.CategoryAlreadyExistsException | ExpressionService.ExpressionAlreadyExistsException ignored) {
-
-        }
         return new ResponseEntity<>(importedCategoriesAndExpressions, HttpStatus.CREATED);
     }
 }

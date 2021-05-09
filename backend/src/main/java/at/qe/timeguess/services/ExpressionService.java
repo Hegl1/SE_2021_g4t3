@@ -126,8 +126,7 @@ public class ExpressionService {
      * @param expressionNames the names of the Expressions to be imported
      * @return the Collection of the imported Expressions
      */
-    public List<ExpressionDTO> importExpressionsIntoCategory(final Long categoryId, final Collection<String> expressionNames)
-            throws ExpressionAlreadyExistsException {
+    public List<ExpressionDTO> importExpressionsIntoCategory(final Long categoryId, final Collection<String> expressionNames) {
 
         List<ExpressionDTO> expressionDTOs = new LinkedList<>();
         ExpressionDTO expressionDTO = null;
@@ -149,8 +148,7 @@ public class ExpressionService {
      * @param categoryExpressionAsStringsDTOs Pairs of (Category, Expression[]) to get imported
      * @throws CategoryService.CategoryAlreadyExistsException if the Category to get created already exists
      */
-    public List<CategoryExpressionDTO> importExpressions(final Collection<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOs)
-            throws CategoryService.CategoryAlreadyExistsException, ExpressionAlreadyExistsException {
+    public List<CategoryExpressionDTO> importExpressions(final Collection<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOs) {
 
         Category category;
         List<String> expressionNames = new LinkedList<>();
