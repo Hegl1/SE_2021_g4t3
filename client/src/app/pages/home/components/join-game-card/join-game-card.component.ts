@@ -28,6 +28,10 @@ export class JoinGameCardComponent {
    */
   updateJoinCode() {
     this.code = null;
+    this.icon = {
+      color: null,
+      value: 'vpn_key',
+    };
 
     let joinCode = this.input.replace(/-/g, '');
 
