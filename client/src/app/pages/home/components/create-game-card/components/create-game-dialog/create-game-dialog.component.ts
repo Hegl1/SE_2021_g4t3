@@ -245,6 +245,7 @@ export class CreateGameDialogComponent implements OnInit {
       data: {
         key: 'DICE_CONNECTION',
       },
+      width: '500px',
     });
   }
 
@@ -256,6 +257,7 @@ export class CreateGameDialogComponent implements OnInit {
       data: {
         key: 'DICE_MAPPING',
       },
+      width: '500px',
     });
   }
 }
