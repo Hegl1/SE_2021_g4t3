@@ -1,17 +1,5 @@
 package at.qe.timeguess.gamelogic;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
-
 import at.qe.timeguess.dto.TeamDTO;
 import at.qe.timeguess.dto.UserDTO;
 import at.qe.timeguess.model.Category;
@@ -21,67 +9,63 @@ import at.qe.timeguess.services.ExpressionService;
 import at.qe.timeguess.services.LobbyService;
 import at.qe.timeguess.services.StatisticsService;
 import at.qe.timeguess.services.WebSocketService;
-import at.qe.timeguess.websockDto.BatteryUpdateDTO;
-import at.qe.timeguess.websockDto.DiceConnectionUpdateDTO;
-import at.qe.timeguess.websockDto.FinishedGameDTO;
-import at.qe.timeguess.websockDto.RunningDataDTO;
-import at.qe.timeguess.websockDto.ScoreUpdateDTO;
-import at.qe.timeguess.websockDto.StateUpdateDTO;
-import at.qe.timeguess.websockDto.WaitingDataDTO;
+import at.qe.timeguess.websockDto.*;
+
+import java.util.*;
 
 /**
  * Class that represents am open game. Contains all the game logic.
  */
 public class Game {
 
-	private static WebSocketService webSocketService;
-	private static ExpressionService expressionService;
-	private static LobbyService lobbyService;
-	private static StatisticsService statsService;
+    private static WebSocketService webSocketService;
+    private static ExpressionService expressionService;
+    private static LobbyService lobbyService;
+    private static StatisticsService statsService;
 
-	// general game information
-	private int gameCode;
-	private String raspberryId;
-	private Dice dice;
-	private int maxPoints;
-	private int numberOfTeams;
-	private Category category;
-	private User host;
-	private boolean active;
-	private List<Team> teams;
-	private List<User> usersWithDevices;
+    // general game information
+    private int gameCode;
+    private String raspberryId;
+    private Dice dice;
+    private int maxPoints;
+    private int numberOfTeams;
+    private Category category;
+    private User host;
+    private boolean active;
+    private List<Team> teams;
+    private Set<User> usersWithDevices;
 
-	// setup phase
-	private Map<User, Boolean> readyPlayers;
-	private List<User> unassignedUsers;
+    // setup phase
+    private Map<User, Boolean> readyPlayers;
+    private List<User> unassignedUsers;
 
-	// ingame phase
-	private int currentTeam;
-	private int roundCounter;
-	private Integer currentFacet;
-	private Set<Long> usedExpressions;
-	private Expression currentExpression;
-	private Long roundStartTime;
-	private Long roundEndTime;
-	private long gameStartTime;
-	private boolean expressionConfirmed;
+    // ingame phase
+    private int currentTeam;
+    private int roundCounter;
+    private Integer currentFacet;
+    private Set<Long> usedExpressions;
+    private Expression currentExpression;
+    private Long roundStartTime;
+    private Long roundEndTime;
+    private long gameStartTime;
+    private boolean expressionConfirmed;
 
-	/**
-	 * Minimal constructor for testing purposes
-	 *
-	 * @param code the gamecode
-	 */
-	public Game(final int code) {
-		this.teams = new ArrayList<>();
-		this.readyPlayers = new HashMap<>();
-		this.usersWithDevices = new LinkedList<>();
-		this.usedExpressions = new TreeSet<>();
-		this.unassignedUsers = new LinkedList<>();
-		this.active = false;
-		this.gameCode = code;
-		this.dice = new Dice();
-		dice.setRaspberryConnected(true);
-	}
+    /**
+     * Minimal constructor for testing purposes
+     *
+     * @param code the gamecode
+     */
+    public Game(final int code) {
+        this.teams = new ArrayList<>();
+        this.readyPlayers = new HashMap<>();
+        this.usersWithDevices = new HashSet<>();
+        this.usedExpressions = new TreeSet<>();
+        this.unassignedUsers = new LinkedList<>();
+        this.active = false;
+        this.gameCode = code;
+        this.dice = new Dice();
+        dice.setRaspberryConnected(true);
+    }
 
 	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
 			final String raspberryId) throws GameCreationException {
@@ -97,11 +81,11 @@ public class Game {
 			throw new GameCreationException("Too less teams for game construction");
 		}
 		for (int i = 0; i < numberOfTeams; i++) {
-			Team current = new Team();
-			teams.add(current);
-			current.setIndex(teams.indexOf(current));
-			current.setName("Team " + (current.getIndex() + 1));
-		}
+            final Team current = new Team();
+            teams.add(current);
+            current.setIndex(teams.indexOf(current));
+            current.setName("Team " + (current.getIndex() + 1));
+        }
 		this.dice = new Dice();
 		this.raspberryId = raspberryId;
 		dice.setRaspberryConnected(true);
@@ -128,13 +112,25 @@ public class Game {
 			addToReadyMapIfNotAlreadyExists(player, false);
 		} else if (!isInGame(player) && active) {
 			throw new GameAlreadyRunningException();
-		} else {
-			if (!active) {
-				readyPlayers.put(player, false);
-				usersWithDevices.add(player);
-				webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
-			}
-		}
+        } else {
+
+            if (!usersWithDevices.contains((player))) {
+                usersWithDevices.add(player);
+                if (!active) {
+                    readyPlayers.put(player, false);
+                    new Thread(() -> {
+                        try {
+                            //dirty workaround
+                            Thread.sleep(100);
+                            webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+                        } catch (InterruptedException ignored) {
+                        }
+                    }).start();
+                    // webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+                }
+            }
+
+        }
 	}
 
 	/**
@@ -193,19 +189,19 @@ public class Game {
 	 * @throws HostAlreadyReadyException
 	 */
 	private void leaveTeam(final User player) throws HostAlreadyReadyException {
-		if (!readyPlayers.get(host)) {
-			for (Team current : teams) {
-				if (current.isInTeam(player)) {
-					unassignedUsers.add(player);
-					current.leaveTeam(player);
-					break;
-				}
-			}
-		} else {
-			throw new HostAlreadyReadyException("Host is already ready");
-		}
+        if (!readyPlayers.get(host)) {
+            for (final Team current : teams) {
+                if (current.isInTeam(player)) {
+                    unassignedUsers.add(player);
+                    current.leaveTeam(player);
+                    break;
+                }
+            }
+        } else {
+            throw new HostAlreadyReadyException("Host is already ready");
+        }
 
-	}
+    }
 
 	/**
 	 * Method to make a player leave a game if he is not assigned to a team or set
@@ -221,40 +217,40 @@ public class Game {
 			usersWithDevices.remove(player);
 			webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
 		} else {
-			updateReadyStatus(player, true);
-			usersWithDevices.remove(player);
-		}
+            usersWithDevices.remove(player);
+            updateReadyStatus(player, true);
+        }
 		if (player.equals(host) || (!allTeamsEnoughPlayersWithDevice() && active)) {
 			lobbyService.abortRunningGame(gameCode);
 		}
 	}
 
 	/**
-	 * Method to update the ready status of a user. Also sneds messages to frontend
-	 * via websocket.
-	 *
-	 * @param user    user to update the ready status of.
-	 * @param isReady new ready status.
-	 */
+     * Method to update the ready status of a user. Also sends messages to frontend
+     * via websocket.
+     *
+     * @param user    user to update the ready status of.
+     * @param isReady new ready status.
+     */
 	public void updateReadyStatus(final User user, final Boolean isReady) {
-		if (user.equals(host) && isReady.equals(false)) {
-			// hosts sets ready to false
-			for (User current : usersWithDevices) {
-				readyPlayers.put(current, false);
-				webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
-			}
+        if (user.equals(host) && isReady.equals(false)) {
+            // hosts sets ready to false
+            for (final User current : usersWithDevices) {
+                readyPlayers.put(current, false);
+                webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+            }
 
-		} else if (user.equals(host) && !checkGameStartable()) {
-			// host trys to set ready to true, but not startable - do nothing
-			webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
-		} else if (unassignedUsers.contains(user)) {
-			// do nothing intentionally
-		} else {
-			// set ready of player
-			readyPlayers.put(user, isReady);
-			webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
-			checkAllPlayersReadyAndStartGame();
-		}
+        } else if (user.equals(host) && !checkGameStartable()) {
+            // host tries to set ready to true, but not startable - do nothing
+            webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+        } else if (unassignedUsers.contains(user)) {
+            // do nothing intentionally
+        } else {
+            // set ready of player
+            readyPlayers.put(user, isReady);
+            webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+            checkAllPlayersReadyAndStartGame();
+        }
 	}
 
 	/**
@@ -262,13 +258,13 @@ public class Game {
 	 */
 	private void checkAllPlayersReadyAndStartGame() {
 		if (readyPlayers.get(host)) {
-			for (User user : readyPlayers.keySet()) {
-				if (!readyPlayers.get(user)) {
-					return;
-				}
-			}
-			startGame();
-		}
+            for (final User user : readyPlayers.keySet()) {
+                if (!readyPlayers.get(user)) {
+                    return;
+                }
+            }
+            startGame();
+        }
 	}
 
 	/**
@@ -282,8 +278,8 @@ public class Game {
 		currentTeam = new Random().nextInt(numberOfTeams);
 		roundCounter = 1;
 		if (!pickNewExpression()) {
-			finishGame();
-		}
+            finishGame(true);
+        }
 		roundStartTime = -1L;
 		roundEndTime = -1L;
 		webSocketService.sendCompleteGameUpdateToFrontend(gameCode, buildStateUpdate());
@@ -294,145 +290,140 @@ public class Game {
 	 * accepts updates in appropriate situations, otherwise does nothing.
 	 */
 	public void diceUpdate(final int facet) {
-		if (roundStartTime == -1 && dice.isRaspberryConnected()) {
-			// between round phase - start timer
-			roundStartTime = System.currentTimeMillis() / 1000L;
-			currentFacet = facet;
-			sendRunningDataToTeams();
+        if (roundStartTime == -1 && dice.isRaspberryConnected()) {
+            // between round phase - start timer
+            roundStartTime = System.currentTimeMillis() / 1000L;
+            currentFacet = facet;
+            sendRunningDataToTeams();
 
-		} else {
-			if (roundStartTime != -1L && roundEndTime == -1L && dice.isRaspberryConnected()) {
-				roundEndTime = System.currentTimeMillis() / 1000L;
-				sendRunningDataToTeams();
-			}
-		}
-	}
+        } else {
+            if (roundStartTime != -1L && roundEndTime == -1L && dice.isRaspberryConnected()) {
+                roundEndTime = System.currentTimeMillis() / 1000L;
+                sendRunningDataToTeams();
+            }
+        }
+    }
 
-	/**
-	 * Method that handles when a team confirms whether the current team guessed
-	 * correct, wrong or invald. only changes gameflow in appropriate situations -
-	 * in other situations it does nothing.
-	 *
-	 * @param descision can either be CORRECT, IVALID or WRONG
-	 */
-	public synchronized void confirmExpression(final String descision) {
-		if (roundStartTime != -1 && !expressionConfirmed && dice.isRaspberryConnected()) {
-			expressionConfirmed = true;
-			if (descision.equals("CORRECT")) {
-				teams.get(currentTeam).incrementScore(dice.getPoints(currentFacet));
-				teams.get(currentTeam).incrementCorrectExpressions();
-				webSocketService.sendScoreChangeToFrontend(gameCode,
-						new ScoreUpdateDTO(currentTeam, teams.get(currentTeam).getScore()));
-				if (teams.get(currentTeam).getScore() > maxPoints) {
-					finishGame();
-				}
-			} else if (descision.equals("INVALID")) {
-				teams.get(currentTeam).decrementScore(1);
-				teams.get(currentTeam).incrementWrongExpressions();
-				webSocketService.sendScoreChangeToFrontend(gameCode,
-						new ScoreUpdateDTO(currentTeam, teams.get(currentTeam).getScore()));
-			} else {
-				teams.get(currentTeam).incrementWrongExpressions();
-			}
-			teams.get(currentTeam).incrementCurrentPlayer();
-			incrementCurrentTeam();
-			if (!pickNewExpression()) {
-				finishGame();
-			}
-			currentFacet = null;
-			roundStartTime = -1L;
-			roundEndTime = -1L;
-			expressionConfirmed = false;
-			roundCounter++;
-			sendRunningDataToTeams();
-		}
-	}
+    /**
+     * Method that handles when a team confirms whether the current team guessed
+     * correct, wrong or invalid. only changes game flow in appropriate situations -
+     * in other situations it does nothing.
+     *
+     * @param decision can either be CORRECT, INVALID or WRONG
+     */
+    public synchronized void confirmExpression(final String decision) {
+        if (roundStartTime != -1 && !expressionConfirmed && dice.isRaspberryConnected()) {
+            expressionConfirmed = true;
+            if (decision.equals("CORRECT")) {
+                teams.get(currentTeam).incrementScore(dice.getPoints(currentFacet));
+                teams.get(currentTeam).incrementCorrectExpressions();
+                webSocketService.sendScoreChangeToFrontend(gameCode,
+                    new ScoreUpdateDTO(currentTeam, teams.get(currentTeam).getScore()));
+                if (teams.get(currentTeam).getScore() >= maxPoints) {
+                    finishGame(false);
+                    return;
+                }
+            } else if (decision.equals("INVALID")) {
+                teams.get(currentTeam).decrementScore(1);
+                teams.get(currentTeam).incrementWrongExpressions();
+                webSocketService.sendScoreChangeToFrontend(gameCode,
+                    new ScoreUpdateDTO(currentTeam, teams.get(currentTeam).getScore()));
+            } else {
+                teams.get(currentTeam).incrementWrongExpressions();
+            }
+            teams.get(currentTeam).incrementCurrentPlayer();
+            incrementCurrentTeam();
+            if (!pickNewExpression()) {
+                finishGame(true);
+            }
+            currentFacet = null;
+            roundStartTime = -1L;
+            roundEndTime = -1L;
+            expressionConfirmed = false;
+            roundCounter++;
+            sendRunningDataToTeams();
+        }
+    }
 
-	/**
-	 * Can get called by an admin to force close the game.
-	 */
-	public void forceClose() {
-		webSocketService.sendGameNotContinueableToFrontend(gameCode);
-	}
+    /**
+     * Can get called by an admin to force close the game.
+     */
+    public void forceClose() {
+        webSocketService.sendGameNotContinuableToFrontend(gameCode);
+    }
 
-	/**
-	 * Method that finishes the game properly. Users get notfied of an early end if
-	 * no expressions are left in the category.
-	 */
-	public void finishGame() {
+    /**
+     * Method that finishes the game properly. Users get notified of an early end if
+     * no expressions are left in the category.
+     */
+    public void finishGame(final boolean earlyFinish) {
 
-		long endTime = System.currentTimeMillis() / 1000L;
+        final long endTime = System.currentTimeMillis() / 1000L;
 
-		active = false;
-		Collections.sort(teams, new Comparator<Team>() {
-			@Override
-			public int compare(final Team o1, final Team o2) {
-				if (o1.getScore() < o2.getScore()) {
-					return 1;
-				} else if (o1.getScore() == o2.getScore()) {
-					return 0;
-				} else {
-					return -1;
-				}
-			}
-		});
+        active = false;
+        Collections.sort(teams, new Comparator<Team>() {
+            @Override
+            public int compare(final Team o1, final Team o2) {
+                if (o1.getScore() < o2.getScore()) {
+                    return 1;
+                } else if (o1.getScore() == o2.getScore()) {
+                    return 0;
+                } else {
+                    return -1;
+                }
+            }
+        });
 
-		FinishedGameDTO finishedGame = new FinishedGameDTO(buildTeamDTOs(teams), roundCounter,
-				getTotalNumberOfCorrectExpressions(), getTotalNumberOfWrongExpressions(), endTime - gameStartTime);
+        final FinishedGameDTO finishedGame = new FinishedGameDTO(buildTeamDTOs(teams), roundCounter / numberOfTeams,
+            getTotalNumberOfCorrectExpressions(), getTotalNumberOfWrongExpressions(), endTime - gameStartTime);
 
-		if (usedExpressions.size() == expressionService.getAllExpressionsByCategory(category).size()) {
-			webSocketService.sendFinishGameToFrontend(gameCode, finishedGame, true);
-		} else {
-			webSocketService.sendFinishGameToFrontend(gameCode, finishedGame, false);
-		}
+        webSocketService.sendFinishGameToFrontend(gameCode, finishedGame, earlyFinish);
 
-		persistFinishedGame();
-		lobbyService.closeFinishedGame(gameCode);
+        persistFinishedGame();
+        lobbyService.closeFinishedGame(gameCode);
 
-	}
+    }
 
-	/**
-	 * Persist all the neccessary information of the finished game
-	 */
-	private void persistFinishedGame() {
-		statsService.persistCompletedGame(new Date(gameStartTime * 1000L), new Date(), category, teams);
-	}
+    /**
+     * Persist all the necessary information of the finished game
+     */
+    private void persistFinishedGame() {
+        statsService.persistCompletedGame(new Date(gameStartTime * 1000L), new Date(), category, teams);
+    }
 
-	/**
-	 * Method that updates the dices battery status
-	 */
-	public void updateDiceBattery(final int batteryStatus) {
-		this.dice.setBatteryPower(batteryStatus);
-		webSocketService.sendBatteryUpdateToFrontend(gameCode, new BatteryUpdateDTO(batteryStatus));
-	}
+    /**
+     * Method that updates the dices battery status
+     */
+    public void updateDiceBattery(final int batteryStatus) {
+        this.dice.setBatteryPower(batteryStatus);
+        webSocketService.sendBatteryUpdateToFrontend(gameCode, new BatteryUpdateDTO(batteryStatus));
+    }
 
-	/**
-	 * Method that updates the dices connection status. Blocks active gameflow if
-	 * dice is disconected and starts a fresh round with a fresh expression upon
-	 * reconnection.
-	 */
-	public void updateDiceConnection(final boolean isConnected) {
-		if (isConnected) {
-			if (!pickNewExpression()) {
-				finishGame();
-			}
-			webSocketService.sendConnectionUpdateToFrontend(gameCode, new DiceConnectionUpdateDTO(isConnected));
-			currentFacet = null;
-			roundStartTime = -1L;
-			roundEndTime = -1L;
-			expressionConfirmed = false;
-			sendRunningDataToTeams();
-			dice.setRaspberryConnected(isConnected);
+    /**
+     * Method that updates the dices connection status. Blocks active game flow if
+     * dice is disconnected and starts a fresh round with a fresh expression upon
+     * reconnection.
+     */
+    public void updateDiceConnection(final boolean isConnected) {
 
-		} else {
-			dice.setRaspberryConnected(isConnected);
-			webSocketService.sendConnectionUpdateToFrontend(gameCode, new DiceConnectionUpdateDTO(isConnected));
-			roundStartTime = -1L;
-			roundEndTime = -1l;
-			sendRunningDataToTeams();
-		}
+        currentFacet = null;
+        roundStartTime = -1L;
+        roundEndTime = -1L;
 
-	}
+        webSocketService.sendConnectionUpdateToFrontend(gameCode, new DiceConnectionUpdateDTO(isConnected));
+        dice.setRaspberryConnected(isConnected);
+
+        if (isConnected) {
+            if (!pickNewExpression()) {
+                finishGame(true);
+            }
+            expressionConfirmed = false;
+
+        }
+
+        sendRunningDataToTeams();
+
+    }
 
 	/**
 	 * Method that checks whether all teams have enough devices in their team.
@@ -440,14 +431,14 @@ public class Game {
 	 * @return true if all teams have enough devices.
 	 */
 	private boolean allTeamsEnoughPlayersWithDevice() {
-		for (Team current : teams) {
-			if (!hasEnoughPlayersWithDevices(current)) {
-				return false;
-			}
-		}
+        for (final Team current : teams) {
+            if (!hasEnoughPlayersWithDevices(current)) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
 	/**
 	 * Method that checks whether a team has enough devices.
@@ -456,13 +447,13 @@ public class Game {
 	 * @return true if at least one device is in the team.
 	 */
 	private boolean hasEnoughPlayersWithDevices(final Team t) {
-		for (User current : t.getPlayers()) {
-			if (usersWithDevices.contains(current)) {
-				return true;
-			}
-		}
-		return false;
-	}
+        for (final User current : t.getPlayers()) {
+            if (usersWithDevices.contains(current)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 	/**
 	 * Method that checks whether all conditions for a game start are satisfied.
@@ -470,31 +461,31 @@ public class Game {
 	 * @return true iff no unassigneds, enough devices and all teams > 2 users.
 	 */
 	private boolean checkGameStartable() {
-		boolean unassigneds = this.unassignedUsers.size() == 0;
-		boolean devices = allTeamsEnoughPlayersWithDevice();
-		boolean teamSizes = true;
-		for (Team t : teams) {
-			if (t.getPlayers().size() < 2) {
-				teamSizes = false;
-				break;
-			}
-		}
-		return unassigneds && devices && teamSizes;
-	}
+        final boolean unassigned = this.unassignedUsers.size() == 0;
+        final boolean devices = allTeamsEnoughPlayersWithDevice();
+        boolean teamSizes = true;
+        for (final Team t : teams) {
+            if (t.getPlayers().size() < 2) {
+                teamSizes = false;
+                break;
+            }
+        }
+        return unassigned && devices && teamSizes;
+    }
 
 	/**
 	 * Method that sends running game information to the teams. The currently
 	 * guessing team does not get information about the current expression;
 	 */
 	private void sendRunningDataToTeams() {
-		for (Team t : teams) {
-			if (currentTeam == t.getIndex()) {
-				webSocketService.sendRunningDataToTeam(gameCode, t.getIndex(), buildRunningDataDTO(true));
-			} else {
-				webSocketService.sendRunningDataToTeam(gameCode, t.getIndex(), buildRunningDataDTO(false));
-			}
-		}
-	}
+        for (final Team t : teams) {
+            if (currentTeam == t.getIndex()) {
+                webSocketService.sendRunningDataToTeam(gameCode, t.getIndex(), buildRunningDataDTO(true));
+            } else {
+                webSocketService.sendRunningDataToTeam(gameCode, t.getIndex(), buildRunningDataDTO(false));
+            }
+        }
+    }
 
 	/**
 	 * Method that picks a new random expression and adds it to the usedExpressions
@@ -520,20 +511,20 @@ public class Game {
 	 * @return true if the user is in the game, else false
 	 */
 	public boolean isInGame(final User user) {
-		for (Team t : teams) {
-			if (t.getPlayers().contains(user)) {
-				return true;
-			}
-		}
+        for (final Team t : teams) {
+            if (t.getPlayers().contains(user)) {
+                return true;
+            }
+        }
 
-		for (User u : unassignedUsers) {
-			if (u.equals(user)) {
-				return true;
-			}
-		}
+        for (final User u : unassignedUsers) {
+            if (u.equals(user)) {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
 	/**
 	 * Method that checks whether a user is in the currently guessing team.
@@ -579,95 +570,95 @@ public class Game {
 		}
 	}
 
-	/**
-	 * Method that calculates the total number of correct expressions.
-	 *
-	 * @return total number of correct expressions.
-	 */
-	private int getTotalNumberOfCorrectExpressions() {
-		int result = 0;
-		for (Team t : teams) {
-			result += t.getNumberOfCorrectExpressions();
-		}
-		return result;
-	}
+    /**
+     * Method that calculates the total number of correct expressions.
+     *
+     * @return total number of correct expressions.
+     */
+    private int getTotalNumberOfCorrectExpressions() {
+        int result = 0;
+        for (final Team t : teams) {
+            result += t.getNumberOfCorrectExpressions();
+        }
+        return result;
+    }
 
-	/**
-	 * Method that calulcates the total number of wrong expressions.
-	 *
-	 * @return total number of wrong expressions.
-	 */
-	private int getTotalNumberOfWrongExpressions() {
-		int result = 0;
-		for (Team t : teams) {
-			result += t.getNumberOfCorrectExpressions();
-		}
-		return result;
-	}
+    /**
+     * Method that calculates the total number of wrong expressions.
+     *
+     * @return total number of wrong expressions.
+     */
+    private int getTotalNumberOfWrongExpressions() {
+        int result = 0;
+        for (final Team t : teams) {
+            result += t.getNumberOfCorrectExpressions();
+        }
+        return result;
+    }
 
-	/**
-	 * Builds a List of all ready players
-	 *
+    /**
+     * Builds a List of all ready players
+     *
 	 * @return List of ready players.
-	 */
-	public List<User> buildReadyPlayerList() {
-		List<User> result = new LinkedList<>();
-		for (User current : readyPlayers.keySet()) {
-			if (readyPlayers.get(current)) {
-				result.add(current);
-			}
-		}
-		return result;
-	}
+     */
+    public List<User> buildReadyPlayerList() {
+        final List<User> result = new LinkedList<>();
+        for (final User current : readyPlayers.keySet()) {
+            if (readyPlayers.get(current)) {
+                result.add(current);
+            }
+        }
+        return result;
+    }
 
-	/**
-	 * Builds a WaitingDataDTO from current game information.
-	 *
-	 * @return a correct WaitingDataDTO.
-	 */
-	public WaitingDataDTO buildWaitingDataDTO() {
-		return new WaitingDataDTO(unassignedUsers, buildReadyPlayerList(), checkGameStartable());
-	}
+    /**
+     * Builds a WaitingDataDTO from current game information.
+     *
+     * @return a correct WaitingDataDTO.
+     */
+    public WaitingDataDTO buildWaitingDataDTO() {
+        return new WaitingDataDTO(unassignedUsers, buildReadyPlayerList(), checkGameStartable());
+    }
 
-	/**
-	 * Builds a RunningDataDTO from current game information. If isCurrendTeam is
-	 * true, category is omitted.
-	 *
-	 * @param isCurrendTeam true when building for currently guessing team, else
-	 *                      false.
-	 * @return a correct RunningDataDTO
-	 */
-	public RunningDataDTO buildRunningDataDTO(final boolean isCurrendTeam) {
-		if (isCurrendTeam) {
-			return new RunningDataDTO(roundCounter, roundEndTime, roundStartTime, currentTeam, getCurrentPlayer(), null,
-					dice.getPoints(currentFacet), dice.getDurationInSeconds(currentFacet),
-					dice.getActivity(currentFacet));
-		} else {
-			return new RunningDataDTO(roundCounter, roundEndTime, roundStartTime, currentTeam, getCurrentPlayer(),
-					currentExpression.getName(), dice.getPoints(currentFacet), dice.getDurationInSeconds(currentFacet),
-					dice.getActivity(currentFacet));
-		}
-	}
+    /**
+     * Builds a RunningDataDTO from current game information. If isCurrentTeam is
+     * true, category is omitted.
+     *
+     * @param isCurrentTeam true when building for currently guessing team, else
+     *                      false.
+     * @return a correct RunningDataDTO
+     */
+    public RunningDataDTO buildRunningDataDTO(final boolean isCurrentTeam) {
+        if (isCurrentTeam) {
+            return new RunningDataDTO(roundCounter / numberOfTeams, roundEndTime, roundStartTime, currentTeam, getCurrentPlayer(), null,
+                dice.getPoints(currentFacet), dice.getDurationInSeconds(currentFacet),
+                dice.getActivity(currentFacet));
+        } else {
+            return new RunningDataDTO(roundCounter / numberOfTeams, roundEndTime, roundStartTime, currentTeam, getCurrentPlayer(),
+                currentExpression.getName(), dice.getPoints(currentFacet), dice.getDurationInSeconds(currentFacet),
+                dice.getActivity(currentFacet));
+        }
+    }
 
-	/**
-	 * Method that builds a StateUpdateDTO from currenct game information. If game
-	 * is active, waiting information gets omitted and vice versa.
-	 *
-	 * @return a correct StateUpdateDTO
-	 */
-	public StateUpdateDTO buildStateUpdate() {
+    /**
+     * Method that builds a StateUpdateDTO from current game information. If game
+     * is active, waiting information gets omitted and vice versa.
+     *
+     * @return a correct StateUpdateDTO
+     */
+    public StateUpdateDTO buildStateUpdate() {
 
-		if (isActive()) {
-			RunningDataDTO runningData = buildRunningDataDTO(false);
-			return new StateUpdateDTO("RUNNING", null, runningData, gameCode, buildTeamDTOs(teams), host, category,
-					maxPoints);
-		} else {
-			WaitingDataDTO waitingData = buildWaitingDataDTO();
-			return new StateUpdateDTO("WAITING", waitingData, null, gameCode, buildTeamDTOs(teams), host, category,
-					maxPoints);
-		}
+        if (isActive()) {
+            final RunningDataDTO runningData = buildRunningDataDTO(false);
+            return new StateUpdateDTO("RUNNING", null, runningData, new DiceInfoDTO(dice.isRaspberryConnected(), dice.getBatteryPower()), gameCode, buildTeamDTOs(teams), host, category,
+                maxPoints);
+        } else {
+            final WaitingDataDTO waitingData = buildWaitingDataDTO();
+            return new StateUpdateDTO("WAITING", waitingData, null, new DiceInfoDTO(dice.isRaspberryConnected(), dice.getBatteryPower()), gameCode, buildTeamDTOs(teams), host, category,
+                maxPoints);
+        }
 
-	}
+    }
 
 	/**
 	 * Method that builds a List of TeamDTOs from a List of teams.
@@ -676,12 +667,12 @@ public class Game {
 	 * @return a List of TeamDTOs
 	 */
 	private List<TeamDTO> buildTeamDTOs(final List<Team> teams) {
-		List<TeamDTO> result = new LinkedList<>();
-		for (Team t : teams) {
-			result.add(new TeamDTO(t.getName(), t.getScore(), buildUserDTOs(t.getPlayers()), t.getIndex()));
-		}
-		return result;
-	}
+        final List<TeamDTO> result = new LinkedList<>();
+        for (final Team t : teams) {
+            result.add(new TeamDTO(t.getName(), t.getScore(), buildUserDTOs(t.getPlayers()), t.getIndex()));
+        }
+        return result;
+    }
 
 	/**
 	 * Method that builds a List of UserDTOs from a List of Users
@@ -690,12 +681,12 @@ public class Game {
 	 * @return a List of UserDTOs
 	 */
 	private List<UserDTO> buildUserDTOs(final List<User> users) {
-		List<UserDTO> result = new LinkedList<>();
-		for (User u : users) {
-			result.add(new UserDTO(u.getId(), u.getUsername(), u.getRole().toString()));
-		}
-		return result;
-	}
+        final List<UserDTO> result = new LinkedList<>();
+        for (final User u : users) {
+            result.add(new UserDTO(u.getId(), u.getUsername(), u.getRole().toString()));
+        }
+        return result;
+    }
 
 	// Quick fixes for missing dependency injection into POJOS.
 
@@ -741,26 +732,26 @@ public class Game {
 
 	public Dice getDice() {
 		return dice;
-	}
+    }
 
-	public List<User> getUnassignedUsers() {
-		return this.unassignedUsers;
-	}
+    public List<User> getUnassignedUsers() {
+        return this.unassignedUsers;
+    }
 
-	public int getMaxPoints() {
-		return this.maxPoints;
-	}
+    public int getMaxPoints() {
+        return this.maxPoints;
+    }
 
-	public List<User> getUsersWithDevices() {
-		return this.usersWithDevices;
-	}
+    public Set<User> getUsersWithDevices() {
+        return this.usersWithDevices;
+    }
 
-	public boolean isActive() {
-		return active;
-	}
+    public boolean isActive() {
+        return active;
+    }
 
-	public class UserStateException extends Exception {
-		private static final long serialVersionUID = 1L;
+    public class UserStateException extends Exception {
+        private static final long serialVersionUID = 1L;
 
 		public UserStateException(final String message) {
 			super(message);
@@ -805,20 +796,20 @@ public class Game {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		Game other = (Game) obj;
-		if (gameCode != other.gameCode) {
-			return false;
-		}
-		return true;
-	}
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Game other = (Game) obj;
+        if (gameCode != other.gameCode) {
+            return false;
+        }
+        return true;
+    }
 
 }

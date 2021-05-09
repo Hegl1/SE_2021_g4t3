@@ -64,6 +64,10 @@ export interface RunningGameState extends RunningGame {
     total_time: number;
     action: string;
   } | null;
+  dice_info: {
+    level: number;
+    status: boolean;
+  };
 }
 
 export interface FinishedData {

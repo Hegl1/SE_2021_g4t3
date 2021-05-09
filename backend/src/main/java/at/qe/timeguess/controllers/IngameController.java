@@ -1,17 +1,5 @@
 package at.qe.timeguess.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.gamelogic.Game.HostAlreadyReadyException;
 import at.qe.timeguess.gamelogic.Game.TeamIndexOutOfBoundsException;
@@ -20,6 +8,11 @@ import at.qe.timeguess.services.LobbyService;
 import at.qe.timeguess.services.UserService;
 import at.qe.timeguess.websockDto.JoinOfflineUserDto;
 import at.qe.timeguess.websockDto.StateUpdateDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/ingame")
 @RestController
@@ -148,37 +141,37 @@ public class IngameController {
 
 		if (authUser == null) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-		}
-		if (!lobbyService.isUserInGame(authUser)) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+        }
+        if (!lobbyService.isUserInGame(authUser)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
-		Game game = lobbyService.getGameContainingUser(authUser);
-		return new ResponseEntity<>(game.buildStateUpdate(), HttpStatus.OK);
+        Game game = lobbyService.getGameContainingUser(authUser);
+        return new ResponseEntity<>(game.buildStateUpdate(), HttpStatus.OK);
 
-	}
+    }
 
-	@PostMapping("{gameCode}/confirm")
-	public ResponseEntity<Void> confirmGuess(@PathVariable final int gameCode, @RequestBody final String descision) {
-		User authUser = userService.getAuthenticatedUser();
+    @PostMapping("{gameCode}/confirm")
+    public ResponseEntity<Void> confirmGuess(@PathVariable final int gameCode, @RequestBody final String decision) {
+        User authUser = userService.getAuthenticatedUser();
 
-		if (authUser == null) {
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-		}
+        if (authUser == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
 
-		Game game = lobbyService.getGame(gameCode);
+        Game game = lobbyService.getGame(gameCode);
 
-		if (game == null || !game.isInGame(authUser)) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+        if (game == null || !game.isInGame(authUser)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
-		if (game.isUserInCurrentTeam(authUser)) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
+        if (game.isUserInCurrentTeam(authUser)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
-		game.confirmExpression(descision);
-		return new ResponseEntity<>(HttpStatus.OK);
+        game.confirmExpression(decision);
+        return new ResponseEntity<>(HttpStatus.OK);
 
-	}
+    }
 
 }

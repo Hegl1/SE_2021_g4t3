@@ -38,9 +38,13 @@ import { LogoutComponent } from './pages/logout/logout.component';
 import { AddPlayerToTeamDialogComponent } from './pages/game/components/game-waiting/components/add-player-to-team-dialog/add-player-to-team-dialog.component';
 import { TimePipe } from './core/pipes/time.pipe';
 import { PlayerNameComponent } from './components/player-name/player-name.component';
+import ThemeService from './core/theme/theme.service';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();
+}
+export function setupTheme(service: ThemeService) {
+  return () => service.applyTheme();
 }
 
 @NgModule({
@@ -85,6 +89,12 @@ export function setupConfig(service: ConfigService) {
       provide: APP_INITIALIZER,
       useFactory: setupConfig,
       deps: [ConfigService],
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: setupTheme,
+      deps: [ThemeService],
       multi: true,
     },
   ],

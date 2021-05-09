@@ -1,14 +1,5 @@
 package at.qe.timeguess.services;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Service;
-
 import at.qe.timeguess.gamelogic.Dice;
 import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.gamelogic.Game.GameAlreadyRunningException;
@@ -18,6 +9,14 @@ import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException;
 import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class that holds and manages all games.
@@ -166,11 +165,11 @@ public class LobbyService {
 		}
 	}
 
-	/**
-	 * Forcefully elimantes a game from the index.
-	 * 
-	 * @param gameCode code of running game
-	 */
+    /**
+     * Forcefully eliminates a game from the index.
+     *
+     * @param gameCode code of running game
+     */
 	public void abortRunningGame(final int gameCode) {
 		if (runningGames.containsKey(gameCode)) {
 			runningGames.get(gameCode).forceClose();
@@ -200,7 +199,7 @@ public class LobbyService {
 
 	/**
 	 * Checks whether a user is assigned to a game
-	 * 
+	 *
 	 * @param user the user to check for
 	 * @return true if user is assigned, false otherwise
 	 */

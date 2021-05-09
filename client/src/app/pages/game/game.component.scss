@@ -7,12 +7,15 @@ h1 > .status {
   display: inline-block;
 
   &.status_WAITING {
-    background-color: #2f2fda;
+    background: #2f2fda;
+    color: #fff;
   }
   &.status_RUNNING {
-    background-color: #1fb11f;
+    background: #1fb11f;
+    color: #fff;
   }
   &.status_FINISHED {
-    background-color: #f0a00c;
+    background: #f0a00c;
+    color: #fff;
   }
 }

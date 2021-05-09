@@ -16,12 +16,13 @@ public class Dice {
 	 * Default constructor that initializes the dice with the default mapping.
 	 */
 	public Dice() {
-		pointsMapping = new int[12];
-		activityMapping = new String[12];
-		durationMapping = new int[12];
-		this.raspberryConnected = true;
-		loadDefaultMapping();
-	}
+        pointsMapping = new int[12];
+        activityMapping = new String[12];
+        durationMapping = new int[12];
+        this.raspberryConnected = true;
+        this.batteryPower = 100;
+        loadDefaultMapping();
+    }
 
 	/**
 	 * Constructor that initializes the dice with a given mapping. All arrays
@@ -42,24 +43,24 @@ public class Dice {
 	 * Initializes dice with default mapping.
 	 */
 	private void loadDefaultMapping() {
-		for (int i = 0; i < 12; i++) {
-			pointsMapping[i] = i % 3 + 1;
-			durationMapping[i] = ((i % 3) + 1) * 60;
-		}
+        for (int i = 0; i < 12; i++) {
+            pointsMapping[i] = i % 3 + 1;
+            durationMapping[i] = ((i % 3) + 1) * 60;
+        }
 
-		activityMapping[0] = "Mime";
-		activityMapping[1] = "Speak";
-		activityMapping[2] = "Draw";
-		activityMapping[3] = "Rhime";
-		activityMapping[4] = "Mime";
-		activityMapping[5] = "Speak";
-		activityMapping[6] = "Draw";
-		activityMapping[7] = "Rhime";
-		activityMapping[8] = "Mime";
-		activityMapping[9] = "Speak";
-		activityMapping[10] = "Draw";
-		activityMapping[11] = "Rhime";
-	}
+        activityMapping[0] = "Mime";
+        activityMapping[1] = "Speak";
+        activityMapping[2] = "Draw";
+        activityMapping[3] = "Rhyme";
+        activityMapping[4] = "Mime";
+        activityMapping[5] = "Speak";
+        activityMapping[6] = "Draw";
+        activityMapping[7] = "Rhyme";
+        activityMapping[8] = "Mime";
+        activityMapping[9] = "Speak";
+        activityMapping[10] = "Draw";
+        activityMapping[11] = "Rhyme";
+    }
 
 	public Integer getPoints(final Integer facet) {
 		if (facet == null) {

@@ -25,7 +25,6 @@ public class ExpressionServiceTest {
 
     @Autowired
     private CategoryService categoryService;
-    private Object ArrayList;
 
     @Test
     public void testGetExpressionById() {
