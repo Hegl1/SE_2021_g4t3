@@ -102,8 +102,6 @@ public class ExpressionController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (ExpressionService.ExpressionDoesNotExistAnymore e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (ExpressionService.ExpressionReferencedInGame e) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
 

@@ -165,35 +165,17 @@ public class ExpressionService {
         return categoryExpressionDTOs;
     }
 
-    // TODO: Expressions should be deletable, even if Category is referenced
     /**
      * Deletes an Expression
      *
      * @param expression the Expression to be deleted
      * @throws ExpressionDoesNotExistAnymore if the Expression to get deleted does not exist anymore
      */
-    public void deleteExpression(final Expression expression) throws ExpressionDoesNotExistAnymore, ExpressionReferencedInGame {
+    public void deleteExpression(final Expression expression) throws ExpressionDoesNotExistAnymore {
 
         if(expression == null) {
             throw new ExpressionDoesNotExistAnymore("This Expression does not exist anymore!");
         } else {
-            Category category = expression.getCategory();
-            Collection<Game> allRunningGames = this.lobbyService.getAllRunningGames();
-            Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
-
-            for(Game current : allRunningGames) {
-
-                if(current.getCategory() == category) {
-                    throw new ExpressionReferencedInGame("The Category of this Expression is referenced in a Game!");
-                }
-            }
-
-            for(CompletedGame current : allCompletedGames) {
-
-                if(current.getCategory().getId().equals(category.getId())) {
-                    throw new ExpressionReferencedInGame("The Category of this Expression is referenced in a Game!");
-                }
-            }
             this.expressionRepository.delete(expression);
         }
     }

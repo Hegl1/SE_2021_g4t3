@@ -153,11 +153,4 @@ public class ExpressionServiceTest {
 
         Assertions.assertThrows(ExpressionService.ExpressionDoesNotExistAnymore.class, () -> this.expressionService.deleteExpression(expression));
     }
-
-    @Test
-    @DirtiesContext
-    public void testExpressionReferencedInGameException() {
-        Expression expression = this.expressionService.getExpressionById(0L);
-        Assertions.assertThrows(ExpressionService.ExpressionReferencedInGame.class, () -> this.expressionService.deleteExpression(expression));
-    }
 }

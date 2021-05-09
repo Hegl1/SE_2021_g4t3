@@ -58,7 +58,6 @@ public class CategoryService {
         return this.categoryRepository.findFirstByName(name);
     }
 
-    // TODO: check running games as well
     /**
      * Checks if a Category is deletable, based on occurrences in completed Games
      *
@@ -67,7 +66,10 @@ public class CategoryService {
      */
     public boolean isDeletable(Category category) {
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
-        return allCompletedGames.stream().noneMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName()));
+        Collection<Game> allRunningGames = this.lobbyService.getAllRunningGames();
+
+        return allCompletedGames.stream().noneMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName())) ||
+            allRunningGames.stream().anyMatch(runningGame -> runningGame.getCategory().getId().equals(category.getId()));
     }
 
     /**
@@ -84,7 +86,6 @@ public class CategoryService {
         return this.categoryRepository.save(category);
     }
 
-    // TODO: use isDeletable method
     /**
      * Deletes a Category, except when it is referenced in the completed games
      *
@@ -95,8 +96,7 @@ public class CategoryService {
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         Collection<Game> allRunningGames = this.lobbyService.getAllRunningGames();
 
-        if(allCompletedGames.stream().anyMatch(completedGame -> completedGame.getCategory().getId().equals(category.getId())) ||
-            allRunningGames.stream().anyMatch(runningGame -> runningGame.getCategory().getId().equals(category.getId()))) {
+        if(!this.isDeletable(category)) {
             throw new CategoryIsReferencedInCompletedGamesException("This Category can not be deleted, because it is referenced in a game!");
         }
         this.categoryRepository.delete(category);

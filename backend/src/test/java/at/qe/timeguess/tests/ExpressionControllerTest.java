@@ -101,14 +101,6 @@ public class ExpressionControllerTest {
     @Test
     @DirtiesContext
     @WithMockUser(username = "admin", authorities = { "ADMIN" })
-    public void testDeleteExpressionHttpStatusConflict() {
-        ResponseEntity<Expression> response = this.expressionController.deleteExpression(1L);
-        Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testImportExpressionsIntoCategory() {
         List<String> expressionNames = new LinkedList<>();
         for(int i = 1; i < 6; i++) {
