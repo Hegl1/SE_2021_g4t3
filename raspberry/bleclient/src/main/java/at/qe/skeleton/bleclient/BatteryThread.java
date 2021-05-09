@@ -18,7 +18,7 @@ public class BatteryThread extends Thread {
         while(true) {
             dice.readBatteryLevel(); // HTTP requests to backend are included
             try {
-                Thread.sleep(1200000); // 20 minutes
+                Thread.sleep(180000); // 3 minutes
             } catch (InterruptedException e) {
                 System.out.println("Battery thread: sleep got interrupted.");
             }

@@ -20,7 +20,7 @@ public class Dice {
         activityMapping = new String[12];
         durationMapping = new int[12];
         this.raspberryConnected = true;
-        this.batteryPower = 100;
+        this.batteryPower = -1;
         loadDefaultMapping();
     }
 
