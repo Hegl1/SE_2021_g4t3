@@ -39,7 +39,7 @@ public class StatisticsControllerTest {
     @Test
     public void testGetCategoryStatus() {
         ResponseEntity<List<CategoryStatisticsDTO>> response = this.statisticsController.getCategoryStats();
-        Assertions.assertEquals(3, response.getBody().size());
+        Assertions.assertEquals(8, response.getBody().size());
     }
 
     @Test
