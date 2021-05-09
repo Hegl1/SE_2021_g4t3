@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>
+    <mat-icon color="primary" [inline]="true">help</mat-icon>
+    <span>Help - {{ title }}</span>
+</h2>
+<mat-dialog-content class="mat-typography">
+    <tg-help-import-expressions *ngIf="data.key === 'IMPORT_EXPRESSIONS'"></tg-help-import-expressions>
+    <tg-help-dice-connection *ngIf="data.key === 'DICE_CONNECTION'"></tg-help-dice-connection>
+    <tg-help-dice-mapping *ngIf="data.key === 'DICE_MAPPING'"></tg-help-dice-mapping>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>OK</button>
+</mat-dialog-actions>

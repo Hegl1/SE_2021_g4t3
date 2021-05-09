@@ -147,7 +147,7 @@ mat-drawer-container {
       padding-bottom: 1em;
     }
 
-    @media screen and (max-width: calc(#{$nav-width} + 960px + 2em)) {
+    @media screen and (max-width: #{($nav-width / 1em) * 16px + 960px}) {
       main {
         position: initial;
         width: unset;

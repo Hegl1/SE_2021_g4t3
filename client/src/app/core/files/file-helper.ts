@@ -42,9 +42,16 @@ export class FileHelper {
       new_line_char = '\r\n';
     }
 
-    let import_data = csv_data.split(new_line_char).map((line) => {
-      return line.split(';');
-    });
+    let import_data = csv_data
+      .split(new_line_char)
+      .map((line) => {
+        if (line.length > 0) {
+          return line.split(';');
+        }
+
+        return line;
+      })
+      .filter((line) => line.length > 0);
 
     if (import_data.length === 0) {
       return [];

@@ -137,7 +137,7 @@ export class LoginComponent implements OnInit {
       } else if (res.isConflict()) {
         throw new Error('This username is already taken!');
       } else {
-        throw new Error();
+        throw new Error(res.error || undefined);
       }
     } catch (e) {
       this.error = e.message || 'An error occured!';

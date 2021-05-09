@@ -156,9 +156,9 @@ export class EditUserDialogComponent implements OnInit {
       this.dialogRef.close(true);
     } else {
       if (res.isConflict()) {
-        this.error = 'This username is already taken!';
+        this.error = res.error || 'This username is already taken!';
       } else {
-        this.error = 'Error saving user!';
+        this.error = res.error || 'Error saving user!';
       }
     }
   }

@@ -1,8 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ApiService } from 'src/app/core/api/api.service';
 import { User, UserStats } from 'src/app/core/api/ApiInterfaces';
+import { PlayerListDialogComponent } from '../player-list-dialog/player-list-dialog.component';
 
 @Component({
   selector: 'tg-profile-dialog',
@@ -23,7 +24,8 @@ export class ProfileDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA)
     public data: { user_id: number },
     private snackBar: MatSnackBar,
-    private dialogRef: MatDialogRef<ProfileDialogComponent>
+    private dialogRef: MatDialogRef<ProfileDialogComponent>,
+    private dialog: MatDialog
   ) {}
 
   async ngOnInit() {
@@ -53,16 +55,24 @@ export class ProfileDialogComponent implements OnInit {
   }
 
   /**
-   * Generates a list of users, the player has played with of
-   * maximum <i>amount</i>.
+   * Returns a list of users, the player has played with.
+   * If there are more than <i>amount</i> users, truncate is set to true.
    *
    * @param amount the amount of users to contain
-   * @returns the players and if they were truncated
+   * @returns the players and if they should be truncated
    */
-  getPlayedWith(amount = 3) {
+  getPlayedWith(amount = 5) {
     return {
-      players: this.userStats?.played_with.slice(0, Math.min(this.userStats.played_with.length, amount)),
-      truncated: (this.userStats?.played_with.length || 0) > amount,
+      players: this.userStats?.played_with,
+      truncate: (this.userStats?.played_with.length || 0) > amount,
     };
+  }
+
+  showPlayedWithList() {
+    this.dialog.open(PlayerListDialogComponent, {
+      data: {
+        users: this.userStats?.played_with || [],
+      },
+    });
   }
 }

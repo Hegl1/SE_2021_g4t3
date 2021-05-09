@@ -21,10 +21,10 @@
             <tr>
                 <td>Dice battery:</td>
                 <td class="dice_battery">
-                    <mat-icon [color]="isCriticalBatteryLevel ? 'warn' : null" [inline]="true">
-                        {{ isCriticalBatteryLevel ? 'battery_alert' : 'battery_full' }}
+                    <mat-icon [color]="batteryLevelInfo.critical ? 'warn' : null" [inline]="true">
+                        {{ batteryLevelInfo.icon }}
                     </mat-icon>
-                    <span>{{ game.currentState.dice_info.level }}%</span>
+                    <span>{{ batteryLevelInfo.text }}</span>
                 </td>
             </tr>
         </table>

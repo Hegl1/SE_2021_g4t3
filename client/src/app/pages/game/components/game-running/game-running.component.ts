@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserService } from 'src/app/core/auth/user.service';
 import { ConfigService } from 'src/app/core/config/config.service';
 import { GameService } from 'src/app/core/game/game.service';
@@ -14,12 +13,7 @@ export class GameRunningComponent implements OnInit {
 
   timer: any = null;
 
-  constructor(
-    public game: GameService,
-    private user: UserService,
-    private snackBar: MatSnackBar,
-    private config: ConfigService
-  ) {}
+  constructor(public game: GameService, private user: UserService, private config: ConfigService) {}
 
   ngOnInit() {
     this.startTimer();
@@ -56,9 +50,27 @@ export class GameRunningComponent implements OnInit {
   }
 
   get isCriticalBatteryLevel() {
-    if (!this.game.currentState) return false;
+    if (!this.game.currentState || this.game.currentState.dice_info.level === -1) return false;
 
     return this.game.currentState.dice_info.level <= this.config.get('critical_battery_level', 10);
+  }
+
+  get batteryLevelInfo(): { icon: string; critical: boolean; text: string } {
+    if (!this.game.currentState || this.game.currentState.dice_info.level === -1) {
+      return {
+        icon: 'battery_unknown',
+        critical: false,
+        text: 'N/A',
+      };
+    }
+
+    let critical = this.game.currentState.dice_info.level <= this.config.get('critical_battery_level', 10);
+
+    return {
+      icon: 'battery_' + (critical ? 'alert' : 'full'),
+      critical: critical,
+      text: this.game.currentState.dice_info.level + '%',
+    };
   }
 
   get diceInfo(): { color: string; icon: string; message: string } | null {
@@ -90,7 +102,7 @@ export class GameRunningComponent implements OnInit {
       };
     }
 
-    if (this.isCriticalBatteryLevel) {
+    if (this.batteryLevelInfo.critical) {
       return {
         color: 'warn',
         icon: 'battery_alert',

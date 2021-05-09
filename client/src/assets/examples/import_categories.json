@@ -1,0 +1,35 @@
+[
+  {
+    "category": "category1",
+    "expressions": [
+      "expression1_1",
+      "expression1_2",
+      "expression1_3",
+      "expression1_4",
+      "expression1_5",
+      "expression1_6"
+    ]
+  },
+  {
+    "category": "category2",
+    "expressions": [
+      "expression2_1",
+      "expression2_2",
+      "expression2_3",
+      "expression2_4",
+      "expression2_5",
+      "expression2_6"
+    ]
+  },
+  {
+    "category": "category3",
+    "expressions": [
+      "expression3_1",
+      "expression3_2",
+      "expression3_3",
+      "expression3_4",
+      "expression3_5",
+      "expression3_6"
+    ]
+  }
+]

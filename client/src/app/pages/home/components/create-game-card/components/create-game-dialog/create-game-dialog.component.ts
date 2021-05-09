@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { HelpDialogComponent } from 'src/app/components/help-dialog/help-dialog.component';
 import { ApiService } from 'src/app/core/api/api.service';
 import { Category, DiceMapping } from 'src/app/core/api/ApiInterfaces';
 import StorageNames from 'src/app/core/StorageNames';
@@ -35,7 +36,8 @@ export class CreateGameDialogComponent implements OnInit {
     private api: ApiService,
     private dialogRef: MatDialogRef<CreateGameDialogComponent>,
     private snackBar: MatSnackBar,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private dialog: MatDialog
   ) {
     this.createForm = this.fb.group({
       number_teams: [null, [Validators.required, Validators.min(2), Validators.pattern('^[0-9]*$')]],
@@ -96,7 +98,7 @@ export class CreateGameDialogComponent implements OnInit {
         this.dice_icon.value = 'error';
       }
 
-      this.snackBar.open(message || 'Error loading dice information', 'OK', {
+      this.snackBar.open(message || res.error || 'Error loading dice information', 'OK', {
         duration: 5000,
         panelClass: 'action-warn',
       });
@@ -140,8 +142,12 @@ export class CreateGameDialogComponent implements OnInit {
       this.dialogRef.close(res.value);
 
       return;
+    } else if (res.isNotFound()) {
+      this.error = 'The selected dice does not exist';
+    } else if (res.isConflict()) {
+      this.error = 'The selected dice is already in a game';
     } else {
-      this.error = 'Error creating game'; // TODO: error
+      this.error = res.error || 'Error creating game';
     }
   }
 
@@ -228,15 +234,21 @@ export class CreateGameDialogComponent implements OnInit {
    * Shows a help dialog for connecting to a dice
    */
   showHelpConnection() {
-    // TODO: show help
-    throw new Error('Not implemented');
+    this.dialog.open(HelpDialogComponent, {
+      data: {
+        key: 'DICE_CONNECTION',
+      },
+    });
   }
 
   /**
    * Shows a help dialog for mapping a dice
    */
   showHelpMapping() {
-    // TODO: show help
-    throw new Error('Not implemented');
+    this.dialog.open(HelpDialogComponent, {
+      data: {
+        key: 'DICE_MAPPING',
+      },
+    });
   }
 }

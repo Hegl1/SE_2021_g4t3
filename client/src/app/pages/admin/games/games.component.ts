@@ -55,7 +55,7 @@ export class GamesComponent implements OnInit {
 
       await this.reload();
     } else {
-      this.snackBar.open('Error closing game!', 'OK', {
+      this.snackBar.open(res.error || 'Error closing game!', 'OK', {
         duration: 10000,
         panelClass: 'action-warn',
       });

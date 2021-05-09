@@ -20,12 +20,14 @@
         </tr>
         <tr>
             <td>Most won games:</td>
-            <td>
-                <ng-container *ngFor="let player of getPlayedWith()?.players; let i = index"
-                    ><tg-player-name [player]="player"></tg-player-name>
-                    <ng-container *ngIf="i + 1 < (getPlayedWith()?.players || []).length">, </ng-container>
+            <td *ngIf="!getMostWon()?.truncate">
+                <ng-container *ngFor="let player of getMostWon()?.players; let i = index">
+                    <tg-player-name [player]="player"></tg-player-name>
+                    <ng-container *ngIf="i + 1 < (getMostWon()?.players || []).length">, </ng-container>
                 </ng-container>
-                {{ getPlayedWith()?.truncated ? '...' : '' }}
+            </td>
+            <td *ngIf="getMostWon()?.truncate">
+                <a (click)="showMostWonList()">Show list...</a>
             </td>
         </tr>
     </table>
