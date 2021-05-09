@@ -44,6 +44,7 @@ import { HelpImportExpressionsComponent } from './components/help-dialog/compone
 import { HelpDiceConnectionComponent } from './components/help-dialog/components/help-dice-connection/help-dice-connection.component';
 import { HelpDiceMappingComponent } from './components/help-dialog/components/help-dice-mapping/help-dice-mapping.component';
 import { PlayerListDialogComponent } from './components/player-list-dialog/player-list-dialog.component';
+import { AddDiceMappingDialogComponent } from './pages/home/components/create-game-card/components/add-dice-mapping-dialog/add-dice-mapping-dialog.component';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();
@@ -92,6 +93,7 @@ export function setupTheme(service: ThemeService) {
     HelpDiceConnectionComponent,
     HelpDiceMappingComponent,
     PlayerListDialogComponent,
+    AddDiceMappingDialogComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, HttpClientModule],
   providers: [

@@ -6,6 +6,7 @@ import { HelpDialogComponent } from 'src/app/components/help-dialog/help-dialog.
 import { ApiService } from 'src/app/core/api/api.service';
 import { Category, DiceMapping } from 'src/app/core/api/ApiInterfaces';
 import StorageNames from 'src/app/core/StorageNames';
+import { AddDiceMappingDialogComponent } from '../add-dice-mapping-dialog/add-dice-mapping-dialog.component';
 
 @Component({
   selector: 'tg-create-game-dialog',
@@ -175,7 +176,7 @@ export class CreateGameDialogComponent implements OnInit {
    * Loads a list of saved time flip mappings
    */
   loadDiceMappings() {
-    this.diceMappings = JSON.parse(localStorage.getItem(StorageNames.DiceMappings) || '[]');
+    this.diceMappings = JSON.parse(localStorage.getItem(StorageNames.DiceMappings) || '{}');
   }
 
   get diceMappingsNames() {
@@ -188,8 +189,14 @@ export class CreateGameDialogComponent implements OnInit {
    * Opens a dialog to create a new dice mapping
    * and stores it to localstorage
    */
-  addDiceMapping() {
-    // TODO: add dice mapping
+  async addDiceMapping() {
+    let res = await this.dialog.open(AddDiceMappingDialogComponent).afterClosed().toPromise();
+
+    if (res) {
+      this.loadDiceMappings();
+
+      this.dice_mapping?.setValue(res);
+    }
   }
 
   get dice_code() {
