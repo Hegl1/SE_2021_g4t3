@@ -15,11 +15,15 @@ Locate the file `buildScript.sh` in the `raspberry` folder.
 
 Run it: ```sudo bash buildScript.sh```
 
-If you decide, for whatever reason, to build it with tests and javadoc, by replacing in the script the line  ```mvn clean package -Dmaven.test.skip=true -Dmaven.javadoc.skip=true``` with ```mvn clean package```, you need to make sure that:
+If you decide, for whatever reason, to build it with tests and javadoc, you need to make sure that:
 - the central backend is up and running 
 - the file `timeGuessBackendUrl.txt` in the folder `bleclient` contains the **correct URL of the backend**
 
 Those steps are also **essential** steps before running the execution script.
+
+Then locate the file `buildScriptWithTests.sh` in the `raspberry` folder.
+
+Run it: ```sudo bash buildScriptWithTests.sh```
 
 ## Execution
 
@@ -27,7 +31,7 @@ Make sure that the **backend is running** and that you write the **correct URL o
 - windows: `ipconfig`
 - linux: `ifconfig`
 
-Also make sure to **delete the file `timeGuessDiceId.txt`** (if existent) in the bleclient folder before execution of the program, **if it's going to be the first execution** of the program on the raspberry **after a fresh start of the central backend**. The ID which is saved in that file is only valid and registered with the backend as long as the backend is running.
+Also make sure to **delete the file `timeGuessDiceId.txt`** (if existent) in the `bleclient` folder before execution of the program, **if it's going to be the first execution** of the program on the raspberry **after a fresh start of the central backend**. The ID which is saved in that file is only valid and registered with the backend as long as the backend is running.
 
 The dice should be assembled and lying on a straight surface.
 
@@ -60,7 +64,7 @@ After this point you can start throwing your dice. I recommend cleanly putting t
 To stop the program at any time, just press `CTRL+C`.
 
 ### You're having problems?
-- If there occurs a fatal error or any other exception after starting the program for the first time, please try to just re-run the program. It usually just magically works the second time, in case that error occurred.
 - If no TimeFlip device is found during discovery, please try taking the battery out of the dice and putting it back in. (this is a universal fix for any dice related problem)
+- If there occurs a fatal error or any other exception after starting the program for the first time, please try to just re-run the program. It usually just magically works the second time, in case that error occurred. If no dice is found on the second try, please change the battery. If you wait a few seconds after changing the battery and then run the program for the third time, it should *really* work this time...
 - If all fails, please don't hestitate to contact me, Diana Gründlinger (diana.gruendlinger@student.uibk.ac.at), and I will do my best to make it work for you! :)
 
