@@ -64,7 +64,18 @@ After this point you can start throwing your dice. I recommend cleanly putting t
 To stop the program at any time, just press `CTRL+C`.
 
 ### You're having problems?
-- If no TimeFlip device is found during discovery, please try taking the battery out of the dice and putting it back in. (this is a universal fix for any dice related problem)
-- If there occurs a fatal error or any other exception after starting the program for the first time, please try to just re-run the program. It usually just magically works the second time, in case that error occurred. If no dice is found on the second try, please change the battery. If you wait a few seconds after changing the battery and then run the program for the third time, it should *really* work this time...
-- If all fails, please don't hestitate to contact me, Diana Gründlinger (diana.gruendlinger@student.uibk.ac.at), and I will do my best to make it work for you! :)
+
+If no TimeFlip device is found during discovery, please try to change the battery (take the battery out of the dice and put it back in). This is a universal fix for any dice related problem.
+
+If there occurs a fatal error after starting the program for the first time, our suggested solution is: 
+- just ignore the fatal error
+- change the battery of the TimeFlip device (The program didn't stop properly so the dice had no chance to disconnect. Battery change is the universal fix for this.) 
+- wait a few seconds after the battery change
+- re-run the program (it should *really* work this time...)
+
+If any other exception is thrown after execution, please try to just re-run the program. It usually just magically works the second time.
+
+If you make it to the point where it says "notifications should be turned on now", and you're getting response code 200 for all REST calls (battery, facet change etc.), you should be good to go.
+
+If nothing helps and all fails, please don't hestitate to contact me, Diana Gründlinger (diana.gruendlinger@student.uibk.ac.at), and I will do my best to make it work for you! :)
 

@@ -1,0 +1,514 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0xb51fad30, pid=1259, tid=0xa0213460
+#
+# JRE version: OpenJDK Runtime Environment (8.0_212-b01) (build 1.8.0_212-8u212-b01-1+rpi1-b01)
+# Java VM: OpenJDK Client VM (25.212-b01 mixed mode linux-aarch32 )
+# Problematic frame:
+# C  [libstdc++.so.6+0x83d30]  std::__detail::_List_node_base::_M_unhook()+0x8
+#
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.java.com/bugreport/crash.jsp
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread is native thread
+
+siginfo: si_signo: 11 (SIGSEGV), si_code: 1 (SEGV_MAPERR), si_addr: 0x55583882
+
+Registers:
+R0=0xa177b358
+R1=0x00000001
+R2=0x55583882
+R3=0x00010008
+R4=0xa16ff0dc
+R5=0xa1c04da8
+R6=0x00000000
+R7=0x00000002
+R8=0xa02125f8
+R9=0xa19340c0
+R10=0xa0212594
+R11=0xa0212284
+R12=0xa16fe968
+R13=0xa0212268
+R14=0xa16a5f34
+R15=0xb51fad30
+
+Top of Stack: (sp=0xa0212268)
+0xa0212268:   a177b358 a16ff0dc 00000005 a0212288
+0xa0212278:   00010008 a16ff0dc a021229c a16aa074
+0xa0212288:   a177b358 a16ff0dc a02122b4 00010008
+0xa0212298:   a02122cc a16a7be4 a0212404 00000000
+0xa02122a8:   00000004 a16ff0b8 a1a8c898 a177b358
+0xa02122b8:   a16ff0dc a177b358 a1a8c898 a1a8c898
+0xa02122c8:   a021249c a16a8e3c a02122e8 a1a8c898
+0xa02122d8:   a1634ecc 00000000 a1c04da8 a1c13848 
+
+Instructions: (pc=0xb51fad30)
+0xb51fad10:   04 30 91 e5 0a 00 80 e8 04 30 91 e5 00 00 83 e5
+0xb51fad20:   04 00 81 e5 1e ff 2f e1 00 30 90 e5 04 20 90 e5
+0xb51fad30:   00 30 82 e5 04 20 83 e5 1e ff 2f e1 00 30 90 e5
+0xb51fad40:   00 20 91 e5 00 00 53 e1 19 00 00 0a 02 00 51 e1 
+
+Register to memory mapping:
+
+R0=0xa177b358 is an unknown value
+R1=0x00000001 is an unknown value
+R2=0x55583882 is an unknown value
+R3=0x00010008: <offset 0x8> in java at 0x00010000
+R4=0xa16ff0dc: <offset 0xb70dc> in /usr/lib/arm-linux-gnueabihf/libtinyb.so.0.5.1 at 0xa1648000
+R5=0xa1c04da8 is an unknown value
+R6=0x00000000 is an unknown value
+R7=0x00000002 is an unknown value
+R8=0xa02125f8 is an unknown value
+R9=0xa19340c0: g_cclosure_marshal_VOID__OBJECT+0 in /lib/arm-linux-gnueabihf/libgobject-2.0.so.0 at 0xa1922000
+R10=0xa0212594 is an unknown value
+R11=0xa0212284 is an unknown value
+R12=0xa16fe968: <offset 0xb6968> in /usr/lib/arm-linux-gnueabihf/libtinyb.so.0.5.1 at 0xa1648000
+R13=0xa0212268 is an unknown value
+R14=0xa16a5f34: _ZNSt7__cxx114listISt10shared_ptrIN5tinyb14BluetoothEventEESaIS4_EE8_M_eraseESt14_List_iteratorIS4_E+0x30 in /usr/lib/arm-linux-gnueabihf/libtinyb.so.0.5.1 at 0xa1648000
+R15=0xb51fad30: _ZNSt8__detail15_List_node_base9_M_unhookEv+0x8 in /lib/arm-linux-gnueabihf/libstdc++.so.6 at 0xb5177000
+
+
+Stack: [0x9fa14000,0xa0214000],  sp=0xa0212268,  free space=8184k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [libstdc++.so.6+0x83d30]  std::__detail::_List_node_base::_M_unhook()+0x8
+C  [libtinyb.so.0.5.1+0x62074]  std::__cxx11::list<std::shared_ptr<tinyb::BluetoothEvent>, std::allocator<std::shared_ptr<tinyb::BluetoothEvent> > >::erase(std::_List_const_iterator<std::shared_ptr<tinyb::BluetoothEvent> >)+0x48
+C  [libtinyb.so.0.5.1+0x5fbe4]  tinyb::BluetoothManager::handle_event(tinyb::BluetoothType, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, tinyb::BluetoothObject*, tinyb::BluetoothObject&)+0x36c
+C  [libtinyb.so.0.5.1+0x60e3c]  tinyb::BluetoothEventManager::on_interface_added(_GDBusObject*, _GDBusInterface*, void*)+0x294
+C  [libtinyb.so.0.5.1+0x61364]  tinyb::BluetoothEventManager::on_object_added(_GDBusObjectManager*, _GDBusObject*, void*)+0x5c
+
+
+---------------  P R O C E S S  ---------------
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap:
+ def new generation   total 4928K, used 2264K [0xa2e00000, 0xa3350000, 0xa8350000)
+  eden space 4416K,  51% used [0xa2e00000, 0xa3036360, 0xa3250000)
+  from space 512K,   0% used [0xa3250000, 0xa3250000, 0xa32d0000)
+  to   space 512K,   0% used [0xa32d0000, 0xa32d0000, 0xa3350000)
+ tenured generation   total 10944K, used 0K [0xa8350000, 0xa8e00000, 0xb2e00000)
+   the space 10944K,   0% used [0xa8350000, 0xa8350000, 0xa8350200, 0xa8e00000)
+ Metaspace       used 2560K, capacity 2712K, committed 2712K, reserved 4400K
+
+Card table byte_map: [0xa2d7f000,0xa2e00000] byte_map_base: 0xa2868000
+
+Polling page: 0xb6f42000
+
+CodeCache: size=32768Kb used=1244Kb max_used=1244Kb free=31523Kb
+ bounds [0xb2ec7000, 0xb2fff000, 0xb4ec7000]
+ total_blobs=239 nmethods=94 adapters=77
+ compilation: enabled
+
+Compilation events (10 events):
+Event: 4.503 Thread 0xb4f82000   90             java.lang.String::getChars (62 bytes)
+Event: 4.503 Thread 0xb4f82000 nmethod 90 0xb2ff93c8 code [0xb2ff9500, 0xb2ff97cc]
+Event: 4.503 Thread 0xb4f82000   91             java.lang.AbstractStringBuilder::append (50 bytes)
+Event: 4.504 Thread 0xb4f82000 nmethod 91 0xb2ff99c8 code [0xb2ff9b00, 0xb2ff9e2c]
+Event: 4.519 Thread 0xb4f82000   92             java.lang.StringBuilder::append (8 bytes)
+Event: 4.520 Thread 0xb4f82000 nmethod 92 0xb2ffa008 code [0xb2ffa100, 0xb2ffa1f0]
+Event: 14.015 Thread 0xb4f82000   93   !         java.util.concurrent.ConcurrentHashMap::transfer (832 bytes)
+Event: 14.020 Thread 0xb4f82000 nmethod 93 0xb2ffa248 code [0xb2ffa480, 0xb2ffb774]
+Event: 14.747 Thread 0xb4f82000   94             sun.net.www.ParseUtil::encodePath (336 bytes)
+Event: 14.751 Thread 0xb4f82000 nmethod 94 0xb2ffd208 code [0xb2ffd3a0, 0xb2ffdb84]
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (7 events):
+Event: 0.080 Thread 0xb4f07800 Exception <a 'java/lang/NoSuchMethodError': Method sun.misc.Unsafe.defineClass(Ljava/lang/String;[BII)Ljava/lang/Class; name or signature does not match> (0xa2e06ea0) thrown at [/openjdk-8-8u212-b01/src/hotspot/src/share/vm/prims/jni.cpp, line 4012]
+Event: 0.080 Thread 0xb4f07800 Exception <a 'java/lang/NoSuchMethodError': Method sun.misc.Unsafe.prefetchRead(Ljava/lang/Object;J)V name or signature does not match> (0xa2e07170) thrown at [/openjdk-8-8u212-b01/src/hotspot/src/share/vm/prims/jni.cpp, line 4012]
+Event: 0.178 Thread 0xb4f07800 Exception <a 'java/util/zip/ZipException'> (0xa2e57ef8) thrown at [/openjdk-8-8u212-b01/src/hotspot/src/share/vm/prims/jni.cpp, line 710]
+Event: 0.178 Thread 0xb4f07800 Exception <a 'java/security/PrivilegedActionException'> (0xa2e58178) thrown at [/openjdk-8-8u212-b01/src/hotspot/src/share/vm/prims/jvm.cpp, line 1502]
+Event: 0.178 Thread 0xb4f07800 Exception <a 'java/security/PrivilegedActionException'> (0xa2e58378) thrown at [/openjdk-8-8u212-b01/src/hotspot/src/share/vm/prims/jvm.cpp, line 1502]
+Event: 4.461 Thread 0xb4f07800 Exception <a 'java/lang/NoSuchFieldError': method resolution failed> (0xa2f83c38) thrown at [/openjdk-8-8u212-b01/src/hotspot/src/share/vm/prims/methodHandles.cpp, line 1167]
+Event: 4.466 Thread 0xb4f07800 Exception <a 'java/lang/NoSuchFieldError': method resolution failed> (0xa2f8fe18) thrown at [/openjdk-8-8u212-b01/src/hotspot/src/share/vm/prims/methodHandles.cpp, line 1167]
+
+Events (10 events):
+Event: 14.036 loading class java/util/regex/Pattern$TreeInfo
+Event: 14.036 loading class java/util/regex/Pattern$TreeInfo done
+Event: 14.036 loading class tinyb/BluetoothType
+Event: 14.036 loading class tinyb/BluetoothType done
+Event: 14.744 loading class tinyb/BluetoothGattService
+Event: 14.744 loading class tinyb/BluetoothGattService done
+Event: 14.745 loading class tinyb/BluetoothAdapter
+Event: 14.745 loading class tinyb/BluetoothAdapter done
+Event: 14.797 loading class tinyb/BluetoothGattCharacteristic
+Event: 14.797 loading class tinyb/BluetoothGattCharacteristic done
+
+
+Dynamic libraries:
+00010000-00011000 r-xp 00000000 b3:02 392750     /usr/lib/jvm/java-8-openjdk-armhf/jre/bin/java
+00020000-00021000 r--p 00000000 b3:02 392750     /usr/lib/jvm/java-8-openjdk-armhf/jre/bin/java
+00021000-00022000 rw-p 00001000 b3:02 392750     /usr/lib/jvm/java-8-openjdk-armhf/jre/bin/java
+01065000-01086000 rw-p 00000000 00:00 0          [heap]
+9f9e8000-9fa13000 r--s 001fc000 b3:02 386398     /home/pi/SE/g4t3/raspberry/bleclient/target/dependencies/guava-18.0.jar
+9fa13000-9fa14000 ---p 00000000 00:00 0 
+9fa14000-a0214000 rw-p 00000000 00:00 0 
+a0214000-a0215000 ---p 00000000 00:00 0 
+a0215000-a0a15000 rw-p 00000000 00:00 0 
+a0a15000-a0a33000 r--p 00000000 b3:02 60484      /usr/share/locale/en_GB/LC_MESSAGES/glib20.mo
+a0a33000-a0a34000 ---p 00000000 00:00 0 
+a0a34000-a1234000 rw-p 00000000 00:00 0 
+a1234000-a127b000 r-xp 00000000 b3:02 836        /usr/lib/arm-linux-gnueabihf/libjavatinyb.so.0.5.1
+a127b000-a128a000 ---p 00047000 b3:02 836        /usr/lib/arm-linux-gnueabihf/libjavatinyb.so.0.5.1
+a128a000-a128b000 r--p 00046000 b3:02 836        /usr/lib/arm-linux-gnueabihf/libjavatinyb.so.0.5.1
+a128b000-a128c000 rw-p 00047000 b3:02 836        /usr/lib/arm-linux-gnueabihf/libjavatinyb.so.0.5.1
+a128c000-a12d0000 r-xp 00000000 b3:02 7216       /usr/lib/arm-linux-gnueabihf/libblkid.so.1.1.0
+a12d0000-a12e0000 ---p 00044000 b3:02 7216       /usr/lib/arm-linux-gnueabihf/libblkid.so.1.1.0
+a12e0000-a12e3000 r--p 00044000 b3:02 7216       /usr/lib/arm-linux-gnueabihf/libblkid.so.1.1.0
+a12e3000-a12e4000 rw-p 00047000 b3:02 7216       /usr/lib/arm-linux-gnueabihf/libblkid.so.1.1.0
+a12e4000-a1332000 r-xp 00000000 b3:02 7534       /usr/lib/arm-linux-gnueabihf/libmount.so.1.1.0
+a1332000-a1342000 ---p 0004e000 b3:02 7534       /usr/lib/arm-linux-gnueabihf/libmount.so.1.1.0
+a1342000-a1344000 r--p 0004e000 b3:02 7534       /usr/lib/arm-linux-gnueabihf/libmount.so.1.1.0
+a1344000-a1345000 rw-p 00050000 b3:02 7534       /usr/lib/arm-linux-gnueabihf/libmount.so.1.1.0
+a1345000-a13ab000 r-xp 00000000 b3:02 7628       /usr/lib/arm-linux-gnueabihf/libpcre.so.3.13.3
+a13ab000-a13ba000 ---p 00066000 b3:02 7628       /usr/lib/arm-linux-gnueabihf/libpcre.so.3.13.3
+a13ba000-a13bb000 r--p 00065000 b3:02 7628       /usr/lib/arm-linux-gnueabihf/libpcre.so.3.13.3
+a13bb000-a13bc000 rw-p 00066000 b3:02 7628       /usr/lib/arm-linux-gnueabihf/libpcre.so.3.13.3
+a13bc000-a1522000 r-xp 00000000 b3:02 7377       /usr/lib/arm-linux-gnueabihf/libgio-2.0.so.0.5800.3
+a1522000-a1532000 ---p 00166000 b3:02 7377       /usr/lib/arm-linux-gnueabihf/libgio-2.0.so.0.5800.3
+a1532000-a1536000 r--p 00166000 b3:02 7377       /usr/lib/arm-linux-gnueabihf/libgio-2.0.so.0.5800.3
+a1536000-a1537000 rw-p 0016a000 b3:02 7377       /usr/lib/arm-linux-gnueabihf/libgio-2.0.so.0.5800.3
+a1537000-a1538000 rw-p 00000000 00:00 0 
+a1538000-a1637000 r-xp 00000000 b3:02 7380       /usr/lib/arm-linux-gnueabihf/libglib-2.0.so.0.5800.3
+a1637000-a1646000 ---p 000ff000 b3:02 7380       /usr/lib/arm-linux-gnueabihf/libglib-2.0.so.0.5800.3
+a1646000-a1647000 r--p 000fe000 b3:02 7380       /usr/lib/arm-linux-gnueabihf/libglib-2.0.so.0.5800.3
+a1647000-a1648000 rw-p 000ff000 b3:02 7380       /usr/lib/arm-linux-gnueabihf/libglib-2.0.so.0.5800.3
+a1648000-a16ec000 r-xp 00000000 b3:02 2027       /usr/lib/arm-linux-gnueabihf/libtinyb.so.0.5.1
+a16ec000-a16fc000 ---p 000a4000 b3:02 2027       /usr/lib/arm-linux-gnueabihf/libtinyb.so.0.5.1
+a16fc000-a16fd000 r--p 000a4000 b3:02 2027       /usr/lib/arm-linux-gnueabihf/libtinyb.so.0.5.1
+a16fd000-a1700000 rw-p 000a5000 b3:02 2027       /usr/lib/arm-linux-gnueabihf/libtinyb.so.0.5.1
+a1700000-a17d5000 rw-p 00000000 00:00 0 
+a17d5000-a1800000 ---p 00000000 00:00 0 
+a1800000-a1821000 rw-p 00000000 00:00 0 
+a1821000-a1900000 ---p 00000000 00:00 0 
+a190b000-a1911000 r-xp 00000000 b3:02 7780       /usr/lib/arm-linux-gnueabihf/libuuid.so.1.3.0
+a1911000-a1920000 ---p 00006000 b3:02 7780       /usr/lib/arm-linux-gnueabihf/libuuid.so.1.3.0
+a1920000-a1921000 r--p 00005000 b3:02 7780       /usr/lib/arm-linux-gnueabihf/libuuid.so.1.3.0
+a1921000-a1922000 rw-p 00006000 b3:02 7780       /usr/lib/arm-linux-gnueabihf/libuuid.so.1.3.0
+a1922000-a196e000 r-xp 00000000 b3:02 7388       /usr/lib/arm-linux-gnueabihf/libgobject-2.0.so.0.5800.3
+a196e000-a197d000 ---p 0004c000 b3:02 7388       /usr/lib/arm-linux-gnueabihf/libgobject-2.0.so.0.5800.3
+a197d000-a197e000 r--p 0004b000 b3:02 7388       /usr/lib/arm-linux-gnueabihf/libgobject-2.0.so.0.5800.3
+a197e000-a197f000 rw-p 0004c000 b3:02 7388       /usr/lib/arm-linux-gnueabihf/libgobject-2.0.so.0.5800.3
+a197f000-a1980000 ---p 00000000 00:00 0 
+a1980000-a1a00000 rw-p 00000000 00:00 0 
+a1a00000-a1a96000 rw-p 00000000 00:00 0 
+a1a96000-a1b00000 ---p 00000000 00:00 0 
+a1b0b000-a1b1c000 r-xp 00000000 b3:02 7677       /usr/lib/arm-linux-gnueabihf/libresolv-2.28.so
+a1b1c000-a1b2b000 ---p 00011000 b3:02 7677       /usr/lib/arm-linux-gnueabihf/libresolv-2.28.so
+a1b2b000-a1b2c000 r--p 00010000 b3:02 7677       /usr/lib/arm-linux-gnueabihf/libresolv-2.28.so
+a1b2c000-a1b2d000 rw-p 00011000 b3:02 7677       /usr/lib/arm-linux-gnueabihf/libresolv-2.28.so
+a1b2d000-a1b2f000 rw-p 00000000 00:00 0 
+a1b2f000-a1b32000 ---p 00000000 00:00 0 
+a1b32000-a1b7f000 rw-p 00000000 00:00 0 
+a1b7f000-a1b80000 ---p 00000000 00:00 0 
+a1b80000-a1b83000 ---p 00000000 00:00 0 
+a1b83000-a1c00000 rw-p 00000000 00:00 0 
+a1c00000-a1c21000 rw-p 00000000 00:00 0 
+a1c21000-a1d00000 ---p 00000000 00:00 0 
+a1d04000-a1d24000 r-xp 00000000 b3:02 7700       /usr/lib/arm-linux-gnueabihf/libselinux.so.1
+a1d24000-a1d33000 ---p 00020000 b3:02 7700       /usr/lib/arm-linux-gnueabihf/libselinux.so.1
+a1d33000-a1d34000 r--p 0001f000 b3:02 7700       /usr/lib/arm-linux-gnueabihf/libselinux.so.1
+a1d34000-a1d35000 rw-p 00020000 b3:02 7700       /usr/lib/arm-linux-gnueabihf/libselinux.so.1
+a1d35000-a1d36000 rw-p 00000000 00:00 0 
+a1d36000-a1d39000 ---p 00000000 00:00 0 
+a1d39000-a1d86000 rw-p 00000000 00:00 0 
+a1d86000-a2000000 r--p 0006b000 b3:02 12223      /usr/lib/locale/locale-archive
+a2000000-a2200000 r--p 00000000 b3:02 12223      /usr/lib/locale/locale-archive
+a2200000-a2221000 rw-p 00000000 00:00 0 
+a2221000-a2300000 ---p 00000000 00:00 0 
+a2300000-a2321000 rw-p 00000000 00:00 0 
+a2321000-a2400000 ---p 00000000 00:00 0 
+a2400000-a2421000 rw-p 00000000 00:00 0 
+a2421000-a2500000 ---p 00000000 00:00 0 
+a2503000-a2509000 r-xp 00000000 b3:02 7318       /usr/lib/arm-linux-gnueabihf/libffi.so.6.0.4
+a2509000-a2519000 ---p 00006000 b3:02 7318       /usr/lib/arm-linux-gnueabihf/libffi.so.6.0.4
+a2519000-a251a000 r--p 00006000 b3:02 7318       /usr/lib/arm-linux-gnueabihf/libffi.so.6.0.4
+a251a000-a251b000 rw-p 00007000 b3:02 7318       /usr/lib/arm-linux-gnueabihf/libffi.so.6.0.4
+a251b000-a251d000 r-xp 00000000 b3:02 7383       /usr/lib/arm-linux-gnueabihf/libgmodule-2.0.so.0.5800.3
+a251d000-a252d000 ---p 00002000 b3:02 7383       /usr/lib/arm-linux-gnueabihf/libgmodule-2.0.so.0.5800.3
+a252d000-a252e000 r--p 00002000 b3:02 7383       /usr/lib/arm-linux-gnueabihf/libgmodule-2.0.so.0.5800.3
+a252e000-a252f000 rw-p 00003000 b3:02 7383       /usr/lib/arm-linux-gnueabihf/libgmodule-2.0.so.0.5800.3
+a2544000-a2547000 ---p 00000000 00:00 0 
+a2547000-a2594000 rw-p 00000000 00:00 0 
+a2594000-a2597000 ---p 00000000 00:00 0 
+a2597000-a25e4000 rw-p 00000000 00:00 0 
+a25e4000-a25e5000 ---p 00000000 00:00 0 
+a25e5000-a26b3000 rw-p 00000000 00:00 0 
+a26b3000-a2882000 r--s 03c3b000 b3:02 392838     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/rt.jar
+a2882000-a2b83000 rw-p 00000000 00:00 0 
+a2b83000-a2d29000 ---p 00000000 00:00 0 
+a2d29000-a2d2f000 rw-p 00000000 00:00 0 
+a2d2f000-a2d7f000 ---p 00000000 00:00 0 
+a2d7f000-a2d82000 rw-p 00000000 00:00 0 
+a2d82000-a2da9000 ---p 00000000 00:00 0 
+a2da9000-a2daf000 rw-p 00000000 00:00 0 
+a2daf000-a2dff000 ---p 00000000 00:00 0 
+a2dff000-a3350000 rw-p 00000000 00:00 0 
+a3350000-a8350000 ---p 00000000 00:00 0 
+a8350000-a8e00000 rw-p 00000000 00:00 0 
+a8e00000-b2e00000 ---p 00000000 00:00 0 
+b2e11000-b2e2c000 r--s 001d6000 b3:02 392814     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/ext/nashorn.jar
+b2e2c000-b2e47000 r--s 00394000 b3:02 392809     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/ext/cldrdata.jar
+b2e47000-b2e4c000 rw-p 00000000 00:00 0 
+b2e4c000-b2ec7000 ---p 00000000 00:00 0 
+b2ec7000-b2fff000 rwxp 00000000 00:00 0 
+b2fff000-b4ec7000 ---p 00000000 00:00 0 
+b4ec7000-b4ece000 r-xp 00000000 b3:02 392798     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libzip.so
+b4ece000-b4edd000 ---p 00007000 b3:02 392798     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libzip.so
+b4edd000-b4ede000 r--p 00006000 b3:02 392798     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libzip.so
+b4ede000-b4edf000 rw-p 00007000 b3:02 392798     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libzip.so
+b4edf000-b4ee8000 r-xp 00000000 b3:02 7582       /usr/lib/arm-linux-gnueabihf/libnss_files-2.28.so
+b4ee8000-b4ef8000 ---p 00009000 b3:02 7582       /usr/lib/arm-linux-gnueabihf/libnss_files-2.28.so
+b4ef8000-b4ef9000 r--p 00009000 b3:02 7582       /usr/lib/arm-linux-gnueabihf/libnss_files-2.28.so
+b4ef9000-b4efa000 rw-p 0000a000 b3:02 7582       /usr/lib/arm-linux-gnueabihf/libnss_files-2.28.so
+b4efa000-b4f00000 rw-p 00000000 00:00 0 
+b4f00000-b4ffb000 rw-p 00000000 00:00 0 
+b4ffb000-b5000000 ---p 00000000 00:00 0 
+b5003000-b5005000 r--s 0000d000 b3:02 386410     /home/pi/SE/g4t3/raspberry/bleclient/target/dependencies/objenesis-3.1.jar
+b5005000-b500f000 r--s 00116000 b3:02 392813     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/ext/localedata.jar
+b500f000-b5033000 r-xp 00000000 b3:02 392780     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libjava.so
+b5033000-b5042000 ---p 00024000 b3:02 392780     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libjava.so
+b5042000-b5043000 r--p 00023000 b3:02 392780     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libjava.so
+b5043000-b5044000 rw-p 00024000 b3:02 392780     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libjava.so
+b5044000-b504f000 r-xp 00000000 b3:02 392797     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libverify.so
+b504f000-b505e000 ---p 0000b000 b3:02 392797     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libverify.so
+b505e000-b505f000 r--p 0000a000 b3:02 392797     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libverify.so
+b505f000-b5060000 rw-p 0000b000 b3:02 392797     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/libverify.so
+b5060000-b5066000 r-xp 00000000 b3:02 7683       /usr/lib/arm-linux-gnueabihf/librt-2.28.so
+b5066000-b5075000 ---p 00006000 b3:02 7683       /usr/lib/arm-linux-gnueabihf/librt-2.28.so
+b5075000-b5076000 r--p 00005000 b3:02 7683       /usr/lib/arm-linux-gnueabihf/librt-2.28.so
+b5076000-b5077000 rw-p 00006000 b3:02 7683       /usr/lib/arm-linux-gnueabihf/librt-2.28.so
+b5077000-b5078000 ---p 00000000 00:00 0 
+b5078000-b507b000 ---p 00000000 00:00 0 
+b507b000-b50c8000 rw-p 00000000 00:00 0 
+b50c8000-b50e4000 r-xp 00000000 b3:02 7358       /usr/lib/arm-linux-gnueabihf/libgcc_s.so.1
+b50e4000-b50f3000 ---p 0001c000 b3:02 7358       /usr/lib/arm-linux-gnueabihf/libgcc_s.so.1
+b50f3000-b50f4000 r--p 0001b000 b3:02 7358       /usr/lib/arm-linux-gnueabihf/libgcc_s.so.1
+b50f4000-b50f5000 rw-p 0001c000 b3:02 7358       /usr/lib/arm-linux-gnueabihf/libgcc_s.so.1
+b50f5000-b5166000 r-xp 00000000 b3:02 7516       /usr/lib/arm-linux-gnueabihf/libm-2.28.so
+b5166000-b5175000 ---p 00071000 b3:02 7516       /usr/lib/arm-linux-gnueabihf/libm-2.28.so
+b5175000-b5176000 r--p 00070000 b3:02 7516       /usr/lib/arm-linux-gnueabihf/libm-2.28.so
+b5176000-b5177000 rw-p 00071000 b3:02 7516       /usr/lib/arm-linux-gnueabihf/libm-2.28.so
+b5177000-b52a5000 r-xp 00000000 b3:02 7736       /usr/lib/arm-linux-gnueabihf/libstdc++.so.6.0.25
+b52a5000-b52b5000 ---p 0012e000 b3:02 7736       /usr/lib/arm-linux-gnueabihf/libstdc++.so.6.0.25
+b52b5000-b52ba000 r--p 0012e000 b3:02 7736       /usr/lib/arm-linux-gnueabihf/libstdc++.so.6.0.25
+b52ba000-b52bc000 rw-p 00133000 b3:02 7736       /usr/lib/arm-linux-gnueabihf/libstdc++.so.6.0.25
+b52bc000-b52be000 rw-p 00000000 00:00 0 
+b52be000-b58ac000 r-xp 00000000 b3:02 392764     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/client/libjvm.so
+b58ac000-b58bc000 ---p 005ee000 b3:02 392764     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/client/libjvm.so
+b58bc000-b58cc000 r--p 005ee000 b3:02 392764     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/client/libjvm.so
+b58cc000-b58e4000 rw-p 005fe000 b3:02 392764     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/client/libjvm.so
+b58e4000-b6cff000 rw-p 00000000 00:00 0 
+b6cff000-b6e37000 r-xp 00000000 b3:02 7231       /usr/lib/arm-linux-gnueabihf/libc-2.28.so
+b6e37000-b6e47000 ---p 00138000 b3:02 7231       /usr/lib/arm-linux-gnueabihf/libc-2.28.so
+b6e47000-b6e49000 r--p 00138000 b3:02 7231       /usr/lib/arm-linux-gnueabihf/libc-2.28.so
+b6e49000-b6e4a000 rw-p 0013a000 b3:02 7231       /usr/lib/arm-linux-gnueabihf/libc-2.28.so
+b6e4a000-b6e4d000 rw-p 00000000 00:00 0 
+b6e4d000-b6e4f000 r-xp 00000000 b3:02 7283       /usr/lib/arm-linux-gnueabihf/libdl-2.28.so
+b6e4f000-b6e5e000 ---p 00002000 b3:02 7283       /usr/lib/arm-linux-gnueabihf/libdl-2.28.so
+b6e5e000-b6e5f000 r--p 00001000 b3:02 7283       /usr/lib/arm-linux-gnueabihf/libdl-2.28.so
+b6e5f000-b6e60000 rw-p 00002000 b3:02 7283       /usr/lib/arm-linux-gnueabihf/libdl-2.28.so
+b6e60000-b6e6e000 r-xp 00000000 b3:02 392766     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/jli/libjli.so
+b6e6e000-b6e7d000 ---p 0000e000 b3:02 392766     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/jli/libjli.so
+b6e7d000-b6e7e000 r--p 0000d000 b3:02 392766     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/jli/libjli.so
+b6e7e000-b6e7f000 rw-p 0000e000 b3:02 392766     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/jli/libjli.so
+b6e7f000-b6e99000 r-xp 00000000 b3:02 7850       /usr/lib/arm-linux-gnueabihf/libz.so.1.2.11
+b6e99000-b6ea8000 ---p 0001a000 b3:02 7850       /usr/lib/arm-linux-gnueabihf/libz.so.1.2.11
+b6ea8000-b6ea9000 r--p 00019000 b3:02 7850       /usr/lib/arm-linux-gnueabihf/libz.so.1.2.11
+b6ea9000-b6eaa000 rw-p 0001a000 b3:02 7850       /usr/lib/arm-linux-gnueabihf/libz.so.1.2.11
+b6eaa000-b6ec1000 r-xp 00000000 b3:02 7663       /usr/lib/arm-linux-gnueabihf/libpthread-2.28.so
+b6ec1000-b6ed0000 ---p 00017000 b3:02 7663       /usr/lib/arm-linux-gnueabihf/libpthread-2.28.so
+b6ed0000-b6ed1000 r--p 00016000 b3:02 7663       /usr/lib/arm-linux-gnueabihf/libpthread-2.28.so
+b6ed1000-b6ed2000 rw-p 00017000 b3:02 7663       /usr/lib/arm-linux-gnueabihf/libpthread-2.28.so
+b6ed2000-b6ed4000 rw-p 00000000 00:00 0 
+b6ed4000-b6edb000 r-xp 00000000 b3:02 7187       /usr/lib/arm-linux-gnueabihf/libatomic.so.1.2.0
+b6edb000-b6eea000 ---p 00007000 b3:02 7187       /usr/lib/arm-linux-gnueabihf/libatomic.so.1.2.0
+b6eea000-b6eeb000 r--p 00006000 b3:02 7187       /usr/lib/arm-linux-gnueabihf/libatomic.so.1.2.0
+b6eeb000-b6eec000 rw-p 00007000 b3:02 7187       /usr/lib/arm-linux-gnueabihf/libatomic.so.1.2.0
+b6eec000-b6eed000 rw-p 00000000 00:00 0 
+b6eed000-b6ef0000 r--s 00021000 b3:02 386413     /home/pi/SE/g4t3/raspberry/bleclient/target/dependencies/bluetooth-manager-1.5.3.jar
+b6ef0000-b6ef1000 r--s 00003000 b3:02 395487     /home/pi/SE/g4t3/raspberry/bleclient/lib/tinyb.jar
+b6ef1000-b6ef4000 r--s 00039000 b3:02 392817     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/ext/sunpkcs11.jar
+b6ef4000-b6ef7000 r--s 0000f000 b3:02 392811     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/ext/icedtea-sound.jar
+b6ef7000-b6ef9000 r--s 00008000 b3:02 392815     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/ext/sunec.jar
+b6ef9000-b6efb000 r--s 00001000 b3:02 392810     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/ext/dnsns.jar
+b6efb000-b6efd000 r--s 00007000 b3:02 8490       /usr/share/java/java-atk-wrapper.jar
+b6efd000-b6f02000 r--s 0003c000 b3:02 392816     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/ext/sunjce_provider.jar
+b6f02000-b6f06000 r-xp 00000000 b3:02 7177       /usr/lib/arm-linux-gnueabihf/libarmmem-v7l.so
+b6f06000-b6f15000 ---p 00004000 b3:02 7177       /usr/lib/arm-linux-gnueabihf/libarmmem-v7l.so
+b6f15000-b6f16000 r--p 00003000 b3:02 7177       /usr/lib/arm-linux-gnueabihf/libarmmem-v7l.so
+b6f16000-b6f17000 rw-p 00004000 b3:02 7177       /usr/lib/arm-linux-gnueabihf/libarmmem-v7l.so
+b6f17000-b6f37000 r-xp 00000000 b3:02 7013       /usr/lib/arm-linux-gnueabihf/ld-2.28.so
+b6f37000-b6f38000 r--s 00004000 b3:02 386396     /home/pi/SE/g4t3/raspberry/bleclient/target/bleclient.jar
+b6f38000-b6f39000 r--s 0000a000 b3:02 392812     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/ext/jaccess.jar
+b6f39000-b6f3a000 r--s 00010000 b3:02 392818     /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/ext/zipfs.jar
+b6f3a000-b6f42000 rw-s 00000000 b3:02 261033     /tmp/hsperfdata_root/1259
+b6f42000-b6f43000 r--p 00000000 00:00 0 
+b6f43000-b6f47000 rw-p 00000000 00:00 0 
+b6f47000-b6f48000 r--p 00020000 b3:02 7013       /usr/lib/arm-linux-gnueabihf/ld-2.28.so
+b6f48000-b6f49000 rw-p 00021000 b3:02 7013       /usr/lib/arm-linux-gnueabihf/ld-2.28.so
+beed2000-beef3000 rw-p 00000000 00:00 0          [stack]
+bef89000-bef8a000 r-xp 00000000 00:00 0          [sigpage]
+bef8a000-bef8b000 r--p 00000000 00:00 0          [vvar]
+bef8b000-bef8c000 r-xp 00000000 00:00 0          [vdso]
+ffff0000-ffff1000 r-xp 00000000 00:00 0          [vectors]
+
+VM Arguments:
+java_command: at.qe.skeleton.bleclient.Main
+java_class_path (initial): target/bleclient.jar:./lib/tinyb.jar:./target/dependencies/bluetooth-manager-1.5.3.jar:./target/dependencies/objenesis-3.1.jar:./target/dependencies/guava-18.0.jar:./target/dependencies/mockito-core-3.7.7.jar:./target/dependencies/bluetooth-utils-1.14.jar:./target/dependencies/junit-4.13.jar:./target/dependencies/commons-io-2.4.jar:./target/dependencies/slf4j-api-1.7.21.jar:./target/dependencies/hamcrest-core-1.3.jar:./target/dependencies/byte-buddy-1.10.19.jar:./target/dependencies/byte-buddy-agent-1.10.19.jar:./target/dependencies/bluetooth-manager-tinyb-1.3.3.jar
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+SHELL=/bin/bash
+
+Signal Handlers:
+SIGSEGV: [libjvm.so+0x57b11c], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGBUS: [libjvm.so+0x57b11c], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGFPE: [libjvm.so+0x453b70], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGPIPE: SIG_IGN, sa_mask[0]=00000000000010000000000000000000, sa_flags=SA_RESTART
+SIGXFSZ: [libjvm.so+0x453b70], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGILL: [libjvm.so+0x453b70], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGUSR1: SIG_DFL, sa_mask[0]=00000000000000000000000000000000, sa_flags=none
+SIGUSR2: [libjvm.so+0x45398c], sa_mask[0]=00000000000000000000000000000000, sa_flags=SA_RESTART|SA_SIGINFO
+SIGHUP: [libjvm.so+0x453ad8], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGINT: [libjvm.so+0x453ad8], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGTERM: [libjvm.so+0x453ad8], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGQUIT: [libjvm.so+0x453ad8], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+
+
+---------------  S Y S T E M  ---------------
+
+OS:PRETTY_NAME="Raspbian GNU/Linux 10 (buster)"
+NAME="Raspbian GNU/Linux"
+VERSION_ID="10"
+VERSION="10 (buster)"
+VERSION_CODENAME=buster
+ID=raspbian
+ID_LIKE=debian
+HOME_URL="http://www.raspbian.org/"
+SUPPORT_URL="http://www.raspbian.org/RaspbianForums"
+BUG_REPORT_URL="http://www.raspbian.org/RaspbianBugs"
+
+uname:Linux 5.10.17-v7l+ #1414 SMP Fri Apr 30 13:20:47 BST 2021 armv7l
+libc:glibc 2.28 NPTL 2.28 
+rlimit: STACK 8192k, CORE 0k, NPROC 28554, NOFILE 1048576, AS infinity
+load average:0.39 0.19 0.07
+
+/proc/meminfo:
+MemTotal:        3919132 kB
+MemFree:         3471760 kB
+MemAvailable:    3649388 kB
+Buffers:           40768 kB
+Cached:           220420 kB
+SwapCached:            0 kB
+Active:           121992 kB
+Inactive:         267332 kB
+Active(anon):        424 kB
+Inactive(anon):    99576 kB
+Active(file):     121568 kB
+Inactive(file):   167756 kB
+Unevictable:          16 kB
+Mlocked:              16 kB
+HighTotal:       3264512 kB
+HighFree:        2903796 kB
+LowTotal:         654620 kB
+LowFree:          567964 kB
+SwapTotal:        102396 kB
+SwapFree:         102396 kB
+Dirty:              8764 kB
+Writeback:             0 kB
+AnonPages:        127908 kB
+Mapped:            65720 kB
+Shmem:              8656 kB
+KReclaimable:      17072 kB
+Slab:              31972 kB
+SReclaimable:      17072 kB
+SUnreclaim:        14900 kB
+KernelStack:        1656 kB
+PageTables:         3692 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     2061960 kB
+Committed_AS:     565044 kB
+VmallocTotal:     245760 kB
+VmallocUsed:        5212 kB
+VmallocChunk:          0 kB
+Percpu:              464 kB
+CmaTotal:         262144 kB
+CmaFree:          256032 kB
+
+
+CPU:total 4 (initial active 4) 0x41:0x0:0xd08:3
+
+/proc/cpuinfo:
+processor	: 0
+model name	: ARMv7 Processor rev 3 (v7l)
+BogoMIPS	: 270.00
+Features	: half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer	: 0x41
+CPU architecture: 7
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+processor	: 1
+model name	: ARMv7 Processor rev 3 (v7l)
+BogoMIPS	: 270.00
+Features	: half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer	: 0x41
+CPU architecture: 7
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+processor	: 2
+model name	: ARMv7 Processor rev 3 (v7l)
+BogoMIPS	: 270.00
+Features	: half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer	: 0x41
+CPU architecture: 7
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+processor	: 3
+model name	: ARMv7 Processor rev 3 (v7l)
+BogoMIPS	: 270.00
+Features	: half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer	: 0x41
+CPU architecture: 7
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+Hardware	: BCM2711
+Revision	: c03111
+Serial		: 100000008393b30a
+Model		: Raspberry Pi 4 Model B Rev 1.1
+
+
+Memory: 4k page, physical 3919132k(3471760k free), swap 102396k(102396k free)
+
+vm_info: OpenJDK Client VM (25.212-b01) for linux-aarch32 JRE (1.8.0_212-8u212-b01-1+rpi1-b01), built on Mar 29 2019 13:54:02 by "root" with gcc 8.3.0
+
+time: Sat May  8 18:30:00 2021
+timezone: BST
+elapsed time: 14 seconds (0d 0h 0m 14s)
+
