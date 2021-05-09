@@ -4,9 +4,7 @@ import at.qe.timeguess.dto.CategoryExpressionAsStringsDTO;
 import at.qe.timeguess.dto.CategoryExpressionDTO;
 import at.qe.timeguess.dto.ExpressionDTO;
 import at.qe.timeguess.dto.NameDTO;
-import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.model.Category;
-import at.qe.timeguess.model.CompletedGame;
 import at.qe.timeguess.model.Expression;
 import at.qe.timeguess.repositories.CompletedGameRepository;
 import at.qe.timeguess.repositories.ExpressionRepository;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class represents the Service with which Expressions get managed.
@@ -105,14 +102,16 @@ public class ExpressionService {
      * @param categoryId the ID of the Category to which the Expression gets assigned
      * @param nameDTO contains the name of the Expression
      * @return an ExpressionDTO with the information of the saved Expression
-     * @throws ExpressionAlreadyExists if the Expression already exists in the Category
+     * @throws ExpressionAlreadyExistsException if the Expression already exists in the Category
      */
-    public ExpressionDTO saveExpression(final Long categoryId, final NameDTO nameDTO) throws ExpressionAlreadyExists {
+    public ExpressionDTO saveExpression(final Long categoryId, final NameDTO nameDTO)
+            throws ExpressionAlreadyExistsException {
+
         Category category = this.categoryService.getCategoryById(categoryId);
         Collection<Expression> allExpressionsOfCategory = getAllExpressionsByCategory(category);
 
         if(allExpressionsOfCategory.stream().anyMatch(e -> e.getName().equals(nameDTO.getName()))) {
-            throw new ExpressionAlreadyExists("This Expression already exists in this Category!");
+            throw new ExpressionAlreadyExistsException("This Expression already exists in this Category!");
         }
         Expression expression = this.expressionRepository.save(new Expression(nameDTO.getName(), category));
         return new ExpressionDTO(expression.getId(), expression.getName());
@@ -127,13 +126,18 @@ public class ExpressionService {
      * @param expressionNames the names of the Expressions to be imported
      * @return the Collection of the imported Expressions
      */
-    public List<ExpressionDTO> importExpressionsIntoCategory(final Long categoryId, final Collection<String> expressionNames) throws ExpressionAlreadyExists {
-        Category category = this.categoryService.getCategoryById(categoryId);
+    public List<ExpressionDTO> importExpressionsIntoCategory(final Long categoryId, final Collection<String> expressionNames)
+            throws ExpressionAlreadyExistsException {
+
         List<ExpressionDTO> expressionDTOs = new LinkedList<>();
+        ExpressionDTO expressionDTO = null;
 
         for(String current : expressionNames) {
-            NameDTO nameDTO = new NameDTO(current);
-            ExpressionDTO expressionDTO = this.saveExpression(categoryId, nameDTO);
+            try {
+                expressionDTO = this.saveExpression(categoryId, new NameDTO(current));
+            } catch (ExpressionAlreadyExistsException ignored) {
+
+            }
             expressionDTOs.add(expressionDTO);
         }
         return expressionDTOs;
@@ -145,16 +149,19 @@ public class ExpressionService {
      * @param categoryExpressionAsStringsDTOs Pairs of (Category, Expression[]) to get imported
      * @throws CategoryService.CategoryAlreadyExistsException if the Category to get created already exists
      */
-    public List<CategoryExpressionDTO> importExpressions(final Collection<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOs) throws CategoryService.CategoryAlreadyExistsException, ExpressionAlreadyExists {
+    public List<CategoryExpressionDTO> importExpressions(final Collection<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOs)
+            throws CategoryService.CategoryAlreadyExistsException, ExpressionAlreadyExistsException {
+
         Category category;
         List<String> expressionNames = new LinkedList<>();
         List<ExpressionDTO> expressionDTOs = new LinkedList<>();
         List<CategoryExpressionDTO> categoryExpressionDTOs = new LinkedList<>();
 
         for (CategoryExpressionAsStringsDTO current : categoryExpressionAsStringsDTOs) {
-            category = this.categoryService.getCategoryByName(current.getCategory());
-            if(category == null) {
+            try {
                 category = this.categoryService.saveCategory(new Category(current.getCategory()));
+            } catch (CategoryService.CategoryAlreadyExistsException e) {
+                category = this.categoryService.getCategoryByName(current.getCategory());
             }
 
             expressionNames.addAll(current.getExpressions());
@@ -169,12 +176,12 @@ public class ExpressionService {
      * Deletes an Expression
      *
      * @param expression the Expression to be deleted
-     * @throws ExpressionDoesNotExistAnymore if the Expression to get deleted does not exist anymore
+     * @throws ExpressionDoesNotExistAnymoreException if the Expression to get deleted does not exist anymore
      */
-    public void deleteExpression(final Expression expression) throws ExpressionDoesNotExistAnymore {
+    public void deleteExpression(final Expression expression) throws ExpressionDoesNotExistAnymoreException {
 
         if(expression == null) {
-            throw new ExpressionDoesNotExistAnymore("This Expression does not exist anymore!");
+            throw new ExpressionDoesNotExistAnymoreException("This Expression does not exist anymore!");
         } else {
             this.expressionRepository.delete(expression);
         }
@@ -183,11 +190,11 @@ public class ExpressionService {
     /**
      * Gets thrown when an Expression is tried to be created, which already exists
      */
-    public class ExpressionAlreadyExists extends Exception {
+    public class ExpressionAlreadyExistsException extends Exception {
 
         private static final long serialVersionUID = 1L;
 
-        public ExpressionAlreadyExists(final String message) {
+        public ExpressionAlreadyExistsException(final String message) {
             super(message);
         }
     }
@@ -195,11 +202,11 @@ public class ExpressionService {
     /**
      * Gets thrown when an Expression is tried to be deleted, which does not exist anymore
      */
-    public class ExpressionDoesNotExistAnymore extends Exception {
+    public class ExpressionDoesNotExistAnymoreException extends Exception {
 
         private static final long serialVersionUID = 1L;
 
-        public ExpressionDoesNotExistAnymore(final String message) {
+        public ExpressionDoesNotExistAnymoreException(final String message) {
             super(message);
         }
     }
@@ -207,10 +214,10 @@ public class ExpressionService {
     /**
      * Gets thrown when an Expression is tried to be deleted, which referenced in a completed game
      */
-    public class ExpressionReferencedInGame extends Exception {
+    public class ExpressionReferencedInGameException extends Exception {
         private static final long serialVersionUID = 1L;
 
-        public ExpressionReferencedInGame(final String message) {
+        public ExpressionReferencedInGameException(final String message) {
             super(message);
         }
     }
