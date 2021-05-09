@@ -18,6 +18,15 @@
                 <td>Maximum points:</td>
                 <td>{{ game.currentState.max_score }}</td>
             </tr>
+            <tr>
+                <td>Dice battery:</td>
+                <td class="dice_battery">
+                    <mat-icon [color]="batteryLevelInfo.critical ? 'warn' : null" [inline]="true">
+                        {{ batteryLevelInfo.icon }}
+                    </mat-icon>
+                    <span>{{ batteryLevelInfo.text }}</span>
+                </td>
+            </tr>
         </table>
     </mat-card>
     <mat-card class="currentRoundCard">
@@ -26,10 +35,7 @@
             <tr>
                 <td>Player:</td>
                 <td>
-                    <tg-player-name
-                        [player]="game.currentState.running_data.current_player"
-                        (click)="$event.stopPropagation()"
-                    ></tg-player-name>
+                    <tg-player-name [player]="game.currentState.running_data.current_player"></tg-player-name>
                 </td>
             </tr>
             <tr>
@@ -49,6 +55,11 @@
                 </td>
             </tr>
         </table>
+
+        <div class="dice_info" *ngIf="diceInfo">
+            <mat-icon [color]="diceInfo.color">{{ diceInfo.icon }}</mat-icon>
+            <span>{{ diceInfo.message }}</span>
+        </div>
     </mat-card>
     <mat-card class="timerCard">
         <h2><mat-icon>schedule</mat-icon>Timer</h2>
@@ -79,13 +90,22 @@
             <mat-divider></mat-divider>
 
             <mat-card-actions class="confirm_actions">
-                <button (click)="confirmAnswer('CORRECT')" [disabled]="!game.currentState.running_data.action">
+                <button
+                    (click)="confirmAnswer('CORRECT')"
+                    [disabled]="!game.currentState.running_data.action || !game.connected"
+                >
                     <mat-icon style="color: limegreen">thumb_up</mat-icon>
                 </button>
-                <button (click)="confirmAnswer('WRONG')" [disabled]="!game.currentState.running_data.action">
+                <button
+                    (click)="confirmAnswer('WRONG')"
+                    [disabled]="!game.currentState.running_data.action || !game.connected"
+                >
                     <mat-icon style="color: orange">thumb_down</mat-icon>
                 </button>
-                <button (click)="confirmAnswer('INVALID')" [disabled]="!game.currentState.running_data.action">
+                <button
+                    (click)="confirmAnswer('INVALID')"
+                    [disabled]="!game.currentState.running_data.action || !game.connected"
+                >
                     <mat-icon color="warn">gpp_bad</mat-icon>
                 </button>
             </mat-card-actions>
@@ -115,7 +135,7 @@
                     *ngIf="currentPlayerUser && currentPlayerUser.id === player.id"
                     >play_arrow</mat-icon
                 >
-                <tg-player-name [player]="player" (click)="$event.stopPropagation()"></tg-player-name>
+                <tg-player-name [player]="player"></tg-player-name>
                 <mat-icon [inline]="true" *ngIf="player.id === currentUserId">person</mat-icon>
                 <mat-icon color="accent" [inline]="true" *ngIf="player.id === hostId">star</mat-icon>
             </li>

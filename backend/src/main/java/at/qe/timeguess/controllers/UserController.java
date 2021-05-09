@@ -1,8 +1,8 @@
 package at.qe.timeguess.controllers;
 
+import at.qe.timeguess.dto.CreateUserDTO;
 import at.qe.timeguess.dto.Login;
 import at.qe.timeguess.dto.LoginResult;
-import at.qe.timeguess.dto.CreateUserDTO;
 import at.qe.timeguess.dto.UpdateUserDTO;
 import at.qe.timeguess.model.User;
 import at.qe.timeguess.model.UserRole;
@@ -42,7 +42,7 @@ public class UserController {
      * Method that returns a JWT Token needed for authorization upon successful login.
      *
      * @param login DTO that contains username and password
-     * @return ResponseEntity: Status 401 when wrong credenentials are entered, Status 200 with LoginResult DTO when
+     * @return ResponseEntity: Status 401 when wrong credentials are entered, Status 200 with LoginResult DTO when
      * login was successful
      */
     @PostMapping("/login")
@@ -112,7 +112,7 @@ public class UserController {
      * @param updateUserDTO DTO that contains the changed values of the user and its current password
      * @ return ResponseEntity: 200 when user could be changed successfully, 400 wrong old password or empty password was given
      * 403 when the user hadn't the permissions to change a user, 404 user with specified user id doesn't
-     * exist, 409 if new username is the same as a username of an existing user
+     * exist, 409 if new username is the same as a username of an existing user or user is in game
      */
     @PutMapping("/{id}")
     public ResponseEntity<?> putUser(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
@@ -132,6 +132,10 @@ public class UserController {
 
         if (user == null) {
             return new ResponseEntity("Not Found", HttpStatus.NOT_FOUND);
+        }
+
+        if (lobbyService.isUserInGame(user)) {
+            return new ResponseEntity("User cannot be changed because he is currently in a game.", HttpStatus.CONFLICT);
         }
 
         //if no changes in user do not update
@@ -182,13 +186,18 @@ public class UserController {
      * Method that deletes a user with the specified id. Only admins are allowed to delete users.
      *
      * @param id number that represent the id of the to be deleted user
-     * @return ResponseEntity: 200 if user could be deleted, 404 if user couldn't be found
+     * @return ResponseEntity: 200 if user could be deleted, 404 if user couldn't be found, 409 if user is ingame
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity deleteUser(@PathVariable Long id) {
         User userToDelete = this.userService.getUserById(id);
         if (userToDelete != null) {
+
+            if (lobbyService.isUserInGame(userToDelete)) {
+                return new ResponseEntity("User cannot be deleted because he is currently in a game.", HttpStatus.CONFLICT);
+            }
+
             this.userService.deleteUser(userToDelete);
             return new ResponseEntity(HttpStatus.OK);
         } else {
@@ -238,7 +247,7 @@ public class UserController {
     /**
      * Method searches users by username  based on the given search parameter.
      *
-     * @param username string that is used to seach usernames
+     * @param username string that is used to search usernames
      * @return a list of usernames that match search pattern
      */
     @GetMapping("search/{username}")
@@ -256,6 +265,15 @@ public class UserController {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
 
+    }
+
+    /**
+     * Returns an ok response code if user is authenticated.
+     * @return 401 if user not authenticated, 200 if user authenticated
+     */
+    @GetMapping("/auth")
+    public ResponseEntity<?> isAuthenticated() {
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 }

@@ -4,6 +4,10 @@ import java.util.*;
 import tinyb.*;
 
 // with help from https://github.com/intel-iot-devkit/tinyb/blob/ac6d3082d06183c860eea97f451d5a92022348e0/examples/java/Notification.java#L66
+
+/**
+ * The ValueNotification class provides methods needed for TimeFlip dice facet value notifications.
+ */
 class ValueNotification implements BluetoothNotification<byte[]> {
     private BackendCommunicator backendCommunicator;
     private Map<Integer, Integer> facetMapping;
@@ -14,6 +18,14 @@ class ValueNotification implements BluetoothNotification<byte[]> {
         this.backendCommunicator = backendCommunicator;
         this.facetMapping = new HashMap<>();
         this.availableFacetValues = fillListWithValues(new ArrayList<>());
+    }
+
+    public Map<Integer, Integer> getFacetMapping() {
+        return this.facetMapping;
+    }
+
+    public List<Integer> getAvailableFacetValues() {
+        return this.availableFacetValues;
     }
 
     /**

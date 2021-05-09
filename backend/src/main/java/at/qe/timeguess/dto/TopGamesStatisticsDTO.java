@@ -39,6 +39,6 @@ public class TopGamesStatisticsDTO implements Comparable<TopGamesStatisticsDTO> 
 
     @Override
     public int compareTo(TopGamesStatisticsDTO other) {
-        return Double.compare(this.score_per_time, other.score_per_time);
+        return Double.compare(other.score_per_time, this.score_per_time);
     }
 }

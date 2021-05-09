@@ -23,7 +23,7 @@ export class HomeComponent {
       let res = await this.api.joinGame(code);
 
       if (!res.isOK()) {
-        let message = 'Error joining game!';
+        let message = res.error || 'Error joining game!';
 
         if (res.isConflict()) {
           message = 'You are already in a game!';

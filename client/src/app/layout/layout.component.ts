@@ -7,6 +7,7 @@ import { ProfileDialogComponent } from '../components/profile-dialog/profile-dia
 import { ApiService } from '../core/api/api.service';
 import { UserService } from '../core/auth/user.service';
 import { GameService } from '../core/game/game.service';
+import ThemeService, { ThemeType } from '../core/theme/theme.service';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 
 const maxWidthPx = 1000;
@@ -28,7 +29,8 @@ export class LayoutComponent {
     private user: UserService,
     private router: Router,
     private api: ApiService,
-    private game: GameService
+    private game: GameService,
+    private theme: ThemeService
   ) {
     this.breakpointObserver
       .observe([`(max-width: ${maxWidthPx}px)`])
@@ -84,5 +86,13 @@ export class LayoutComponent {
 
   get username() {
     return this.user.user?.username;
+  }
+
+  get currentTheme() {
+    return this.theme.currentTheme;
+  }
+
+  setTheme(theme: string) {
+    this.theme.setTheme(theme);
   }
 }

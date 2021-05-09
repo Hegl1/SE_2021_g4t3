@@ -1,31 +1,30 @@
 package at.qe.timeguess.services;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import at.qe.timeguess.gamelogic.Game;
+import at.qe.timeguess.model.RaspberryID;
+import at.qe.timeguess.repositories.RaspberryIDRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import at.qe.timeguess.gamelogic.Game;
-import at.qe.timeguess.model.RaspberryID;
-import at.qe.timeguess.repositories.RaspberryIDRepository;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Scope("application")
 public class RaspberryService {
 
-	private static final int identifyerLength = 8;
+    private static final int identifierLength = 8;
 
-	@Autowired
-	private RandomCodeService codeGenerator;
+    @Autowired
+    private RandomCodeService codeGenerator;
 
-	@Autowired
-	private RaspberryIDRepository raspbiRepo;
+    @Autowired
+    private RaspberryIDRepository raspbiRepo;
 
-	/**
-	 * Map that associates raspberries with games.
-	 */
+    /**
+     * Map that associates raspberries with games.
+     */
 	private Map<String, Game> gameMappings;
 
 	public RaspberryService() {
@@ -39,8 +38,8 @@ public class RaspberryService {
 	 */
 	public String registerRaspberry() {
 		String identifier;
-		do {
-			identifier = codeGenerator.generateRandomRaspberryCode(identifyerLength);
+        do {
+            identifier = codeGenerator.generateRandomRaspberryCode(identifierLength);
 		} while (raspbiRepo.findFirstById(identifier) != null);
 
 		raspbiRepo.save(new RaspberryID(identifier));

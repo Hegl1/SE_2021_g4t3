@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { HelpDialogComponent } from 'src/app/components/help-dialog/help-dialog.component';
 import { ApiService } from 'src/app/core/api/api.service';
 import { Category, DiceMapping } from 'src/app/core/api/ApiInterfaces';
 import StorageNames from 'src/app/core/StorageNames';
+import { AddDiceMappingDialogComponent } from '../add-dice-mapping-dialog/add-dice-mapping-dialog.component';
 
 @Component({
   selector: 'tg-create-game-dialog',
@@ -35,7 +37,8 @@ export class CreateGameDialogComponent implements OnInit {
     private api: ApiService,
     private dialogRef: MatDialogRef<CreateGameDialogComponent>,
     private snackBar: MatSnackBar,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private dialog: MatDialog
   ) {
     this.createForm = this.fb.group({
       number_teams: [null, [Validators.required, Validators.min(2), Validators.pattern('^[0-9]*$')]],
@@ -47,6 +50,8 @@ export class CreateGameDialogComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.loadDiceHistory();
+
     let res = await this.api.getAllCategories();
 
     this.category?.enable();
@@ -94,7 +99,7 @@ export class CreateGameDialogComponent implements OnInit {
         this.dice_icon.value = 'error';
       }
 
-      this.snackBar.open(message || 'Error loading dice information', 'OK', {
+      this.snackBar.open(message || res.error || 'Error loading dice information', 'OK', {
         duration: 5000,
         panelClass: 'action-warn',
       });
@@ -138,8 +143,12 @@ export class CreateGameDialogComponent implements OnInit {
       this.dialogRef.close(res.value);
 
       return;
+    } else if (res.isNotFound()) {
+      this.error = 'The selected dice does not exist';
+    } else if (res.isConflict()) {
+      this.error = 'The selected dice is already in a game';
     } else {
-      this.error = 'Error creating game'; // TODO: error
+      this.error = res.error || 'Error creating game';
     }
   }
 
@@ -157,7 +166,7 @@ export class CreateGameDialogComponent implements OnInit {
     let history = this.diceHistory;
     let value = this.dice_code?.value;
 
-    if (value !== null && history !== null) {
+    if (value !== null && history !== null && !history.includes(value)) {
       history.push(value);
       localStorage.setItem(StorageNames.DiceCodeHistory, JSON.stringify(history));
     }
@@ -167,7 +176,7 @@ export class CreateGameDialogComponent implements OnInit {
    * Loads a list of saved time flip mappings
    */
   loadDiceMappings() {
-    this.diceMappings = JSON.parse(localStorage.getItem(StorageNames.DiceMappings) || '[]');
+    this.diceMappings = JSON.parse(localStorage.getItem(StorageNames.DiceMappings) || '{}');
   }
 
   get diceMappingsNames() {
@@ -180,8 +189,14 @@ export class CreateGameDialogComponent implements OnInit {
    * Opens a dialog to create a new dice mapping
    * and stores it to localstorage
    */
-  addDiceMapping() {
-    // TODO: add dice mapping
+  async addDiceMapping() {
+    let res = await this.dialog.open(AddDiceMappingDialogComponent).afterClosed().toPromise();
+
+    if (res) {
+      this.loadDiceMappings();
+
+      this.dice_mapping?.setValue(res);
+    }
   }
 
   get dice_code() {
@@ -226,15 +241,21 @@ export class CreateGameDialogComponent implements OnInit {
    * Shows a help dialog for connecting to a dice
    */
   showHelpConnection() {
-    // TODO: show help
-    throw new Error('Not implemented');
+    this.dialog.open(HelpDialogComponent, {
+      data: {
+        key: 'DICE_CONNECTION',
+      },
+    });
   }
 
   /**
    * Shows a help dialog for mapping a dice
    */
   showHelpMapping() {
-    // TODO: show help
-    throw new Error('Not implemented');
+    this.dialog.open(HelpDialogComponent, {
+      data: {
+        key: 'DICE_MAPPING',
+      },
+    });
   }
 }

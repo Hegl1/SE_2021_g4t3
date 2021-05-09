@@ -66,7 +66,10 @@ public class CategoryService {
      */
     public boolean isDeletable(Category category) {
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
-        return allCompletedGames.stream().noneMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName()));
+        Collection<Game> allRunningGames = this.lobbyService.getAllRunningGames();
+
+        return allCompletedGames.stream().noneMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName())) ||
+            allRunningGames.stream().anyMatch(runningGame -> runningGame.getCategory().getId().equals(category.getId()));
     }
 
     /**
@@ -93,8 +96,7 @@ public class CategoryService {
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         Collection<Game> allRunningGames = this.lobbyService.getAllRunningGames();
 
-        if(allCompletedGames.stream().anyMatch(completedGame -> completedGame.getCategory().getId().equals(category.getId())) ||
-            allRunningGames.stream().anyMatch(runningGame -> runningGame.getCategory().getId().equals(category.getId()))) {
+        if(!this.isDeletable(category)) {
             throw new CategoryIsReferencedInCompletedGamesException("This Category can not be deleted, because it is referenced in a game!");
         }
         this.categoryRepository.delete(category);
@@ -103,7 +105,7 @@ public class CategoryService {
     /**
      * Gets thrown when a Category is tried to be deleted, which is referenced in the persisted completed games
      */
-    public class CategoryIsReferencedInCompletedGamesException extends Exception {
+    public static class CategoryIsReferencedInCompletedGamesException extends Exception {
 
         private static final long serialVersionUID = 1L;
 
@@ -115,7 +117,7 @@ public class CategoryService {
     /**
      * Gets thrown when a Category is tried to be created and saved, which already exists in the database
      */
-    public class CategoryAlreadyExistsException extends Exception {
+    public static class CategoryAlreadyExistsException extends Exception {
 
         private static final long serialVersionUID = 1L;
 

@@ -1,16 +1,14 @@
 package at.qe.timeguess.services;
 
 import at.qe.timeguess.model.CompletedGameTeam;
+import at.qe.timeguess.model.User;
 import at.qe.timeguess.model.UserRole;
 import at.qe.timeguess.repositories.CompletedGameTeamRepository;
+import at.qe.timeguess.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import at.qe.timeguess.model.User;
-import at.qe.timeguess.repositories.UserRepository;
 
 import java.util.Date;
 import java.util.List;
@@ -106,7 +104,8 @@ public class UserService {
     }
 
     /**
-     * Returns all users where the username contains the searchstring.
+     * Returns all users where the username contains the search string.
+     *
      * @param searchString
      * @return List of users
      */

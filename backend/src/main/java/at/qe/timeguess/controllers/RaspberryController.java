@@ -1,18 +1,12 @@
 package at.qe.timeguess.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import at.qe.timeguess.model.RaspberryID;
 import at.qe.timeguess.services.RaspberryService;
 import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Class that handles communication with raspberries. Also contains a mapping
@@ -27,7 +21,7 @@ public class RaspberryController {
 
 	/**
 	 * Method that persists a new raspberry with a random id.
-	 * 
+	 *
 	 * @return ResponseEntity for REST communication(status 200 if successful).
 	 */
 	@GetMapping("/register")
@@ -39,11 +33,11 @@ public class RaspberryController {
 	/**
 	 * Method that receives and updates the dice state in the game that is
 	 * registered for the given raspberry id.
-	 * 
+	 *
 	 * @param id     id of the raspberry that updates the value.
 	 * @param update DTO that contains the new dice side.
-	 * @return ResponseEntity for REST communication(status 200 if successful, 404
-	 *         if rasoberry is not found, 400 if update is out of bounds )
+     * @return ResponseEntity for REST communication(status 200 if successful, 404
+     *         if raspberry is not found, 400 if update is out of bounds )
 	 */
 	@PostMapping("/{id}/update")
 	public ResponseEntity<Void> updateDice(@PathVariable final String id, @RequestBody final int update) {
@@ -61,7 +55,7 @@ public class RaspberryController {
 
 	/**
 	 * Method that receives updates for dice battery levels.
-	 * 
+	 *
 	 * @param id           id of the raspberry that updates its battery level.
 	 * @param batteryLevel value of the new battery level
 	 * @return ResponseEntity for REST communication(status 200 if successful, 404
@@ -77,15 +71,15 @@ public class RaspberryController {
 		}
 	}
 
-	/**
-	 * Method that receives updates for dice connection statuses.
-	 * 
-	 * @param id               id of the raspberry that updates its connection
-	 *                         status.
-	 * @param connectionStatus new connection status.
-	 * @return ResponseEntity for REST communication(status 200 if succesfull, 404
-	 *         if raspberry not registered, 204 if dice is not assigned to a game)
-	 */
+    /**
+     * Method that receives updates for dice connection statuses.
+     *
+     * @param id               id of the raspberry that updates its connection
+     *                         status.
+     * @param connectionStatus new connection status.
+     * @return ResponseEntity for REST communication(status 200 if successful, 404
+     * if raspberry not registered, 204 if dice is not assigned to a game)
+     */
 	@PostMapping("/{id}/notify/connection")
 	public ResponseEntity<Void> updateDiceConnection(@PathVariable final String id,
 			@RequestBody final boolean connectionStatus) {

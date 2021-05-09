@@ -152,7 +152,7 @@ export class UsersComponent implements OnInit {
 
             await this.reload();
           } else {
-            this.snackBar.open('An error occured!', 'OK', {
+            this.snackBar.open(res.error || 'An error occured!', 'OK', {
               panelClass: 'action-warn',
               duration: 10000,
             });

@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>
+    <mat-icon color="primary" [inline]="true">add_circle_outline</mat-icon><span>Add new dice mapping</span>
+</h2>
+
+<mat-dialog-content>
+    <form [formGroup]="mappingForm">
+        <mat-form-field color="primary" appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" />
+            <mat-error *ngIf="getFormError('name') != null">{{ getFormError('name') }}</mat-error>
+        </mat-form-field>
+
+        <div formArrayName="mapping" *ngFor="let item of mapping['controls']; let i = index">
+            <div class="mapping_row" [formGroupName]="i">
+                <span>Facet {{ i + 1 }}</span>
+                <mat-form-field color="primary" appearance="outline">
+                    <mat-label>Action</mat-label>
+                    <input matInput formControlName="action" />
+                    <mat-error *ngIf="getFormError('action', i, 'action') != null">{{
+                        getFormError('mapping', i, 'action')
+                    }}</mat-error>
+                </mat-form-field>
+                <mat-form-field color="primary" appearance="outline">
+                    <mat-label>Time (seconds)</mat-label>
+                    <input matInput formControlName="time" />
+                    <mat-error *ngIf="getFormError('time', i, 'time') != null">{{
+                        getFormError('mapping', i, 'time')
+                    }}</mat-error>
+                </mat-form-field>
+                <mat-form-field color="primary" appearance="outline">
+                    <mat-label>Points</mat-label>
+                    <input matInput formControlName="points" />
+                    <mat-error *ngIf="getFormError('points', i, 'points') != null">{{
+                        getFormError('mapping', i, 'points')
+                    }}</mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-flat-button mat-dialog-close [mat-dialog-close]="null">Cancel</button>
+    <button mat-flat-button (click)="save()" color="primary" [disabled]="!valid">Create</button>
+</mat-dialog-actions>

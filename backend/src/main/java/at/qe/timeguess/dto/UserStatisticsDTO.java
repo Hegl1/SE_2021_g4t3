@@ -2,12 +2,13 @@ package at.qe.timeguess.dto;
 
 import at.qe.timeguess.model.Category;
 
+import java.util.Collection;
 import java.util.List;
 
 public class UserStatisticsDTO {
 
-    private List<GameStatisticsDTO> won_games;
-    private List<GameStatisticsDTO> lost_games;
+    private Collection<GameStatisticsDTO> won_games;
+    private Collection<GameStatisticsDTO> lost_games;
     private Category most_played_category;
     private int played_games;
     private List<UserDTO> played_with;
@@ -15,7 +16,8 @@ public class UserStatisticsDTO {
     public UserStatisticsDTO() {
     }
 
-    public UserStatisticsDTO(List<GameStatisticsDTO> won_games, List<GameStatisticsDTO> lost_games, Category most_played_category, int played_games, List<UserDTO> played_with) {
+    public UserStatisticsDTO(Collection<GameStatisticsDTO> won_games, Collection<GameStatisticsDTO> lost_games,
+                             Category most_played_category, int played_games, List<UserDTO> played_with) {
         this.won_games = won_games;
         this.lost_games = lost_games;
         this.most_played_category = most_played_category;
@@ -23,11 +25,11 @@ public class UserStatisticsDTO {
         this.played_with = played_with;
     }
 
-    public List<GameStatisticsDTO> getWon_games() {
+    public Collection<GameStatisticsDTO> getWon_games() {
         return won_games;
     }
 
-    public List<GameStatisticsDTO> getLost_games() {
+    public Collection<GameStatisticsDTO> getLost_games() {
         return lost_games;
     }
 

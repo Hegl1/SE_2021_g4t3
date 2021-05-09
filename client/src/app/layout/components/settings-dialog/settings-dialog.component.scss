@@ -13,6 +13,15 @@ mat-form-field {
   }
 }
 
+.theme {
+  span {
+    display: block;
+    margin-bottom: 0.25em;
+  }
+
+  margin: 1em 0 0.5em 0;
+}
+
 .error {
   margin: 1em 0;
 }

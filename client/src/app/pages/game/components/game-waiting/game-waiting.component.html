@@ -2,7 +2,7 @@
     <button
         mat-raised-button
         *ngIf="currentUserId !== undefined && isCurrentUserHost"
-        [disabled]="!startable"
+        [disabled]="!startable || !game.connected"
         [color]="isReadyPlayer(currentUserId) ? 'warn' : 'primary'"
         (click)="toggleReady()"
     >
@@ -29,10 +29,40 @@
     *ngIf="teams !== null"
 >
     <mat-card
+        class="teamCard unassignedCard"
+        (click)="game.connected && switchTeam(-1)"
+        [class.current_team]="isCurrentUsersTeam(-1)"
+        [class.disabled]="!game.connected"
+    >
+        <div class="current_team_marker mat-elevation-z2"><mat-icon>check</mat-icon></div>
+
+        <h2><mat-icon [inline]="true">hourglass_empty</mat-icon>Unassigned players</h2>
+
+        <ul class="players">
+            <li
+                *ngFor="let player of game.currentState?.waiting_data?.unassigned_players || null"
+                [class.current]="player.id === currentUserId"
+            >
+                <mat-icon [inline]="true" style="color: #f12">remove</mat-icon>
+                <tg-player-name [player]="player" (click)="$event.stopPropagation()"></tg-player-name>
+                <mat-icon [inline]="true" *ngIf="player.id === currentUserId">person</mat-icon>
+                <mat-icon color="accent" [inline]="true" *ngIf="player.id === hostId">star</mat-icon>
+            </li>
+        </ul>
+    </mat-card>
+</div>
+
+<div
+    class="teams"
+    [class.ready]="(currentUserId != null && isReadyPlayer(currentUserId)) || (hostId != null && isReadyPlayer(hostId))"
+    *ngIf="teams !== null"
+>
+    <mat-card
         class="teamCard"
         [class.current_team]="isCurrentUsersTeam(team.index)"
+        [class.disabled]="!game.connected"
         *ngFor="let team of teams"
-        (click)="switchTeam(team.index)"
+        (click)="game.connected && switchTeam(team.index)"
     >
         <div class="current_team_marker mat-elevation-z2"><mat-icon>check</mat-icon></div>
 
@@ -54,29 +84,11 @@
             color="primary"
             (click)="$event.stopPropagation(); addPlayerToTeam(team.index)"
             *ngIf="isCurrentUserHost && currentUserId != null"
-            [disabled]="isReadyPlayer(currentUserId)"
+            [disabled]="isReadyPlayer(currentUserId) || !game.connected"
         >
             <mat-icon [inline]="true" style="margin-right: 0.25em">person_add</mat-icon>
             Add player
         </button>
-    </mat-card>
-
-    <mat-card class="teamCard unassignedCard" (click)="switchTeam(-1)" [class.current_team]="isCurrentUsersTeam(-1)">
-        <div class="current_team_marker mat-elevation-z2"><mat-icon>check</mat-icon></div>
-
-        <h2><mat-icon [inline]="true">hourglass_empty</mat-icon>Unassigned players</h2>
-
-        <ul class="players">
-            <li
-                *ngFor="let player of game.currentState?.waiting_data?.unassigned_players || null"
-                [class.current]="player.id === currentUserId"
-            >
-                <mat-icon [inline]="true" style="color: #f12">remove</mat-icon>
-                <tg-player-name [player]="player" (click)="$event.stopPropagation()"></tg-player-name>
-                <mat-icon [inline]="true" *ngIf="player.id === currentUserId">person</mat-icon>
-                <mat-icon color="accent" [inline]="true" *ngIf="player.id === hostId">star</mat-icon>
-            </li>
-        </ul>
     </mat-card>
 </div>
 
@@ -88,7 +100,7 @@
         mat-raised-button
         *ngIf="currentUserId !== undefined && !isCurrentUserHost"
         [color]="isReadyPlayer(currentUserId) ? 'warn' : 'primary'"
-        [disabled]="isCurrentUsersTeam(-1)"
+        [disabled]="isCurrentUsersTeam(-1) || !game.connected"
         (click)="toggleReady()"
     >
         <mat-icon [inline]="true">{{ isReadyPlayer(currentUserId) ? 'remove' : 'check' }}</mat-icon>

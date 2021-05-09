@@ -1,295 +1,81 @@
-# Java und Bluetooth Low Energy auf dem Raspberry Pi
+# TimeGuess on the Raspberry
+You can find step-by-step instructions on how to get the raspberry side of the TimeGuess game running below.
 
-Die Intention dieses Projekts ist es, einen Startpunkt für die Entwicklung auf dem Raspberry Pi mit Java + Bluetooth LE zur Verfügung zu stellen. Es handelt
-sich hierbei um einen Workshop der im Rahmen vom Proseminar "Software Engineering" angeboten wird.
-Es wird gezeigt wie man alles Nötige installiert und konfiguriert als auch wie man auf dem Raspberry testet (z.B. mit Java Mockito).
-Weiters agiert dieses Projekt auch als Bespiel wie man GitLab CI/CD in Kombination mit Java verwendet, um Testausführung und statische Codeanalyse zu automatisieren.
+## Installation
 
-## Voraussetzungen
+Locate the file `installScript.sh` in the `raspberry` folder. 
 
-### Grundsätzliche Einstellungen
+Run it: ```sudo bash installScript.sh```
 
-- `Raspberry Pi OS Lite` auf SD-Karte von Raspberry Pi geflashed
-- Anmeldung mit Benutzername `pi` und Passwort `raspberry` und Änderung des Passworts mit `passwd`
-- Bluetooth and WLAN sind aktiviert (weder `hard` noch `soft`-blocked)
-  
-      sudo rfkill list all
+If any problems occur, please have a look at [Java und Bluetooth Low Energy auf dem Raspberry Pi](https://git.uibk.ac.at/csat2410/skeleton-bleclient/tree/master) and follow their installation guide.
 
-- Aktivierung von z.B. WiFi mit (sollte WiFi der erste Eintrag sein):
+## Build
 
-      sudo rfkill unblock 0
+Locate the file `buildScript.sh` in the `raspberry` folder. 
 
-### Verwendung von WiFI
+Run it: ```sudo bash buildScript.sh```
 
-- Setzen des WiFi-Landes mit:
+If you decide, for whatever reason, to build it with tests and javadoc, you need to make sure that:
+- the central backend is up and running 
+- the file `timeGuessBackendUrl.txt` in the folder `bleclient` contains the **correct URL of the backend**
 
-      sudo raspi-config nonint do_wifi_country AT
-      sudo raspi-config nonint get_wifi_country
+Those steps are also **essential** steps before running the execution script.
 
-- Siehe: [Setting up a wireless LAN via the command line](https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md)
+Then locate the file `buildScriptWithTests.sh` in the `raspberry` folder.
 
-- Überprüfung, ob man mit dem richtigen Netzwerk verbunden ist:
+Run it: ```sudo bash buildScriptWithTests.sh```
 
-      iw wlan0 link
+## Execution
 
-- Überprüfung, ob Internetverbindung besteht mit:
+Make sure that the **backend is running** and that you write the **correct URL of the backend** into the file `timeGuessBackendUrl.txt` in the folder `bleclient` or create such a file if it doesn't exist, **before** running the execution script. You can get the IP of the backend by executing the following command on the computer you are running the backend on: 
+- windows: `ipconfig`
+- linux: `ifconfig`
 
-      ping google.com
+Also make sure to **delete the file `timeGuessDiceId.txt`** (if existent) in the `bleclient` folder before execution of the program, **if it's going to be the first execution** of the program on the raspberry **after a fresh start of the central backend**. The ID which is saved in that file is only valid and registered with the backend as long as the backend is running.
 
-### Verbindung mit Raspberry Pi
+The dice should be assembled and lying on a straight surface.
 
-- SSH wurde aktiviert (Ausgabe soll 0 sein):
-  
-      sudo raspi-config nonint get_ssh
+Locate the file `executeScript.sh` in the `raspberry` folder. 
 
-- Aktivierung von SSH mit:
+Run it: ```sudo bash executeScript.sh```
 
-      sudo raspi-config nonint do_ssh 0
+I strongly recommend to have a look at your terminal to check if everythings works as it's supposed to. 
 
-- Hostname des Raspberry Pi ist bekannt:
-
-      hostname -I
-
-### Optional: Private/Public Key Authentifizierung
-
-Siehe: [Passwordless SSH access](https://www.raspberrypi.org/documentation/remote-access/ssh/passwordless.md)
-
-So vermeidet man beim Verbinden zum Raspberry Pi jedes Mal das Passwort einzugeben.
-
-## 1) Installation
-
-Mit Raspberry Pi verbinden:
-
-    ssh pi@<RASPBERRY_IP_ADDRESS>
-
-### a) Initiale Packages
-
-Auf den neuesten Stand bringen:
-
-    sudo apt update
-    sudo apt upgrade
-
-Essentielle Tools installieren:
-
-    sudo apt install git
-    sudo apt install cmake
-
-### b) Maven und JDK
-
-Installation der JDK 1.8:
-
-    sudo apt install openjdk-8-jdk
-
-Sicherstellen, dass tatsächlich JDK 1.8 verwendet wird:
-
-    sudo update-alternatives --config java
-
-Version überprüfen:
-
-    java -version
-
-Sicherstellen, dass sich in `usr/lib/jvm` nun `java-8-openjdk-armhf` befindet:
-
-    sudo find / -name "java"
-
-Editieren von `bashrc`:
-
-    sudo nano ~/.bashrc
-
-
-Es soll die Zeile `export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/` am Ende hinzugefügt werden und gespeichert werden.
-
-Nun müssen wir das Terminal neu laden, um zu überprüfen, ob die Änderungen wirksam waren – notwendig für nächste Schritte:
-
-    bash
-    echo $JAVA_HOME
-
-Maven installieren:
-
-    sudo apt install maven
-
-### c) Installation von BlueZ 5.47
-
-Installation der Build-Tools:
-
-    sudo apt install libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline-dev
-
-Download des BlueZ Source-Codes (in geeignetem Directory):
-
-    wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.47.tar.xz
-
-Das tar Archiv extrahieren und in den Ordner gehen:
-
-    tar -xf bluez-5.47.tar.xz && cd bluez-5.47
-
-Konfigurieren des BlueZ Projekts:
-
-    ./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc --localstatedir=/var
-
-BlueZ builden:
-
-    make
-    sudo make install
-
-#### BlueZ Installation überprüfen
-
-Der BlueZ Start-up Service soll nun auf das neu gebuildete BlueZ zeigen:
-
-    cat /lib/systemd/system/bluetooth.service
-
-Dort sollte man die Zeile `ExecStart=/usr/libexec/bluetooth/bluetoothd` vorfinden.
-
-Ausgabe der BlueZ Version – sollte nun `5.47` sein:
-
-    /usr/libexec/bluetooth/bluetoothd --version
-
-#### Erlaubnis für BlueZ hinzufügen
-
-Damit BlueZ Zugriff auf die Bluetooth-Gruppe hat, müssen wir eine eigene Erlaubnis hinzufügen. Dafür
-editiert man die BlueZ DBus Konfiguration:
-
-    sudo nano /etc/dbus-1/system.d/bluetooth.conf
-
-Anschließend fügt man nur die Policy für die Gruppe `bluetooth` hinzu:
-
-```xml
-<busconfig>
-  <policy user="root">
-    ...
-  </policy>
-  <policy group="bluetooth">
-    <allow send_destination="org.bluez"/>
-  </policy>
-  ...
-</busconfig>
+Example of an ideal output:
+```The discovery started: true
+...
+Found 1 TimeFlip device(s).
+Found TimeFlip device with address 0C:61:CF:C7:CF:01 and RSSI -48
+Connection established
+backend URL file exists
+backend URL successfully read from file
+URL of backend: http://192.168.0.220:8080
+ID file exists
+ID successfully read from file
+TimeFlip password input successful
+Connection thread started.
+Battery thread started.
+Battery level: 87
+POST request response status: 200
+notifications should be turned on now
 ```
+After this point you can start throwing your dice. I recommend cleanly putting the dice on each of its facets at least once, ideally on a straight surface. That way the mapping of the facets of the TimeFlip dice will work the best.
 
-#### Zusätzliche Konfiguration und neu starten
+To stop the program at any time, just press `CTRL+C`.
 
-OpenHab User zur Bluetooth-Gruppe hinzufügen (wir benötigten zwar OpenHab nicht, aber zur Vollständigkeit):
+### You're having problems?
 
-    sudo adduser --system --no-create-home --group --disabled-login openhab
-    sudo usermod -a -G bluetooth openhab
+If no TimeFlip device is found during discovery, please try to change the battery (take the battery out of the dice and put it back in). This is a universal fix for any dice related problem.
 
-Service Definitionen neu laden:
+If there occurs a fatal error after starting the program for the first time, our suggested solution is: 
+- just ignore the fatal error
+- change the battery of the TimeFlip device (The program didn't stop properly so the dice had no chance to disconnect. Battery change is the universal fix for this.) 
+- wait a few seconds after the battery change
+- re-run the program (it should *really* work this time...)
 
-    sudo systemctl daemon-reload
+If any other exception is thrown after execution, please try to just re-run the program. It usually just magically works the second time.
 
-BlueZ neu starten:
+If you make it to the point where it says "notifications should be turned on now", and you're getting response code 200 for all REST calls (battery, facet change etc.), you should be good to go.
 
-    sudo systemctl restart bluetooth
-   
-Überprüfen, ob Bluetooth-Service aktiv ist, die richtige Version läuft (`5.47`) und es keine Fehler gibt:
+If nothing helps and all fails, please don't hestitate to contact me, Diana Gründlinger (diana.gruendlinger@student.uibk.ac.at), and I will do my best to make it work for you! :)
 
-    sudo systemctl status bluetooth
-   
-### d) Installation von tinyb
-
-Installation der Abhängigkeiten von `tinyb`:
-
-    sudo apt install graphviz
-    sudo apt install doxygen
-   
-Klonen von tinyb (an geeigneter Stelle) und in den Ordner gehen:
-
-    git clone https://github.com/intel-iot-devkit/tinyb.git && cd tinyb
-   
-Ordner `build` erstellen und hineingehen:
-
-    mkdir build
-    cd build
-   
-Builden von `tinyb` mit `cmake` (`-E` steht für experimental und stellt sicher, dass `JAVA_HOME` verwendet wird, `cmake ..` generiert das Makefile im aktuellen Verzeichnis basierend auf `CMakeLists.txt` im parent-Verzeichnis, der Prefix `/usr/` stellt sicher, dass sich die native Libraries `libjavatinyb.so` und `libtinyb.so` im Java Library Path befinden):
-
-    sudo -E cmake -DBUILDJAVA=ON -DCMAKE_INSTALL_PREFIX=/usr ..
-
-Ausführen von `make` und `make install`:
-
-    sudo make
-    sudo make install
-
-## 2) Ausführen
-
-Die Ausführung ist eher umständlich, da wir `tinyb.jar` nicht nur zur Compile-Zeit, sondern auch dynamisch zur Laufzeit laden müssen. Für diese Bluetooth-Library ist dies leider notwendig. Siehe auch: [Java* for Bluetooth® Low Energy Applications](https://web.archive.org/web/20190414051809/https:/software.intel.com/en-us/java-for-bluetooth-le-apps)
-
-Sollten alle Befehle erfolgreich sein, dann können wir das Beispiel-Maven-Programm `bleclient` ausführen.
-Dafür gehen wir in das Verzeichnis `bleclient` und führen das Programm basierend auf dem dort liegendem [README.md](bleclient/README.md) aus.
-
-## 3) Optional: Installation z.B. auf Ubuntu 18.04/20.04
-
-Führen Sie die Schritte `1a` und `1b` aus:
-
-- Für `1b` ändert sich, dass wir statt `java-8-openjdk-armhf` die `java-8-openjdk-amd64` verwenden
-
-Führen Sie Schritt `1c` aus:
-
-- Sollte es bei `make` zum Fehler `error: ‘SIOCGSTAMP’ undeclared (first use in this function)` kommen, dann includen Sie `#include <linux/sockios.h>` in den nötigen Dateien z.B. `bluez-5.47/tools/rctest.c` und `bluez-5.47/tools/l2test.c`
-- Dieses Problem scheint ab Ubuntu 20.04 aufzutreten. In Ubuntu 18.04 kann es sein, dass dieses Problem nicht auftritt.
-
-Führen Sie die restlichen Schritte aus. Fertig.
-
-Hinweis: Passen Sie beim Ausführen von Updaten/Upgrades auf. Es kann sein, dass dann Bluetooth upgegradet wird. Dies wollen wir vermeiden. Wir wollen maximal Version `5.47` verwenden.
-
-## Fragen und Antworten
-
-### Wie kann ich GitLab CI/CD auf mein eigenes Projekt anwenden?
-
-- Dafür muss man in [gitlab-ci/MakeFile](gitlab-ci/Makefile) das Target Repository auf das eigene ändern, das Image builden und pushen. In `Packages` -> `Container Registry` kann man sehen, ob das Docker Image tatsächlich gepushed wurde.
-- Weiters muss das Base-Image in [.gitlab-ci.yml](.gitlab-ci.yml) auf das eigene Image zeigen.
-- Damit das Jacoco-Coverage Badge funktioniert muss man in die Einstellungen gehen und für das eigene Projekt eine Badge hinzufügen. Diesbezüglich gilt es sicherzustellen, dass die `Badge Image URL` korrekt ist d.h. die URL muss auf das eigene Repository zeigen und auf das `.svg`-Bild, welches von der GitLab Pipeline beim `bleclient-test`-Job generiert wurde.
-
-### Was mache ich, wenn irgendetwas in der Installation schief läuft?
-
-- Sicherstellen, dass alle Befehle richtig ausgeführt wurden.
-- Generell kann es helfen, noch einmal alle Befehle von vorne auszuführen.
-
-### Was wenn der der Java BluetoothManager eine Exception wirf (z.B. NullPointerException)?
-
-- Sicherstellen, dass das gebuildete `tinyb.jar`zur Verfügung steht
-- `tinyb.jar` muss zur Laufzeit als Parameter übergeben werden z.B. `–cp target/<JAR_FILE>:./lib/tinyb.jar:./target/dependencies/*`
-
-### Was wenn ich beim Ausführen ein Problem mit der nativen API Version bekomme?
-
-- Wahrscheinlich wurde die `tinyb.jar` nicht korrekt zur Laufzeit geladen
-- Sicherstellen, dass sie richtig geladen wird z.B. `–cp target/<JAR_FILE>:./lib/tinyb.jar:./target/dependencies/*`
-
-### Wieso kann ich das Programm nicht mit -jar ausführen?
-
-- Entweder man verwendet `-cp` für Classpath oder `-jar`, aber nicht beides
-- Für `-jar` benötigt man weiters auch noch eine Manifest-Datei (diese müsste man in Bezug auf das `tinyb.jar` auch konfigurieren)
-
-### Wieso können die native Libraries nicht gefunden werden?
-
-- Sollte grundsätzlich kein Problem sein, wenn man der Anleitung gefolgt hat
-- Durch `-DCMAKE_INSTALL_PREFIX=/usr` sollten diese korrekt gesetzt sein
-- Siehe auch bei Installation `tinyb/build/install_manifest.txt`
-- Mit `java -cp` korrekt ausführen und nicht mit `-jar`
-- Wenn es immer noch nicht möglich ist, dann muss man wirklich sicherstellen, dass sich `libjavatinyb.so` und `libtinyb.so` tatsächlich im Java Library Path befinden.
-    - Prinzipiell könnte man diese Dateien `tinyb/build/java/jni/libjavatinyb.so` und `tinyb/build/src/libtinby.so` auch direkt nach `/usr/lib` kopieren
-
-### Wieso bekomme ich eine BluetoothException mit Timeout was reached?
-
-- Sicherstellen, dass sich der TimeFlip tatsächlich in Reichweite befindet
-- Sicherstellen, dass die Batterie richtig im TimeFlip ist
-
-### Wieso bekomme ich Exceptions beim Auslesen von Charakteristiken?
-
-- Sicherstellen, dass das Passwort richtig vorher an den TimeFlip geschrieben wurde, dann sollte man alle Charakteristiken auslesen können
-- Es kann sein, dass man versehentlich das Passwort über die TimeFlip App gesetzt hat. Wenn man die Batterie kurz herausnimmt und noch einmal einsetzt, dann sollte das Passwort zurückgesetzt sein.
-
-### Was mache ich, wenn das bleclient Programm keinen TimeFlip ausgibt?
-
-- Sicherstellen, dass der TimeFlip eingeschalten ist (z.B. Überprüfung mit Handy-App wie `nRF Connect`)
-    - Am besten notiert man sich die Bluetooth Addresse des TimeFlips
-- Sicherstellen, dass der TimeFlip mit keinem anderen Gerät gekoppelt ist
-    - Entkoppeln von Bluetooth, TimeFlip App, etc.
-- Theoretisch ist es möglich, dass aus irgendeinem Grund das Passwort auf dem TimeFlip z.B. mit der TimeFlip App gesetzt wurde. In diesem Fall sollte man die Batterie kurz entfernen und wieder reinstecken
-
-
-## Links
-* [Raspberry Pi Bluetooth Manager TinyB - Building bluez 5.47 from sources](https://github.com/sputnikdev/bluetooth-manager-tinyb)
-* [TinyB Bluetooth LE Library](https://github.com/intel-iot-devkit/tinyb)
-* [Raspberry Pi Installation of TinyB (Note: do not install bluez)](http://www.martinnaughton.com/2017/07/install-intel-tinyb-java-bluetooth.html)
-* [Java for Bluetooth LE applications](https://www.codeproject.com/Articles/1086361/Java-for-Bluetooth-LE-applications)
-* [TinyB Java examples (HelloTinyB.java, etc.)](https://github.com/intel-iot-devkit/tinyb/tree/master/examples/java)
-* [Non-interactive raspi-config interface](https://github.com/raspberrypi-ui/rc_gui/blob/master/src/rc_gui.c#L23-L70)

@@ -28,10 +28,22 @@ public final class Dice {
 
 	private static final byte[] passwordConfig = { 0x30, 0x30, 0x30, 0x30, 0x30, 0x30 };
 
-	public Dice(BluetoothDevice device) {
+	public Dice(BluetoothDevice device) throws NullPointerException {
 		this.device = device;
 		this.backendCommunicator = new BackendCommunicator();
 		this.id = this.backendCommunicator.getDiceId();
+	}
+
+	public BluetoothDevice getDevice() {
+		return this.device;
+	}
+
+	public BackendCommunicator getBackendCommunicator() {
+		return this.backendCommunicator;
+	}
+
+	public String getId() {
+		return this.id;
 	}
 
 	/**
@@ -45,18 +57,16 @@ public final class Dice {
 	public boolean inputPassword() {
 		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
 		if (timeFlipService != null) {
-			// System.out.println("TimeFlip Service is available");
 			BluetoothGattCharacteristic passwordCharacteristic = timeFlipService.find(passwordCharacteristicUuid);
 			if (passwordCharacteristic != null) {
-				passwordCharacteristic.writeValue(passwordConfig);
-				System.out.println("TimeFlip password input done");
-				return true;
-			} else {
-				// System.out.println("TimeFlip password characteristic not found");
-			}
-		} else {
-			// System.out.println("TimeFlip Service is not available");
-		}
+				boolean success = passwordCharacteristic.writeValue(passwordConfig);
+				if (success) {
+					System.out.println("TimeFlip password input successful");
+					return success;
+				}
+			} 
+		} 
+		System.out.println("TimeFlip password input failed");
 		return false;
 	}
 
@@ -69,7 +79,6 @@ public final class Dice {
 	public boolean readBatteryLevel() {
 		BluetoothGattService batteryService = device.find(batteryServiceUuid);
 		if (batteryService != null) {
-			// System.out.println("Battery Service is available");
 			BluetoothGattCharacteristic batteryLevelCharacteristic = batteryService
 					.find(batteryLevelCharacteristicUuid);
 			byte[] batteryLevel = batteryLevelCharacteristic.readValue();
@@ -77,24 +86,8 @@ public final class Dice {
 			System.out.println("Battery level: " + batteryLevelValue);
 			backendCommunicator.postBatteryStatus(batteryLevelValue);
 			return true;
-		} else {
-			// System.out.println("Battery Service is not available");	
-		}
+		} 
 		return false;
-	}
-
-	/**
-	 * Finds out which services are available on the device and returns their UUIDs.
-	 * 
-	 * @return all available service UUIDs
-	 */
-	public String[] getServiceUuids() {
-		String[] serviceUuids = device.getUUIDs();
-		System.out.println("Service UUIDs available: " + serviceUuids.length);
-		for (String serviceUuid : serviceUuids) {
-			System.out.println(serviceUuid);
-		}
-		return serviceUuids;
 	}
 
 	/**
@@ -105,142 +98,17 @@ public final class Dice {
 	 */
 	public boolean enableFacetsNotifications() {
 		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
-		BluetoothGattCharacteristic facetsCharacteristic = timeFlipService.find(facetsCharacteristicUuid);
-		if (facetsCharacteristic != null) {
-			// System.out.println("facets characteristic is available");
-			try {
-				facetsCharacteristic.enableValueNotifications(new ValueNotification(this.backendCommunicator));
-				System.out.println("notifications should be turned on now");
-				return true;
-			} catch (Exception e) {
-				System.out.println("turning on notifications didn't work");
-			}
-		} else {
-			// System.out.println("facets characteristic is not available");
-		}
-		return false;
-	}
-
-	/**
-	 * Deletes the history of the TimeFlip dice.
-	 * 
-	 * @return true if history got deleted, false otherwise
-	 */
-	public boolean deleteHistory() {
-		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
-		BluetoothGattCharacteristic commandCharacteristic = timeFlipService.find(commandCharacteristicUuid);
-		if (commandCharacteristic != null) {
-			// System.out.println("command characteristic is available");
-			System.out.println("deleting history");
-			byte[] deleteHistoryConfig = { 0x02 };
-			commandCharacteristic.writeValue(deleteHistoryConfig);
-			byte[] result = commandCharacteristic.readValue(); // check if write request worked
-			for (byte b : result) {
-				System.out.print(String.format("%02x ", b)); // if output is "02 02" it's "OK"
-			}
-			System.out.println("");
-			return true;
-		} else {
-			// System.out.println("command characteristic is not available");
-		}
-		return false;
-	}
-
-	/**
-	 * Read the history from the TimeFlip dice.
-	 * 
-	 * @return true if history was read out, false otherwise
-	 */
-	public boolean readHistory() {
-		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
-		BluetoothGattCharacteristic commandCharacteristic = timeFlipService.find(commandCharacteristicUuid);
-		if (commandCharacteristic != null) {
-			// System.out.println("command characteristic is available");
-			System.out.println("reading history");
-			byte[] readHistoryConfig = { 0x01 };
-			commandCharacteristic.writeValue(readHistoryConfig);
-
-			BluetoothGattCharacteristic commandResultOutputCharacteristic = timeFlipService
-					.find(commandResultOutputCharacteristicUuid);
-			if (commandResultOutputCharacteristic != null) {
-				// System.out.println("command result output characteristic is available");
-				for (int i = 0; i < 5; i++) {
-					byte[] historyLine = commandResultOutputCharacteristic.readValue(); // reads just one of multible
-																						// lines. last line is just
-																						// zeros. TODO put this in a
-																						// loop that recognizes last
-																						// line
-					for (byte b : historyLine) {
-						// TODO research: what exactly do I get from the byte? hex value? asci code?
-						System.out.print(String.format("%02x ", b));
-					}
-					System.out.println("");
+		if (timeFlipService != null) {
+			BluetoothGattCharacteristic facetsCharacteristic = timeFlipService.find(facetsCharacteristicUuid);
+			if (facetsCharacteristic != null) {
+				try {
+					facetsCharacteristic.enableValueNotifications(new ValueNotification(this.backendCommunicator));
+					System.out.println("notifications should be turned on now");
+					return true;
+				} catch (Exception e) {
+					System.out.println("turning on notifications didn't work");
 				}
-				return true;
-				// TODO how to interpret the history???
-				// why is it not empty after i deleted history?
-			} else {
-				// System.out.println("command result output characteristic is not available");
-			}
-		} else {
-			// System.out.println("command characteristic is not available");
-		}
-		return false;
-	}
-
-	/**
-	 * Reads the accelerometer data from the TimeFlip dice.
-	 * 
-	 * @return true if the data was read out, false otherwise
-	 */
-	public boolean readAccelerometerData() {
-		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
-		BluetoothGattCharacteristic accelerometerDataCharacteristic = timeFlipService
-				.find(accelerometerDataCharacteristicUuid);
-		if (accelerometerDataCharacteristic != null) {
-			// System.out.println("accelerometer data characteristic is available");
-			byte[] result = accelerometerDataCharacteristic.readValue();
-			for (byte b : result) {
-				System.out.print(String.format("%02x ", b));
-			}
-			System.out.println("");
-			return true;
-		} else {
-			// System.out.println("accelerometer data characteristic is not available");
-		}
-		return false;
-	}
-
-	public boolean readCalibrationVersion() {
-		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
-		BluetoothGattCharacteristic calibrationVersionCharacteristic = timeFlipService
-				.find(calibrationVersionCharacteristicUuid);
-		if (calibrationVersionCharacteristic != null) {
-			System.out.println("calibration version characteristic is available");
-			byte[] result = calibrationVersionCharacteristic.readValue();
-			for (byte b : result) {
-				System.out.print(String.format("%02x ", b));
-			}
-			System.out.println("");
-			return true;
-		} else {
-			System.out.println("calibration version characteristic is not available");
-		}
-		return false;
-	}
-
-	public boolean setCalibrationVersion() {
-		BluetoothGattService timeFlipService = device.find(timeFlipServiceUuid);
-		BluetoothGattCharacteristic calibrationVersionCharacteristic = timeFlipService
-				.find(calibrationVersionCharacteristicUuid);
-		if (calibrationVersionCharacteristic != null) {
-			byte[] calibrationConfig = { 0x31, 0x31, 0x31, 0x31}; 
-			// random example just to see if that fixes anything - it doesn't. battery change fucks up everything
-			calibrationVersionCharacteristic.writeValue(calibrationConfig);
-			System.out.println("TimeFlip calibration input done");
-			return true;
-		} else {
-			System.out.println("calibration version characteristic is not available");
+			} 
 		}
 		return false;
 	}

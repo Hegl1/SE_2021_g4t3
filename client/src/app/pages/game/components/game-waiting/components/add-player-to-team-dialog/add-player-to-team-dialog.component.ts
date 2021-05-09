@@ -39,10 +39,12 @@ export class AddPlayerToTeamDialogComponent {
     if (res.isOK()) {
       this.dialogRef.close(true);
     } else {
-      let message = 'Error adding player to team!';
+      let message = res.error || 'Error adding player to team!';
 
       if (res.isBadRequest()) {
         message = 'Username or password is wrong!';
+      } else if (res.isConflict()) {
+        message = 'User is already in a game!';
       }
 
       this.snackBar.open(message, 'OK', {

@@ -75,7 +75,7 @@ public class ExpressionController {
             try {
                 ExpressionDTO expressionDTO = this.expressionService.saveExpression(categoryId, nameDTO);
                 return new ResponseEntity<>(expressionDTO, HttpStatus.OK);
-            } catch (ExpressionService.ExpressionAlreadyExists e) {
+            } catch (ExpressionService.ExpressionAlreadyExistsException e) {
                 return new ResponseEntity<>(HttpStatus.CONFLICT);
             }
         } else {
@@ -100,10 +100,8 @@ public class ExpressionController {
         try {
             this.expressionService.deleteExpression(expression);
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (ExpressionService.ExpressionDoesNotExistAnymore e) {
+        } catch (ExpressionService.ExpressionDoesNotExistAnymoreException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (ExpressionService.ExpressionReferencedInGame e) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
 
@@ -119,12 +117,8 @@ public class ExpressionController {
     @PostMapping("/categories/{categoryId}/expressions/import")
     public ResponseEntity<List<ExpressionDTO>> importExpressionsIntoCategory(@PathVariable final Long categoryId, @RequestBody final List<String> expressionNames) {
         List<ExpressionDTO> expressionDTOs = null;
+        expressionDTOs = this.expressionService.importExpressionsIntoCategory(categoryId, expressionNames);
 
-        try {
-            expressionDTOs = this.expressionService.importExpressionsIntoCategory(categoryId, expressionNames);
-        } catch (ExpressionService.ExpressionAlreadyExists ignored) {
-
-        }
         return new ResponseEntity<>(expressionDTOs, HttpStatus.CREATED);
     }
 
@@ -139,12 +133,8 @@ public class ExpressionController {
     @PostMapping("/expressions/import")
     public ResponseEntity<List<CategoryExpressionDTO>> importExpressions(@RequestBody final List<CategoryExpressionAsStringsDTO> categoryExpressionAsStringsDTOS) {
         List<CategoryExpressionDTO> importedCategoriesAndExpressions = new LinkedList<>();
+        importedCategoriesAndExpressions.addAll(this.expressionService.importExpressions(categoryExpressionAsStringsDTOS));
 
-        try {
-            importedCategoriesAndExpressions.addAll(this.expressionService.importExpressions(categoryExpressionAsStringsDTOS));
-        } catch (CategoryService.CategoryAlreadyExistsException | ExpressionService.ExpressionAlreadyExists ignored) {
-
-        }
         return new ResponseEntity<>(importedCategoriesAndExpressions, HttpStatus.CREATED);
     }
 }

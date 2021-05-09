@@ -88,64 +88,58 @@ public class StatisticsService {
                                               final List<Team> teams) {
 
         CompletedGame completedGame = buildCompletedGame(startTime, endTime, category, teams);
-        List<CompletedGameTeam> completedGameTeams = this.buildCompletedGameTeams(teams);
-
-        for(CompletedGameTeam current : completedGameTeams) {
-            this.completedGameTeamRepository.save(current);
-        }
-
         this.completedGameRepository.save(completedGame);
 
         return completedGame;
     }
 
-    // TODO: exclude the current User himself from played_with
     /**
      * Method that retrieves Statistics of a User
      *
      * @param userId ID of the User
      * @return UserStatisticsDTO with Statistics of the User
      */
-    public UserStatisticsDTO getUserStatistics(final Long userId) {
-
+    public UserStatisticsDTO getUserStatistics(final Long userId) throws UserNotFoundException {
         User user = this.userService.getUserById(userId);
-        List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
-        List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
 
-        List<GameStatisticsDTO> won_games = new LinkedList<>();
-        List<GameStatisticsDTO> lost_games = new LinkedList<>();
-        Category most_played_category = null;
-        int amountMostPlayedCategory = 0;
+        if(user == null) {
+            throw new UserNotFoundException("User not found!");
+        }
 
-        for(CompletedGame completedGame : allCompletedGames) {
-            for(Category category : allCategories) {
-                int wins = 0;
-                int losses = 0;
+        Collection<Category> allCategories = this.categoryService.getAllCategories();
+        PriorityQueue<GameStatisticsDTO> wonGames = new PriorityQueue<>();
+        PriorityQueue<GameStatisticsDTO> lostGames = new PriorityQueue<>();
+        int maxAmountOfGamesPerCategory = 0;
+        Category mostPlayedCategory = null;
 
-                for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
-                    if(completedGameTeam.getPlayers().contains(user)) {
-                        if(completedGameTeam.getHasWon()) {
-                            wins++;
-                        } else {
-                            losses++;
-                        }
-                    }
+        for(Category category : allCategories) {
+            int won_games_per_category = this.completedGameRepository.getAmountWonByUserIdForCategoryId(userId, true, category.getId());
+            int lost_games_per_category = this.completedGameRepository.getAmountWonByUserIdForCategoryId(userId, false, category.getId());
+
+            if(won_games_per_category > 0) {
+                wonGames.add(new GameStatisticsDTO(category, won_games_per_category));
+            }
+
+            if(lost_games_per_category > 0) {
+                lostGames.add(new GameStatisticsDTO(category, lost_games_per_category));
+            }
+
+            int amountOfGamesPerCategory = won_games_per_category + lost_games_per_category;
+
+            if(maxAmountOfGamesPerCategory < amountOfGamesPerCategory) {
+                maxAmountOfGamesPerCategory = amountOfGamesPerCategory;
+                mostPlayedCategory = category;
+            } else if((maxAmountOfGamesPerCategory > 0) && (maxAmountOfGamesPerCategory == (won_games_per_category + lost_games_per_category))) {
+                if(mostPlayedCategory.getName().compareTo(category.getName()) > 0) {
+                    mostPlayedCategory = category;
                 }
-
-                if(amountMostPlayedCategory < (wins + losses)) {
-                    amountMostPlayedCategory = wins + losses;
-                    most_played_category = category;
-                }
-
-                won_games.add(new GameStatisticsDTO(category, wins));
-                lost_games.add(new GameStatisticsDTO(category, losses));
             }
         }
 
-        int played_games = this.getPlayedGames(user);
-        List <UserDTO> played_with = this.getPlayedWith(user);
+        int playedGames = this.getPlayedGames(user);
+        List <UserDTO> playedWith = this.getPlayedWith(user);
 
-        return new UserStatisticsDTO(won_games, lost_games, most_played_category, played_games, played_with);
+        return new UserStatisticsDTO(wonGames, lostGames, mostPlayedCategory, playedGames, playedWith);
     }
 
     /**
@@ -179,16 +173,17 @@ public class StatisticsService {
      * @return the list of players
      */
     private List<UserDTO> getPlayedWith(User user) {
-        List<CompletedGameTeam> completedGamesOfUser = this.completedGameTeamRepository.findByUser(user);
+
+        List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         List<UserDTO> played_with = new LinkedList<>();
         Set<User> distinct_played_with = new HashSet<>();
 
-        for(CompletedGameTeam current : completedGamesOfUser) {
-            if(current.getPlayers().contains(user)) {
-                current.getPlayers().remove(user);
+        for(CompletedGame completedGame : allCompletedGames) {
+            for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
+                distinct_played_with.addAll(completedGameTeam.getPlayers());
             }
-            distinct_played_with.addAll(current.getPlayers());
         }
+        distinct_played_with.remove(user);
 
         for(User current : distinct_played_with) {
             played_with.add(new UserDTO(current.getId(), current.getUsername(), current.getRole().toString()));
@@ -197,7 +192,6 @@ public class StatisticsService {
         return played_with;
     }
 
-    // TODO: check for won most games players may be wrong
     /**
      * Method that retrieves global Statistics
      *
@@ -251,22 +245,24 @@ public class StatisticsService {
      * @return List of Users which have won the most games
      */
     private List<User> getMostWinningPlayers() {
-        List<User> mostGamesWon = new LinkedList<>();
+        List<User> mostGamesWonPlayers = new LinkedList<>();
         List<User> allUsers = this.userService.getAllUsers();
-        int numberOfWonGames = 0;
+        long maxNumberOfWonGames = 0;
 
         for(User user : allUsers) {
             List<CompletedGameTeam> completedGameTeams = this.completedGameTeamRepository.findByUser(user);
+            long numberOfWonGames = completedGameTeams.stream().filter(CompletedGameTeam::getHasWon).count();
 
-            if(completedGameTeams.stream().filter(CompletedGameTeam::getHasWon).count() > numberOfWonGames) {
-                mostGamesWon.clear();
-                mostGamesWon.add(user);
-            } else if(completedGameTeams.stream().filter(CompletedGameTeam::getHasWon).count() == numberOfWonGames) {
-                mostGamesWon.add(user);
+            if(numberOfWonGames > maxNumberOfWonGames) {
+                maxNumberOfWonGames = numberOfWonGames;
+                mostGamesWonPlayers.clear();
+                mostGamesWonPlayers.add(user);
+            } else if(numberOfWonGames == maxNumberOfWonGames) {
+                mostGamesWonPlayers.add(user);
             }
         }
 
-        return mostGamesWon;
+        return mostGamesWonPlayers;
     }
 
     /**
@@ -306,7 +302,6 @@ public class StatisticsService {
         return new CategoryStatisticsDTO(category, number_correct, number_incorrect);
     }
 
-    // TODO: test with more test data
     /**
      * Method that retrieves the top Games, sorted by score per time
      *
@@ -348,7 +343,7 @@ public class StatisticsService {
 
         for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
             score = completedGameTeam.getScore();
-            score_per_time = (float) score / duration;
+            score_per_time = Math.round(((double) score / duration) * 100.0) / 100.0;
             number_correct = completedGameTeam.getNumberOfGuessedExpressions();
             number_incorrect = completedGameTeam.getNumberOfWrongExpressions();
             category = completedGame.getCategory();
@@ -357,5 +352,17 @@ public class StatisticsService {
         }
 
         return new TopGamesStatisticsDTO(teams, category, score_per_time, duration);
+    }
+
+    /**
+     * Gets thrown when a User is not found in the database
+     */
+    public static class UserNotFoundException extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+        public UserNotFoundException(final String message) {
+            super(message);
+        }
     }
 }

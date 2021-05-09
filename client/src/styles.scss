@@ -3,27 +3,18 @@
 
 @include mat-core();
 
-$theme: mat-dark-theme(
-  (
-    color: (
-      primary: $primary,
-      accent: $accent,
-      warn: $warn,
-    ),
-  )
-);
+@include theme();
 
-@include angular-material-theme($theme);
-
-html,
 body {
   height: 100%;
-  background: $background;
-}
-body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
-  color: $foreground;
+
+  color: $dark-foreground;
+  color: var(--foreground);
+
+  background: $dark-background;
+  background: var(--background);
 }
 
 a,
@@ -41,24 +32,30 @@ h3 {
 }
 
 .primary {
-  color: mat-color($primary) !important;
+  color: mat-color($dark-primary) !important;
+  color: var(--primary) !important;
 }
 .bg-primary {
-  background: mat-color($primary) !important;
+  background: mat-color($dark-primary) !important;
+  background: var(--primary) !important;
 }
 
 .accent {
-  color: mat-color($accent) !important;
+  color: mat-color($dark-accent) !important;
+  color: var(--accent) !important;
 }
 .bg-accent {
-  background: mat-color($accent) !important;
+  background: mat-color($dark-accent) !important;
+  background: var(--accent) !important;
 }
 
 .warn {
-  color: mat-color($warn) !important;
+  color: mat-color($dark-warn) !important;
+  color: var(--warn) !important;
 }
 .bg-warn {
-  background: mat-color($warn) !important;
+  background: mat-color($dark-warn) !important;
+  background: var(--warn) !important;
 }
 
 mat-dialog-container *[mat-dialog-title] {
@@ -75,19 +72,21 @@ mat-dialog-container *[mat-dialog-title] {
 }
 
 .mat-drawer-backdrop.mat-drawer-shown {
-  background: $navigation-backdrop;
+  background: $navigation-backdrop !important;
 }
 
 .mat-snack-bar-container {
-  background-color: $snackbar-background;
-  color: $snackbar-foreground;
+  background: $snackbar-background !important;
+  color: $snackbar-foreground !important;
 
   &:not(.action-warn) .mat-simple-snackbar-action {
-    color: mat-color($primary);
+    color: mat-color($dark-primary) !important;
+    color: var(--primary) !important;
   }
 
   &.action-warn .mat-simple-snackbar-action {
-    color: mat-color($warn);
+    color: mat-color($dark-warn) !important;
+    color: var(--warn) !important;
   }
 }
 

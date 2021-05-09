@@ -101,16 +101,19 @@ export class SettingsDialogComponent {
 
     try {
       if (res.isOK()) {
-        // TODO: check auth/logout
         this.snackBar.open('Successfully updated settings!', 'OK', {
           duration: 5000,
         });
 
         this.dialogRef.close();
+
+        await this.api.checkAuthentication();
       } else if (res.isConflict()) {
         throw new Error('This username is already taken!');
+      } else if (res.isBadRequest()) {
+        throw new Error('The entered password is wrong!');
       } else {
-        throw new Error();
+        throw new Error(res.error || undefined);
       }
     } catch (e) {
       this.error = e.message || 'An error occured!';
