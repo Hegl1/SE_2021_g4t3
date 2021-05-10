@@ -21,7 +21,7 @@ public class ConnectionThread extends Thread {
      * If the bluetooth device has no connection the method tries to reconnect.
 	 */
     public void run() {
-        System.out.println("Connection thread started.");
+        System.out.println("Connection thread started");
         while(true) {
             boolean oldConnected = connected;
             BluetoothDevice device = dice.getDevice(); 
@@ -29,7 +29,7 @@ public class ConnectionThread extends Thread {
 			//System.out.println("Connected: " + connected);
 
             if (oldConnected != connected) {
-                System.out.println("Connection status changed");
+                //System.out.println("Connection status changed");
                 dice.getBackendCommunicator().postConnectionStatus(connected);
                 if (connected) {
                     System.out.println("Connection re-established");

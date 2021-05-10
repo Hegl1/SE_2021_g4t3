@@ -116,12 +116,9 @@ public final class Main {
 				} finally {
 					lock.unlock();
 				}
-			}
-
-		//} catch (InterruptedException e) { // ?		
+			}		
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
-
 		} 
 	}
 

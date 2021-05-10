@@ -14,13 +14,13 @@ public class BatteryThread extends Thread {
 	 * Method that runs after the thread is started. The battery status is being checked regularly.
 	 */
     public void run() {
-        System.out.println("Battery thread started.");
+        System.out.println("Battery thread started");
         while(true) {
             dice.readBatteryLevel(); // HTTP requests to backend are included
             try {
                 Thread.sleep(180000); // 3 minutes
             } catch (InterruptedException e) {
-                System.out.println("Battery thread: sleep got interrupted.");
+                System.out.println("Battery thread: sleep got interrupted");
             }
         }
     }

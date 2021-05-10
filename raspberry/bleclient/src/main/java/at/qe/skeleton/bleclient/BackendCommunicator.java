@@ -52,17 +52,19 @@ public final class BackendCommunicator {
 			String savedDiceId = readIdFromFile();
 			if (savedDiceId == null) {
 				String urlString = backendUrlPrefix + "/register";
+				System.out.println("Requesting new ID");
 				String newDiceId = sendGetRequest(urlString);
 				if (newDiceId == null) {
-					System.out.println("couldn't get an ID from the central backend");
+					System.out.println("COULDN'T GET A NEW ID FROM THE BACKEND");
 				} else {
 					this.diceId = newDiceId;
-					System.out.println("new dice Id = " + newDiceId);
+					//System.out.println("New ID: " + newDiceId);
 					saveIdToFile(newDiceId);
 				}
 			} else {
 				this.diceId = savedDiceId;
 			}
+			System.out.println("~~~~~~ ID: " + this.diceId + " ~~~~~~");
 		}
 		return this.diceId;
 	}
@@ -78,15 +80,15 @@ public final class BackendCommunicator {
 	public String readBackendUrlFromFile() {
 		File file = new File(this.backendUrlFileName);
 		if (file.exists()) {
-			System.out.println("backend URL file exists");
+			System.out.println("URL file exists");
 			try { 
 				BufferedReader reader = new BufferedReader(new FileReader(file));
     			String backendUrl = reader.readLine();
    				reader.close();
-				System.out.println("backend URL successfully read from file");
+				System.out.println("URL successfully read from file");
 				return backendUrl;
 			} catch (IOException e) {
-				System.out.println("backend URL couldn't be read from file");
+				System.out.println("URL COULDN'T BE READ FROM FILE");
 				return null;
 			}		
 		} else {
@@ -113,7 +115,7 @@ public final class BackendCommunicator {
 				System.out.println("ID successfully read from file");
 				return savedDiceId;
 			} catch (IOException e) {
-				System.out.println("ID couldn't be read from file");
+				System.out.println("ID COULDN'T BE READ FROM FILE");
 				return null;
 			}		
 		} else {
@@ -135,7 +137,7 @@ public final class BackendCommunicator {
     		writer.close();
 			System.out.println("ID saved to file");
 		} catch (IOException e) {
-			System.out.println("dice ID couldn't be saved to file");
+			System.out.println("ID COULDN'T BE SAVED TO FILE");
 		}
 	}
 
@@ -204,17 +206,17 @@ public final class BackendCommunicator {
 			if (status == 200) {	
 				return;
 			} else if (status == 404) {
-				System.out.println(urlString + " not found (please check url prefix or dice id)");
+				System.out.println(urlString + " NOT FOUND (please check url prefix or dice id)");
 			} else if (status == 400 && urlString.contains("update")) {
-				System.out.println("dice position not in between 0-11");
+				System.out.println("DICE POSITION NOT BETWEEN 0-11");
 			} else if (status == 204 && urlString.contains("connection")) {
-				System.out.println("dice not in a game");
+				System.out.println("dice not in-game");
 			} else {
 				System.out.println("POST request response code is not mentioned in REST documentaion");
 			} 
 			con.disconnect();
 		} catch (Exception e) {
-			System.out.println("POST request failed. exception caught. please check if central backend is running properly.");
+			System.out.println("POST REQUEST FAILED. please check if central backend is running properly.");
 		}
 	}
 
@@ -243,14 +245,14 @@ public final class BackendCommunicator {
 					}
 					return response.toString();
 				} catch (Exception e) {
-					System.out.println("GET request response exception caught. couldn't read answer.");
+					System.out.println("GET REQUEST RESPONSE COULDN'T BE READ");
 				}
 			} else {
 				System.out.println("GET request response code is not mentioned in REST documentaion");
 			}
 			con.disconnect();
 		} catch (Exception e) {
-			System.out.println("GET request failed. exception caught. please check if central backend is running properly.");
+			System.out.println("GET REQUEST FAILED. please check if central backend is running properly.");
 		}
 		return null;
 	}
