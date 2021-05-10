@@ -1,0 +1,10 @@
+.team {
+  &:not(:last-child) {
+    margin-bottom: 1em;
+    border-bottom: 1px solid #ccc;
+  }
+
+  ul {
+    padding-left: 1em;
+  }
+}

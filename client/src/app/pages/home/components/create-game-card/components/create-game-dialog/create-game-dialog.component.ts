@@ -51,6 +51,7 @@ export class CreateGameDialogComponent implements OnInit {
 
   async ngOnInit() {
     this.loadDiceHistory();
+    this.loadDiceMappings();
 
     let res = await this.api.getAllCategories();
 
