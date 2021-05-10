@@ -1,5 +1,5 @@
 # TimeGuess on the Raspberry
-You can find step-by-step instructions on how to get the raspberry side of the TimeGuess game running below. Please read the manual carefully before blindly executing any scripts, as this guide contains **crucial** information. 
+You can find step-by-step instructions on how to get the raspberry side of the TimeGuess game running below. Please read the manual carefully before blindly executing any scripts, as this guide contains **crucial** information. Then run the scripts from within this directory.
 
 The last subsection, "Gameflow", is an optional read and not needed to make the program work.
 
@@ -9,7 +9,7 @@ Locate the file `installScript.sh` in the `raspberry` folder.
 
 Run it: ```sudo bash installScript.sh```
 
-If any problems occur, please have a look at [Java und Bluetooth Low Energy auf dem Raspberry Pi](https://git.uibk.ac.at/csat2410/skeleton-bleclient/tree/master) and follow their installation guide.
+If any problems occur, please don't hestitate to contact me, Diana Gründlinger (diana.gruendlinger@student.uibk.ac.at), and I will do my best to make it work for you.
 
 ## Build
 
@@ -73,7 +73,7 @@ Battery level: 89
 POST request response status: 200
 Facet notifications are enabled
 ```
-After this point you can start throwing your dice. I recommend **cleanly putting the dice on each of its facets** (for a few seconds) **at least once**, ideally on a straight surface. That way the mapping of the facets of the TimeFlip dice will work the best.
+After this point you can start throwing your dice. I recommend **cleanly putting the dice on each of its facets** (for a few seconds) **at least once**, ideally on a straight surface. The facet that was on top at the beginning needs to be on top **at least twice**. That way the mapping of the facets of the TimeFlip dice will work the best. 
 
 ### Insight on our facet calibration/mapping
 
@@ -95,7 +95,7 @@ If any other exception is thrown after execution, please try to just re-run the 
 
 If you make it to the point where it says "notifications should be turned on now", and you're getting response code 200 for all REST calls (battery, facet change etc.), you should be good to go.
 
-If nothing helps and all fails, please don't hestitate to contact me, Diana Gründlinger (diana.gruendlinger@student.uibk.ac.at), and I will do my best to make it work for you! :)
+And again, if nothing helps and all fails, please don't hestitate to contact me, Diana Gründlinger (diana.gruendlinger@student.uibk.ac.at), and I will do my best to make it work for you! :)
 
 ## Gameflow
 
