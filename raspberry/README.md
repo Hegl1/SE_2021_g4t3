@@ -63,7 +63,9 @@ ID file doesn't exist
 Requesting new ID
 GET request response status: 200
 ID saved to file
-~~~~~~ ID: -yqq407k ~~~~~~
+
+~~~~~~ ID: T3qfQv28 (TimeFlip code) ~~~~~~
+
 TimeFlip password input successful
 Connection thread started
 Battery thread started

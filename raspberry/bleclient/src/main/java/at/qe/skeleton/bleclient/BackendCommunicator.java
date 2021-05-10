@@ -64,7 +64,7 @@ public final class BackendCommunicator {
 			} else {
 				this.diceId = savedDiceId;
 			}
-			System.out.println("~~~~~~ ID: " + this.diceId + " ~~~~~~");
+			System.out.println("\n~~~~~~ ID: " + this.diceId + " (TimeFlip code) ~~~~~~\n");
 		}
 		return this.diceId;
 	}
@@ -92,8 +92,8 @@ public final class BackendCommunicator {
 				return null;
 			}		
 		} else {
-			System.out.println("~~~~~~ WRONG USAGE OF PROGRAM DETECTED ~~~~~~");
-			System.out.println("file 'timeGuessBackendUrl.txt' doesn't exist in folder 'bleclient'. please make sure the file exists and contains the correct URL of the central backend");
+			System.out.println("\n~~~~~~ WRONG USAGE OF PROGRAM DETECTED ~~~~~~\n");
+			System.out.println("file 'timeGuessBackendUrl.txt' doesn't exist in folder 'bleclient'.\nplease make sure the file exists and contains the correct URL of the central backend");
 			System.out.println("(also make sure the central backend is up and running when running this program on the raspberry)");
 			return null;
 		}	
