@@ -10,6 +10,7 @@ import { ProfileDialogComponent } from '../profile-dialog/profile-dialog.compone
 })
 export class PlayerNameComponent {
   @Input() player!: User;
+  @Input() closeOpen: boolean = true;
 
   constructor(private dialog: MatDialog) {}
 
@@ -17,7 +18,9 @@ export class PlayerNameComponent {
    * Opens the users profile dialog
    */
   openProfile() {
-    this.dialog.closeAll();
+    if (this.closeOpen) {
+      this.dialog.closeAll();
+    }
 
     this.dialog.open(ProfileDialogComponent, {
       data: {

@@ -4,7 +4,7 @@
 </h2>
 <mat-dialog-content>
     <ul>
-        <li *ngFor="let user of data.users"><tg-player-name [player]="user"></tg-player-name></li>
+        <li *ngFor="let user of data.users"><tg-player-name [player]="user" [closeOpen]="false"></tg-player-name></li>
     </ul>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
