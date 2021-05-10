@@ -56,17 +56,20 @@ The discovery started: true
 Found 1 TimeFlip device(s).
 Found TimeFlip device with address 0C:61:CF:C7:CF:01 and RSSI -48
 Connection established
-backend URL file exists
-backend URL successfully read from file
+URL file exists
+URL successfully read from file
 URL of backend: http://192.168.0.220:8080
-ID file exists
-ID successfully read from file
+ID file doesn't exist
+Requesting new ID
+GET request response status: 200
+ID saved to file
+~~~~~~ ID: -yqq407k ~~~~~~
 TimeFlip password input successful
-Connection thread started.
-Battery thread started.
-Battery level: 87
+Connection thread started
+Battery thread started
+Battery level: 89
 POST request response status: 200
-notifications should be turned on now
+Facet notifications are enabled
 ```
 After this point you can start throwing your dice. I recommend **cleanly putting the dice on each of its facets** (for a few seconds) **at least once**, ideally on a straight surface. That way the mapping of the facets of the TimeFlip dice will work the best.
 
