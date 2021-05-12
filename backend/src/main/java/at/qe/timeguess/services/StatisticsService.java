@@ -165,7 +165,6 @@ public class StatisticsService {
         return allCompletedGamesOfUser.size();
     }
 
-    // TODO: FIX!
     /**
      * Method that retrieves all players with which a player as played games
      * private method, only used in getUserStatistics method

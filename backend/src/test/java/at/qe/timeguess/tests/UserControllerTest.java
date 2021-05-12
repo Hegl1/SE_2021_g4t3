@@ -238,7 +238,7 @@ public class UserControllerTest {
     public void testGetAllUsers() {
         authenticationService.setUserAuthentication(admin);
         List<User> userList = userController.getUsers();
-        Assertions.assertEquals(8,userList.size() );
+        Assertions.assertEquals(11 ,userList.size() );
     }
 
     @Test
