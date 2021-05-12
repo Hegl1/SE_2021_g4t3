@@ -43,6 +43,10 @@ Source files of the documentation can be opened with:
   - Viewing: [Swagger](https://swagger.io/), [VS Code Plugin](https://marketplace.visualstudio.com/items?itemName=42Crunch.vscode-openapi)
   - Mocking: [Prism](https://stoplight.io/open-source/prism/)
 
+
+
+The "Testdrehbuch" can be found in `/docs/Testdrehbuch.docx` .
+
 ## Deployment 
 
 In order to run the front- and backend, please install [docker](https://www.docker.com/get-started).
