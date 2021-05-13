@@ -26,9 +26,16 @@
                 <td>{{ runningGame.max_score }}</td>
             </tr>
         </table>
-
-        <button mat-raised-button color="warn" (click)="doCloseGame()" [disabled]="loading">
-            <mat-icon [inline]="true" style="margin-right: 0.25em">block</mat-icon>Close game
-        </button>
     </ng-container>
+
+    <mat-card-actions align="end">
+        <button mat-raised-button color="warn" (click)="doCloseGame()" [disabled]="loading">
+            <mat-icon [inline]="true" style="margin-right: 0.25em">block</mat-icon>
+            <span>Close game</span>
+        </button>
+        <button mat-button (click)="showDetails()" [disabled]="loading">
+            <mat-icon [inline]="true" style="margin-right: 0.25em">info</mat-icon>
+            <span>Details</span>
+        </button>
+    </mat-card-actions>
 </mat-card>

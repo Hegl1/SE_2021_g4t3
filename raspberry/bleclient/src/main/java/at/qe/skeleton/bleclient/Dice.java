@@ -66,7 +66,7 @@ public final class Dice {
 				}
 			} 
 		} 
-		System.out.println("TimeFlip password input failed");
+		System.out.println("TIMEFLIP PASSWORD INPUT FAILED");
 		return false;
 	}
 
@@ -81,12 +81,15 @@ public final class Dice {
 		if (batteryService != null) {
 			BluetoothGattCharacteristic batteryLevelCharacteristic = batteryService
 					.find(batteryLevelCharacteristicUuid);
-			byte[] batteryLevel = batteryLevelCharacteristic.readValue();
-			int batteryLevelValue = Byte.toUnsignedInt(batteryLevel[0]);
-			System.out.println("Battery level: " + batteryLevelValue);
-			backendCommunicator.postBatteryStatus(batteryLevelValue);
-			return true;
+			if (batteryLevelCharacteristic != null) {
+				byte[] batteryLevel = batteryLevelCharacteristic.readValue();
+				int batteryLevelValue = Byte.toUnsignedInt(batteryLevel[0]);
+				System.out.println("Battery level: " + batteryLevelValue);
+				backendCommunicator.postBatteryStatus(batteryLevelValue);
+				return true;
+			}
 		} 
+		System.out.println("BATTERY LEVEL COULDN'T BE READ");
 		return false;
 	}
 
@@ -103,13 +106,14 @@ public final class Dice {
 			if (facetsCharacteristic != null) {
 				try {
 					facetsCharacteristic.enableValueNotifications(new ValueNotification(this.backendCommunicator));
-					System.out.println("notifications should be turned on now");
+					System.out.println("Facet notifications are enabled");
 					return true;
 				} catch (Exception e) {
-					System.out.println("turning on notifications didn't work");
+					;
 				}
 			} 
 		}
+		System.out.println("FACET NOTIFICATIONS COULD NOT BE ENABLED");
 		return false;
 	}
 }

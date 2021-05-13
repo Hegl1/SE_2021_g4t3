@@ -43,20 +43,37 @@ Source files of the documentation can be opened with:
   - Viewing: [Swagger](https://swagger.io/), [VS Code Plugin](https://marketplace.visualstudio.com/items?itemName=42Crunch.vscode-openapi)
   - Mocking: [Prism](https://stoplight.io/open-source/prism/)
 
-## Deployment using docker
 
-To run this application you need to execute the following in the root:
+
+The "Testdrehbuch" can be found in `/docs/Testdrehbuch.docx` .
+
+## Deployment 
+
+In order to run the front- and backend, please install [docker](https://www.docker.com/get-started).
+
+### Before building the docker images
+
+If you only want to run the frontend on localhost, skip this section and continue at [the next section](#Build-and-run-the-docker-containers). 
+If you want to be able to properly open the website on multiple devices in your network, follow these steps:
+
+- In ```backend/src/main/resources/application.properties```, change all occurrences of ```localhost``` to the ip of the backend server (the ip of the machine running docker).
+- Copy  ```client/src/assets/config.example.json``` and paste it to the same folder. Rename the copy to ```config.json```. Now change all occurences of ```localhost``` in ```client/src/assets/config.json```  to the ip of the backend server again.
+
+### Build and run the docker containers
+
+To run this application you need to execute the following in the root directory of the project:
 
 ```bash
-docker-compose up [-d] # -d if you want to detach
+docker-compose up [-d] # -d if you want to run docker in detached mode (do not receive outputs on console).
 ```
 
-### Frontend configuration
+### Change the configuration after the containers were built
 
-If you want to define a frontend configuration file, you need to copy the `client/src/assets/config.example.json` to `client/src/assets/config.json`
-and set the values. Afterwards you need to rebuild the client.
+In order to re-configure the application, simply stop all running containers, delete the images and follow the steps described in [the previous section](# Before-building-the-docker-images).
 
-If you don't define a configuration file the example file will be used (which is fine if you only want to run it on localhost).
+### Setup the raspberry
+
+For setting up the raspberry, please refer to the [README.md](./raspberry/README.md) in the ```raspberry``` folder.
 
 ## Commiting
 

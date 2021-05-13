@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { RunningGame } from 'src/app/core/api/ApiInterfaces';
 import { GameCodePipe } from 'src/app/core/pipes/gamecode.pipe';
+import { RunningGameDetailsDialogComponent } from '../running-game-details-dialog/running-game-details-dialog.component';
 
 @Component({
   selector: 'tg-running-game-card',
@@ -53,5 +54,17 @@ export class GameCardComponent {
     if (res) {
       this.closeGame.emit();
     }
+  }
+
+  /**
+   * Opens a dialog to show the current details of the
+   * running game
+   */
+  showDetails() {
+    this.dialog.open(RunningGameDetailsDialogComponent, {
+      data: {
+        runningGame: this.runningGame,
+      },
+    });
   }
 }

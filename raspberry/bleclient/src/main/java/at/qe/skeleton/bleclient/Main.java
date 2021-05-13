@@ -68,7 +68,15 @@ public final class Main {
 				return;
 			}
 
-			Dice dice = new Dice(device);
+			Dice dice = null;
+			
+			try {
+				dice = new Dice(device);
+			} catch (Exception e) {
+				device.disconnect();
+				System.out.println("Connection closed");
+				System.exit(-1);
+			}
 
 			Lock lock = new ReentrantLock();
 			Condition cv = lock.newCondition();
@@ -116,12 +124,9 @@ public final class Main {
 				} finally {
 					lock.unlock();
 				}
-			}
-
-		//} catch (InterruptedException e) { // ?		
+			}		
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
-
 		} 
 	}
 

@@ -36,7 +36,7 @@ class ValueNotification implements BluetoothNotification<byte[]> {
     public void run(byte[] data) {
         int facetValue = Byte.toUnsignedInt(data[0]);
         int mappedFacetValue = getMappedFacetValue(facetValue);
-        System.out.println("facet:(actual) " + facetValue + ", (mapped) " + mappedFacetValue); 
+        System.out.println("facet: (actual) " + facetValue + ", (mapped) " + mappedFacetValue); 
         backendCommunicator.postDicePosition(mappedFacetValue);
     }
 

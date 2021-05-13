@@ -137,7 +137,7 @@ public class StatisticsService {
         }
 
         int playedGames = this.getPlayedGames(user);
-        List <UserDTO> playedWith = this.getPlayedWith(user);
+        List <UserDTO> playedWith = this.getPlayedWith(userId);
 
         return new UserStatisticsDTO(wonGames, lostGames, mostPlayedCategory, playedGames, playedWith);
     }
@@ -169,21 +169,22 @@ public class StatisticsService {
      * Method that retrieves all players with which a player as played games
      * private method, only used in getUserStatistics method
      *
-     * @param user of which the players are getting retrieved
+     * @param userId of which the players are getting retrieved
      * @return the list of players
      */
-    private List<UserDTO> getPlayedWith(User user) {
+    private List<UserDTO> getPlayedWith(final Long userId) {
 
-        List<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
+        List<CompletedGame> allWonCompletedGames = this.completedGameRepository.findWonByUserId(userId, true);
+        allWonCompletedGames.addAll(this.completedGameRepository.findWonByUserId(userId, false));
         List<UserDTO> played_with = new LinkedList<>();
         Set<User> distinct_played_with = new HashSet<>();
 
-        for(CompletedGame completedGame : allCompletedGames) {
+        for(CompletedGame completedGame : allWonCompletedGames) {
             for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {
                 distinct_played_with.addAll(completedGameTeam.getPlayers());
             }
         }
-        distinct_played_with.remove(user);
+        distinct_played_with.remove(this.userService.getUserById(userId));
 
         for(User current : distinct_played_with) {
             played_with.add(new UserDTO(current.getId(), current.getUsername(), current.getRole().toString()));

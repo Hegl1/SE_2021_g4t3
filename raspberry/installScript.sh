@@ -13,13 +13,11 @@ apt upgrade -y
 apt install git -y
 apt install cmake -y
 
+apt purge openjdk* -y
+
 apt install openjdk-8-jdk -y
-update-alternatives --config java
 
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/
-
-echo -en "\r\nexport JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/" >> ~/.bashrc
-source ~/.bashrc
 
 apt install maven -y
 apt install libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline-dev -y
@@ -63,3 +61,11 @@ cd $WORKDIR
 
 mkdir -p bleclient/lib/
 cp tinyb/build/java/tinyb.jar bleclient/lib/
+
+apt purge openjdk* -y
+
+apt install openjdk-11-jdk -y
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+
+apt install maven
