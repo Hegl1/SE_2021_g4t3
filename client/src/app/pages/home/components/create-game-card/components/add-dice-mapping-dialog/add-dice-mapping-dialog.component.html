@@ -1,5 +1,7 @@
 <h2 mat-dialog-title>
-    <mat-icon color="primary" [inline]="true">add_circle_outline</mat-icon><span>Add new dice mapping</span>
+    <mat-icon color="primary" [inline]="true">add_circle_outline</mat-icon>
+    <span *ngIf="!data || !data.edit; else editMappingTitle">Add new dice mapping</span>
+    <ng-template #editMappingTitle>Edit dice mapping</ng-template>
 </h2>
 
 <mat-dialog-content>
@@ -41,5 +43,8 @@
 
 <mat-dialog-actions align="end">
     <button mat-flat-button mat-dialog-close [mat-dialog-close]="null">Cancel</button>
-    <button mat-flat-button (click)="save()" color="primary" [disabled]="!valid">Create</button>
+    <button mat-flat-button (click)="save()" color="primary" [disabled]="!valid">
+        <ng-container *ngIf="!data || !data.edit; else editMappingSaveButton">Create</ng-container>
+        <ng-template #editMappingSaveButton>Save</ng-template>
+    </button>
 </mat-dialog-actions>

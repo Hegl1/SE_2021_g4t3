@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DiceMapping } from 'src/app/core/api/ApiInterfaces';
 import StorageNames from 'src/app/core/StorageNames';
 
@@ -13,21 +13,44 @@ export class AddDiceMappingDialogComponent {
   mappingForm: FormGroup;
   mapping: FormArray;
 
-  constructor(private dialogRef: MatDialogRef<AddDiceMappingDialogComponent>, private fb: FormBuilder) {
+  constructor(
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      edit: {
+        name: string;
+        data: DiceMapping[];
+      } | null;
+    },
+    private dialogRef: MatDialogRef<AddDiceMappingDialogComponent>,
+    private fb: FormBuilder
+  ) {
     this.mapping = this.fb.array([]);
 
     for (let i = 0; i < 12; i++) {
+      let values: DiceMapping | null = null;
+
+      if (this.data && this.data.edit) {
+        values = {
+          action: this.data.edit?.data[i].action,
+          time: this.data.edit?.data[i].time,
+          points: this.data.edit?.data[i].points,
+        };
+      }
+
       this.mapping.push(
         this.fb.group({
-          action: [null, Validators.required],
-          time: [null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$')]], // seconds
-          points: [null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$')]],
+          action: [values?.action || null, Validators.required],
+          time: [values?.time || null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$')]], // seconds
+          points: [values?.points || null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$')]],
         })
       );
     }
 
     this.mappingForm = this.fb.group({
-      name: ['', Validators.required],
+      name: [
+        { value: this.data && this.data.edit ? this.data.edit.name : '', disabled: this.data && !!this.data.edit },
+        Validators.required,
+      ],
       mapping: this.mapping,
     });
   }

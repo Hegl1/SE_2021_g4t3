@@ -89,7 +89,12 @@
             <mat-spinner matSuffix diameter="24" *ngIf="loading_mapping"></mat-spinner>
             <mat-icon matSuffix *ngIf="!loading_mapping">sell</mat-icon>
         </mat-form-field>
-        <button mat-mini-fab color="primary" type="button" (click)="addDiceMapping()"><mat-icon>add</mat-icon></button>
+        <button mat-mini-fab color="primary" type="button" (click)="addDiceMapping()" style="margin-right: 0.5em">
+            <mat-icon>add</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [matMenuTriggerFor]="editMappingMenu">
+            <mat-icon>more_vert</mat-icon>
+        </button>
     </form>
     <p *ngIf="error" class="error warn">{{ error }}</p>
 </mat-dialog-content>
@@ -99,3 +104,16 @@
     <button mat-flat-button mat-dialog-close [mat-dialog-close]="null" [disabled]="saving">Cancel</button>
     <button mat-flat-button (click)="save()" color="primary" [disabled]="saving || loading_dice">Create</button>
 </mat-dialog-actions>
+
+<mat-menu #editMappingMenu="matMenu">
+    <ng-template matMenuContent>
+        <button mat-menu-item (click)="editDiceMapping()" [disabled]="isDefaultDiceMapping()">
+            <mat-icon>edit</mat-icon>
+            <span>Edit</span>
+        </button>
+        <button mat-menu-item (click)="deleteDiceMapping()" [disabled]="isDefaultDiceMapping()">
+            <mat-icon [color]="isDefaultDiceMapping() ? null : 'warn'">delete</mat-icon>
+            <span [class.warn]="!isDefaultDiceMapping()">Delete</span>
+        </button>
+    </ng-template>
+</mat-menu>

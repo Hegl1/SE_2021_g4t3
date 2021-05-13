@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { HelpDialogComponent } from 'src/app/components/help-dialog/help-dialog.component';
 import { ApiService } from 'src/app/core/api/api.service';
 import { Category, DiceMapping } from 'src/app/core/api/ApiInterfaces';
@@ -180,6 +181,15 @@ export class CreateGameDialogComponent implements OnInit {
     this.diceMappings = JSON.parse(localStorage.getItem(StorageNames.DiceMappings) || '{}');
   }
 
+  /**
+   * Saves the dice mappings
+   */
+  saveDiceMappings() {
+    if (this.diceMappings) {
+      localStorage.setItem(StorageNames.DiceMappings, JSON.stringify(this.diceMappings));
+    }
+  }
+
   get diceMappingsNames() {
     if (!this.diceMappings) return null;
 
@@ -260,5 +270,63 @@ export class CreateGameDialogComponent implements OnInit {
       },
       width: '500px',
     });
+  }
+
+  /**
+   * Is the current selected dice mapping the default dice mapping
+   */
+  isDefaultDiceMapping() {
+    return this.dice_mapping?.value === this.DEFAULT_MAPPING_NAME;
+  }
+
+  /**
+   * Edit the selected dice mapping
+   */
+  async editDiceMapping() {
+    let name = this.dice_mapping?.value;
+    if (this.isDefaultDiceMapping() || !name || !this.diceMappings || !(name in this.diceMappings)) return;
+
+    let res = await this.dialog
+      .open(AddDiceMappingDialogComponent, {
+        data: {
+          edit: {
+            name: name,
+            data: this.diceMappings[name],
+          },
+        },
+      })
+      .afterClosed()
+      .toPromise();
+
+    if (res) {
+      this.loadDiceMappings();
+    }
+  }
+
+  /**
+   * Delete the selected dice mapping
+   */
+  deleteDiceMapping() {
+    let name = this.dice_mapping?.value;
+    if (this.isDefaultDiceMapping() || !name) return;
+
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Delete mapping',
+          content: 'Do you want to delete the selected mapping?',
+          btnConfirm: 'Yes',
+          btnDecline: 'No',
+          warn: true,
+        },
+      })
+      .afterClosed()
+      .subscribe((res) => {
+        if (res && this.diceMappings && name in this.diceMappings) {
+          delete this.diceMappings[name];
+          this.saveDiceMappings();
+          this.dice_mapping?.setValue(this.DEFAULT_MAPPING_NAME);
+        }
+      });
   }
 }
