@@ -211,19 +211,25 @@ public class Game {
 	 *
 	 */
 	public void leaveGame(final User player) {
-		if (unassignedUsers.contains(player)) {
-			unassignedUsers.remove(player);
-			readyPlayers.remove(player);
-			usersWithDevices.remove(player);
-			webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
-		} else {
-            usersWithDevices.remove(player);
-            updateReadyStatus(player, true);
+        if (player.equals(host) || (!allTeamsEnoughPlayersWithDevice() && active)) {
+            lobbyService.abortRunningGame(gameCode);
         }
-		if (player.equals(host) || (!allTeamsEnoughPlayersWithDevice() && active)) {
-			lobbyService.abortRunningGame(gameCode);
-		}
-	}
+
+        if (!active) {
+            for (Team current : teams) {
+                if (current.isInTeam(player)) {
+                    current.leaveTeam(player);
+                    break;
+                }
+            }
+            unassignedUsers.remove(player);
+            readyPlayers.remove(player);
+            usersWithDevices.remove(player);
+            updateReadyStatus(host, false);
+            webSocketService.sendTeamUpdateToFrontend(gameCode, buildTeamDTOs(teams));
+            webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+        }
+    }
 
 	/**
      * Method to update the ready status of a user. Also sends messages to frontend
@@ -233,7 +239,7 @@ public class Game {
      * @param isReady new ready status.
      */
 	public void updateReadyStatus(final User user, final Boolean isReady) {
-        if (user.equals(host) && isReady.equals(false)) {
+        if (user.equals(host) && isReady.equals(false) && readyPlayers.get(host) != false) {
             // hosts sets ready to false
             for (final User current : usersWithDevices) {
                 readyPlayers.put(current, false);
