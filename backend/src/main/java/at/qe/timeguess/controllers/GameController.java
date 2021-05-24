@@ -52,7 +52,7 @@ public class GameController {
 	public ResponseEntity<Integer> createGame(@RequestBody final CreateGame game) {
 
         Category gameCategory = categoryRepository.findFirstById((long) game.getCategory_id());
-        if (gameCategory == null || !isGameCreationValid(game)) {
+        if (gameCategory == null || !gameCreationParametersInBounds(game)) {
             return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
         }
         try {
@@ -226,18 +226,20 @@ public class GameController {
      * @param createGame createGameDTO that contains the information for the new game.
      * @return true if all params are in bound, else false
      */
-    private boolean isGameCreationValid(CreateGame createGame) {
+    private boolean gameCreationParametersInBounds(CreateGame createGame) {
         final int gameScoreCeiling = 10000;
         final int teamCeiling = 10;
         final int guessTimeCeiling = 600;
         final int guessScoreCeiling = 100;
 
-        if (createGame.getNumber_of_teams() > teamCeiling || createGame.getMax_score() > gameScoreCeiling) {
+        if (createGame.getNumber_of_teams() > teamCeiling || createGame.getNumber_of_teams() <= 1 ||
+            createGame.getMax_score() > gameScoreCeiling || createGame.getMax_score() <= 0) {
             return false;
         }
         if (createGame.getMapping() != null) {
             for (Mapping mapping : createGame.getMapping()) {
-                if (mapping.getTime() > guessTimeCeiling || mapping.getPoints() > guessScoreCeiling) {
+                if (mapping.getTime() > guessTimeCeiling || mapping.getTime() <= 0
+                    || mapping.getPoints() > guessScoreCeiling || mapping.getPoints() <= 0) {
                     return false;
                 }
             }
