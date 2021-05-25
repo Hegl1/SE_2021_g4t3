@@ -304,6 +304,8 @@ export class ExpressionsComponent implements OnInit {
             this.reload();
           } else if (res.isNotFound()) {
             throw new Error('The category was not found');
+          } else if (res.isBadRequest()) {
+            throw new Error('Invalid format (see "Help" for more information)');
           } else {
             throw new Error(res.error || undefined);
           }
