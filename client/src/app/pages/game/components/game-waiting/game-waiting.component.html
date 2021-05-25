@@ -16,6 +16,11 @@
         /
         <strong>{{ game.totalPlayers }}</strong>
     </span>
+
+    <div class="hint_unstartable" *ngIf="currentUserId !== undefined && isCurrentUserHost && !startable">
+        <mat-icon color="accent">info</mat-icon>
+        <span>Every team must have at least two players and at least one of those has to have a device.</span>
+    </div>
 </div>
 
 <div *ngIf="hostId != null && isReadyPlayer(hostId)" class="game_starting mat-elevation-z2">
