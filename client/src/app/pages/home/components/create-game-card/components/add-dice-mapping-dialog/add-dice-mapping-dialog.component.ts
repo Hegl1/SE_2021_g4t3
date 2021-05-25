@@ -4,6 +4,9 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DiceMapping } from 'src/app/core/api/ApiInterfaces';
 import StorageNames from 'src/app/core/StorageNames';
 
+const MAX_TIME = 600;
+const MAX_POINTS = 100;
+
 @Component({
   selector: 'tg-add-dice-mapping-dialog',
   templateUrl: './add-dice-mapping-dialog.component.html',
@@ -40,8 +43,14 @@ export class AddDiceMappingDialogComponent {
       this.mapping.push(
         this.fb.group({
           action: [values?.action || null, Validators.required],
-          time: [values?.time || null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$')]], // seconds
-          points: [values?.points || null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$')]],
+          time: [
+            values?.time || null,
+            [Validators.required, Validators.min(1), Validators.max(MAX_TIME), Validators.pattern('^[0-9]*$')],
+          ], // seconds
+          points: [
+            values?.points || null,
+            [Validators.required, Validators.min(1), Validators.max(MAX_POINTS), Validators.pattern('^[0-9]*$')],
+          ],
         })
       );
     }
@@ -70,6 +79,15 @@ export class AddDiceMappingDialogComponent {
       }
       if (field.hasError('min')) {
         return 'The number is too small';
+      }
+      if (field.hasError('max')) {
+        if (name === 'time') {
+          return `Only a maximum time of ${MAX_TIME}s allowed`;
+        } else if (name === 'points') {
+          return `Only a maximum of ${MAX_POINTS} points allowed`;
+        }
+
+        return 'The number is too big';
       }
       if (field.hasError('pattern')) {
         return 'A positive integer must be supplied';

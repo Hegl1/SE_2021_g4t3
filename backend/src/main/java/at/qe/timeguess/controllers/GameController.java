@@ -1,9 +1,7 @@
 package at.qe.timeguess.controllers;
 
-import at.qe.timeguess.dto.CreateGame;
-import at.qe.timeguess.dto.GameDTO;
-import at.qe.timeguess.dto.TeamDTO;
-import at.qe.timeguess.dto.UserDTO;
+import at.qe.timeguess.dto.Mapping;
+import at.qe.timeguess.dto.*;
 import at.qe.timeguess.gamelogic.Dice;
 import at.qe.timeguess.gamelogic.Game;
 import at.qe.timeguess.gamelogic.Game.GameAlreadyRunningException;
@@ -54,7 +52,7 @@ public class GameController {
 	public ResponseEntity<Integer> createGame(@RequestBody final CreateGame game) {
 
         Category gameCategory = categoryRepository.findFirstById((long) game.getCategory_id());
-        if (gameCategory == null) {
+        if (gameCategory == null || !gameCreationParametersInBounds(game)) {
             return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
         }
         try {
@@ -194,32 +192,60 @@ public class GameController {
 	 * @return corresponding Dice.
 	 */
 	private Dice buildDice(final CreateGame game) {
-		int[] pointsMapping = new int[12];
-		int[] durationMapping = new int[12];
-		String[] activityMapping = new String[12];
+        int[] pointsMapping = new int[12];
+        int[] durationMapping = new int[12];
+        String[] activityMapping = new String[12];
 
-		for (int i = 0; i < 12; i++) {
-			pointsMapping[i] = game.getMapping()[i].getPoints();
-			durationMapping[i] = game.getMapping()[i].getTime();
-			activityMapping[i] = game.getMapping()[i].getAction();
-		}
+        for (int i = 0; i < 12; i++) {
+            pointsMapping[i] = game.getMapping()[i].getPoints();
+            durationMapping[i] = game.getMapping()[i].getTime();
+            activityMapping[i] = game.getMapping()[i].getAction();
+        }
 
-		return new Dice(pointsMapping, activityMapping, durationMapping);
-	}
+        return new Dice(pointsMapping, activityMapping, durationMapping);
+    }
 
-	/**
-	 * Private method that builds a UserDTO from a User.
-	 *
-	 * @param user user to build DTO from
-	 * @return corresponding UserDTO
-	 */
-	private UserDTO buildUserDTO(final User user) {
-		if (user == null) {
-			return null;
-		} else {
-			return new UserDTO(user.getId(), user.getUsername(), user.getRole().toString().toLowerCase());
-		}
+    /**
+     * Private method that builds a UserDTO from a User.
+     *
+     * @param user user to build DTO from
+     * @return corresponding UserDTO
+     */
+    private UserDTO buildUserDTO(final User user) {
+        if (user == null) {
+            return null;
+        } else {
+            return new UserDTO(user.getId(), user.getUsername(), user.getRole().toString().toLowerCase());
+        }
 
-	}
+    }
+
+    /**
+     * Method that checks whether the numerical parameters for a game creation are in bounds
+     *
+     * @param createGame createGameDTO that contains the information for the new game.
+     * @return true if all params are in bound, else false
+     */
+    private boolean gameCreationParametersInBounds(CreateGame createGame) {
+        final int gameScoreCeiling = 10000;
+        final int teamCeiling = 10;
+        final int guessTimeCeiling = 600;
+        final int guessScoreCeiling = 100;
+
+        if (createGame.getNumber_of_teams() > teamCeiling || createGame.getNumber_of_teams() <= 1 ||
+            createGame.getMax_score() > gameScoreCeiling || createGame.getMax_score() <= 0) {
+            return false;
+        }
+        if (createGame.getMapping() != null) {
+            for (Mapping mapping : createGame.getMapping()) {
+                if (mapping.getTime() > guessTimeCeiling || mapping.getTime() <= 0
+                    || mapping.getPoints() > guessScoreCeiling || mapping.getPoints() <= 0) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 
 }

@@ -102,7 +102,9 @@
 <mat-dialog-actions align="end">
     <mat-spinner *ngIf="saving" color="primary" diameter="20" style="margin-right: 1rem"></mat-spinner>
     <button mat-flat-button mat-dialog-close [mat-dialog-close]="null" [disabled]="saving">Cancel</button>
-    <button mat-flat-button (click)="save()" color="primary" [disabled]="saving || loading_dice">Create</button>
+    <button mat-flat-button (click)="save()" color="primary" [disabled]="saving || loading_dice || !createForm.valid">
+        Create
+    </button>
 </mat-dialog-actions>
 
 <mat-menu #editMappingMenu="matMenu">
