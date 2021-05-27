@@ -28,7 +28,7 @@ public class ExpressionServiceTest {
 
     @Test
     public void testGetExpressionById() {
-        Expression expression = this.expressionService.getExpressionById(0L);
+        Expression expression = this.expressionService.getExpressionById(289L);
         Assertions.assertEquals("Bundestag", expression.getName());
     }
 
@@ -36,7 +36,7 @@ public class ExpressionServiceTest {
     public void testGetExpressionByCategoryAndName() {
         Category category = this.categoryService.getCategoryByName("Deutschland");
         Expression expression = this.expressionService.getExpressionByCategoryAndName(category, "Bundestag");
-        Assertions.assertEquals(0L, expression.getId());
+        Assertions.assertEquals(289L, expression.getId());
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ExpressionServiceTest {
 
     @Test
     public void testIsDeletable() throws CategoryService.CategoryAlreadyExistsException {
-        Category notDeletableCategory = this.categoryService.getCategoryById(0L);
+        Category notDeletableCategory = this.categoryService.getCategoryById(2L);
         Category deletableCategory = this.categoryService.saveCategory(new Category("Politics"));
 
         Assertions.assertFalse(this.categoryService.isDeletable(notDeletableCategory));

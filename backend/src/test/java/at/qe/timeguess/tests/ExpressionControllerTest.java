@@ -38,7 +38,7 @@ public class ExpressionControllerTest {
         ResponseEntity<List<ExpressionDTO>> response = this.expressionController.getAllExpressionsOfCategory(0L);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals("Bundestag", response.getBody().get(0).getName());
+        Assertions.assertEquals("Berlin", response.getBody().get(0).getName());
     }
 
     @Test
