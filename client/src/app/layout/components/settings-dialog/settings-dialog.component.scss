@@ -4,24 +4,6 @@ mat-form-field {
   max-width: 100%;
 }
 
-.change_password span {
-  float: right;
-  text-decoration: underline;
-
-  &::after {
-    clear: both;
-  }
-}
-
-.theme {
-  span {
-    display: block;
-    margin-bottom: 0.25em;
-  }
-
-  margin: 1em 0 0.5em 0;
-}
-
 .error {
   margin: 1em 0;
 }
