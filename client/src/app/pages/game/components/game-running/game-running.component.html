@@ -127,19 +127,15 @@
             <span class="score mat-elevation-z2">{{ team.score }} Point{{ team.score != 1 ? 's' : '' }}</span>
         </h2>
 
-        <ul class="players">
-            <li *ngFor="let player of team.players" [class.current]="player.id === currentUserId">
-                <mat-icon
-                    [inline]="true"
-                    color="primary"
-                    *ngIf="currentPlayerUser && currentPlayerUser.id === player.id"
-                    >play_arrow</mat-icon
-                >
-                <tg-player-name [player]="player"></tg-player-name>
-                <mat-icon [inline]="true" *ngIf="player.id === currentUserId">person</mat-icon>
-                <mat-icon color="accent" [inline]="true" *ngIf="player.id === hostId">star</mat-icon>
-            </li>
-        </ul>
+        <div class="players">
+            <tg-game-player-profile
+                [user]="player"
+                [isCurrent]="player.id === currentUserId"
+                [isPlayersTurn]="!!currentPlayerUser && currentPlayerUser.id === player.id"
+                [isHost]="player.id === hostId"
+                *ngFor="let player of team.players"
+            ></tg-game-player-profile>
+        </div>
     </mat-card>
 </div>
 

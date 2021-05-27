@@ -17,7 +17,11 @@
         <strong>{{ game.totalPlayers }}</strong>
     </span>
 
-    <div class="hint_unstartable" *ngIf="currentUserId !== undefined && isCurrentUserHost && !startable">
+    <div
+        class="hint_unstartable"
+        *ngIf="currentUserId !== undefined && isCurrentUserHost && !startable"
+        style="display: block"
+    >
         <mat-icon color="accent">info</mat-icon>
         <span>Every team must have at least two players and at least one of those has to have a device.</span>
     </div>
@@ -43,17 +47,15 @@
 
         <h2><mat-icon [inline]="true">hourglass_empty</mat-icon>Unassigned players</h2>
 
-        <ul class="players">
-            <li
+        <div class="players">
+            <tg-game-player-profile
+                [user]="player"
+                [isCurrent]="player.id === currentUserId"
+                [isReady]="false"
+                [isHost]="player.id === hostId"
                 *ngFor="let player of game.currentState?.waiting_data?.unassigned_players || null"
-                [class.current]="player.id === currentUserId"
-            >
-                <mat-icon [inline]="true" style="color: #f12">remove</mat-icon>
-                <tg-player-name [player]="player" (click)="$event.stopPropagation()"></tg-player-name>
-                <mat-icon [inline]="true" *ngIf="player.id === currentUserId">person</mat-icon>
-                <mat-icon color="accent" [inline]="true" *ngIf="player.id === hostId">star</mat-icon>
-            </li>
-        </ul>
+            ></tg-game-player-profile>
+        </div>
     </mat-card>
 </div>
 
@@ -73,16 +75,15 @@
 
         <h2><mat-icon [inline]="true">groups</mat-icon>{{ team.name }}</h2>
 
-        <ul class="players">
-            <li *ngFor="let player of team.players" [class.current]="player.id === currentUserId">
-                <mat-icon [inline]="true" [style.color]="isReadyPlayer(player.id) ? '#0f0' : '#f12'">{{
-                    isReadyPlayer(player.id) ? 'check' : 'remove'
-                }}</mat-icon>
-                <tg-player-name [player]="player" (click)="$event.stopPropagation()"></tg-player-name>
-                <mat-icon [inline]="true" *ngIf="player.id === currentUserId">person</mat-icon>
-                <mat-icon color="accent" [inline]="true" *ngIf="player.id === hostId">star</mat-icon>
-            </li>
-        </ul>
+        <div class="players">
+            <tg-game-player-profile
+                [user]="player"
+                [isCurrent]="player.id === currentUserId"
+                [isReady]="isReadyPlayer(player.id)"
+                [isHost]="player.id === hostId"
+                *ngFor="let player of team.players"
+            ></tg-game-player-profile>
+        </div>
 
         <button
             mat-raised-button

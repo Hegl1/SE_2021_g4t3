@@ -1,0 +1,6 @@
+<div class="container" (click)="openProfile(); $event.stopPropagation()">
+    <mat-icon [style.color]="icon.color" [matTooltip]="icon.tooltip || ''">{{ icon.key }}</mat-icon>
+    <span>{{ user.username }}</span>
+    <mat-icon *ngIf="isCurrent" matTooltip="It's you!">person</mat-icon>
+    <mat-icon color="accent" *ngIf="isHost" matTooltip="Game host">star</mat-icon>
+</div>
