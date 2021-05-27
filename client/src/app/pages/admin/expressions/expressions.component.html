@@ -131,9 +131,16 @@
             <mat-icon>file_upload</mat-icon>
             <span>Import expressions</span>
         </button>
-        <button mat-menu-item (click)="deleteCategory(category.id)" [disabled]="!category.deletable">
+        <div
+            mat-menu-item
+            matTooltip="This category was used in a game before and can therefore not be deleted"
+            [matTooltipDisabled]="category.deletable"
+            (click)="category.deletable ? deleteCategory(category.id) : null"
+            [class.disabled]="!category.deletable"
+            [disableRipple]="!category.deletable"
+        >
             <mat-icon [color]="!category.deletable ? '' : 'warn'">delete</mat-icon>
-            <span [class]="!category.deletable ? '' : 'warn'">Delete category</span>
-        </button>
+            <span [class.warn]="category.deletable">Delete category</span>
+        </div>
     </ng-template>
 </mat-menu>

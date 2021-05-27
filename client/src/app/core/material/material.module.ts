@@ -19,6 +19,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [],
@@ -45,6 +46,7 @@ import { MatTableModule } from '@angular/material/table';
     MatSortModule,
     MatTableModule,
     MatButtonToggleModule,
+    MatTooltipModule,
   ],
 })
 export class MaterialModule {}

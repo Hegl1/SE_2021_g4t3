@@ -169,29 +169,6 @@
         background: var(--primary);
       }
     }
-
-    ul.players {
-      list-style-type: none;
-      padding: 0;
-
-      li {
-        > * {
-          vertical-align: middle;
-        }
-
-        mat-icon:not(:first-child) {
-          margin-left: 0.5em;
-        }
-
-        mat-icon:first-child {
-          margin-right: 0.5em;
-        }
-
-        &.current {
-          font-weight: 550;
-        }
-      }
-    }
   }
 }
 
