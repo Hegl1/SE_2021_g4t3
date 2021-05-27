@@ -225,14 +225,17 @@ public class StatisticsService {
     private Category getMostPlayedCategory() {
         List<Category> allCategories = new LinkedList<>(this.categoryService.getAllCategories());
         int numberOfGamesOfMostPlayedCategory = 0;
-        List<CompletedGame> tempCompletedGame;
+        List<CompletedGame> completedGamesOfCategory;
         Category mostPlayedCategory = null;
 
         for(Category category : allCategories) {
 
-            tempCompletedGame = this.completedGameRepository.findByCategory(category);
-            if(tempCompletedGame.size() > numberOfGamesOfMostPlayedCategory) {
+            completedGamesOfCategory = this.completedGameRepository.findByCategory(category);
+            int numberOfCompletedGamesOfCategory = completedGamesOfCategory.size();
+
+            if(numberOfCompletedGamesOfCategory > numberOfGamesOfMostPlayedCategory) {
                 mostPlayedCategory = category;
+                numberOfGamesOfMostPlayedCategory = numberOfCompletedGamesOfCategory;
             }
         }
 
