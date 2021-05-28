@@ -7,13 +7,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class GameLobby {
+public class SetupGamePhase {
 
     private Game game;
     private Map<User, Boolean> readyPlayers;
     private List<User> unassignedUsers;
 
-    public GameLobby(Game game){
+    protected SetupGamePhase(Game game) {
         this.game = game;
         this.readyPlayers = new HashMap<>();
         this.unassignedUsers = new LinkedList<>();
