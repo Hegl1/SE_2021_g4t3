@@ -17,6 +17,7 @@ import at.qe.timeguess.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -118,6 +119,7 @@ public class GameController {
 	 * @return ResponseEntity for REST communication(status 200 if successful, 404
 	 *         if game does not exist).
 	 */
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@DeleteMapping("/{code}")
 	public ResponseEntity<Void> forceCloseRunningGame(@PathVariable final int code) {
 		if (lobbyService.getGame(code) == null) {
@@ -132,10 +134,6 @@ public class GameController {
 	public ResponseEntity<Void> joinGame(@PathVariable final int code) {
 
 		User authUser = userService.getAuthenticatedUser();
-
-		if (authUser == null) {
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-		}
 
 		if (lobbyService.getGameContainingUser(authUser) != null
 				&& lobbyService.getGameContainingUser(authUser) != lobbyService.getGame(code)) {
@@ -154,10 +152,6 @@ public class GameController {
 
 	@GetMapping("/{code}/exists")
 	public ResponseEntity<Void> gameExists(@PathVariable final int code) {
-
-		if (userService.getAuthenticatedUser() == null) {
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-		}
 
 		if (lobbyService.getGame(code) != null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);

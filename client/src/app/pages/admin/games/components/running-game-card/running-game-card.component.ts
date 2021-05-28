@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
-import { RunningGame } from 'src/app/core/api/ApiInterfaces';
+import { Role, RunningGame } from 'src/app/core/api/ApiInterfaces';
+import { UserService } from 'src/app/core/auth/user.service';
 import { GameCodePipe } from 'src/app/core/pipes/gamecode.pipe';
 import { RunningGameDetailsDialogComponent } from '../running-game-details-dialog/running-game-details-dialog.component';
 
@@ -25,10 +26,14 @@ export class GameCardComponent {
   private _runningGame: RunningGame | null = null;
   players = 0;
 
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog, private user: UserService) {}
 
   get runningGame() {
     return this._runningGame;
+  }
+
+  get isUserAdmin() {
+    return this.user.user?.role === Role.Admin;
   }
 
   /**
