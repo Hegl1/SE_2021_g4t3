@@ -124,7 +124,7 @@ public class GameLobby {
     }
 
     protected void updateReadyStatus(final User user, final Boolean isReady) {
-        if (user.equals(game.getHost()) && isReady.equals(false) && readyPlayers.get(game.getHost())) {
+        if (user.equals(game.getHost()) && isReady.equals(false) && readyPlayers.get(game.getHost()) != null && readyPlayers.get(game.getHost())) {
             // hosts sets ready to false
             for (final User current : game.getUsersWithDevices()) {
                 readyPlayers.put(current, false);
