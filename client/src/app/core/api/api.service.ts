@@ -82,11 +82,15 @@ export class ApiService {
       if (status != 404) {
         if (status == 401 && this.user.isLoggedin) {
           this.user.logoutReason('unauthorized');
-        } else if (status == 403 && this.user.isLoggedin) {
-          this.snackBar.open('You are not authorized to perform this action!', 'OK', {
-            duration: 10000,
-            panelClass: 'action-warn',
-          });
+        } else if (status == 403) {
+          if (this.user.isLoggedin) {
+            this.snackBar.open('You are not authorized to perform this action!', 'OK', {
+              duration: 10000,
+              panelClass: 'action-warn',
+            });
+          }
+
+          error = null;
         }
 
         return new ApiResponse<T>(e.status, null, error);
