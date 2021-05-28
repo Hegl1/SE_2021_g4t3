@@ -51,6 +51,7 @@ public class Game {
         this.active = false;
         this.gameCode = code;
         this.dice = new Dice();
+        this.runningGamePhase = new RunningGamePhase(this);
         dice.setRaspberryConnected(true);
         this.dtoFactory = new IngameDTOFactory();
     }
@@ -62,7 +63,6 @@ public class Game {
         usersWithDevices.add(host);
         this.host = host;
         this.setupGamePhase = new SetupGamePhase(this);
-        this.runningGamePhase = new RunningGamePhase(this);
         this.maxPoints = maxPoints;
         this.numberOfTeams = numberOfTeams;
         if (numberOfTeams < 2) {
