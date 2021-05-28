@@ -2,20 +2,19 @@ package at.qe.timeguess.gamelogic;
 
 /**
  * Class that holds the dice mapping for a running game.
- *
  */
 public class Dice {
 
-	private int batteryPower;
-	private boolean raspberryConnected;
-	private int[] pointsMapping;
-	private String[] activityMapping;
-	private int[] durationMapping;
+    private int batteryPower;
+    private boolean raspberryConnected;
+    private int[] pointsMapping;
+    private String[] activityMapping;
+    private int[] durationMapping;
 
-	/**
-	 * Default constructor that initializes the dice with the default mapping.
-	 */
-	public Dice() {
+    /**
+     * Default constructor that initializes the dice with the default mapping.
+     */
+    public Dice() {
         pointsMapping = new int[12];
         activityMapping = new String[12];
         durationMapping = new int[12];
@@ -24,18 +23,18 @@ public class Dice {
         loadDefaultMapping();
     }
 
-	/**
-	 * Constructor that initializes the dice with a given mapping. All arrays
-	 * provided need to be in of size 12
-	 *
-	 * @param pointsMapping   array that maps facet to points
-	 * @param activityMapping array that maps facet to activity.
-	 * @param durationMapping array that maps facet to duration.
-	 */
-	public Dice(final int[] pointsMapping, final String[] activityMapping, final int[] durationMapping) {
-		this();
-		this.pointsMapping = pointsMapping;
-		this.activityMapping = activityMapping;
+    /**
+     * Constructor that initializes the dice with a given mapping. All arrays
+     * provided need to be in of size 12
+     *
+     * @param pointsMapping   array that maps facet to points
+     * @param activityMapping array that maps facet to activity.
+     * @param durationMapping array that maps facet to duration.
+     */
+    public Dice(final int[] pointsMapping, final String[] activityMapping, final int[] durationMapping) {
+        this();
+        this.pointsMapping = pointsMapping;
+        this.activityMapping = activityMapping;
 		this.durationMapping = durationMapping;
 	}
 

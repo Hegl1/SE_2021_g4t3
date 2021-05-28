@@ -147,7 +147,7 @@ public class IngameController {
         }
 
         Game game = lobbyService.getGameContainingUser(authUser);
-        return new ResponseEntity<>(game.buildStateUpdate(), HttpStatus.OK);
+        return new ResponseEntity<>(game.getDtoFactory().buildStateUpdate(game), HttpStatus.OK);
 
     }
 
