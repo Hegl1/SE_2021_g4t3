@@ -37,9 +37,9 @@ public class Game {
     private List<Team> teams;
     private Set<User> usersWithDevices;
 
-    // setup phase
-    private Map<User, Boolean> readyPlayers;
-    private List<User> unassignedUsers;
+    //setup phase
+    private GameLobby gameLobby;
+
 
     // ingame phase
     private int currentTeam;
@@ -59,10 +59,8 @@ public class Game {
      */
     public Game(final int code) {
         this.teams = new ArrayList<>();
-        this.readyPlayers = new HashMap<>();
         this.usersWithDevices = new HashSet<>();
         this.usedExpressions = new TreeSet<>();
-        this.unassignedUsers = new LinkedList<>();
         this.active = false;
         this.gameCode = code;
         this.dice = new Dice();
@@ -72,27 +70,26 @@ public class Game {
 
 	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
 			final String raspberryId) throws GameCreationException {
-		this(code);
-		this.category = category;
-		usersWithDevices.add(host);
-		this.host = host;
-		readyPlayers.put(host, false);
-		this.unassignedUsers.add(host);
-		this.maxPoints = maxPoints;
-		this.numberOfTeams = numberOfTeams;
-		if (numberOfTeams < 2) {
-			throw new GameCreationException("Too less teams for game construction");
-		}
-		for (int i = 0; i < numberOfTeams; i++) {
+        this(code);
+        this.category = category;
+        usersWithDevices.add(host);
+        this.host = host;
+        this.gameLobby = new GameLobby(this);
+        this.maxPoints = maxPoints;
+        this.numberOfTeams = numberOfTeams;
+        if (numberOfTeams < 2) {
+            throw new GameCreationException("Too less teams for game construction");
+        }
+        for (int i = 0; i < numberOfTeams; i++) {
             final Team current = new Team();
             teams.add(current);
             current.setIndex(teams.indexOf(current));
             current.setName("Team " + (current.getIndex() + 1));
         }
-		this.dice = new Dice();
-		this.raspberryId = raspberryId;
-		dice.setRaspberryConnected(true);
-	}
+        this.dice = new Dice();
+        this.raspberryId = raspberryId;
+        dice.setRaspberryConnected(true);
+    }
 
 	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
 			final Dice dice, final String raspberryId) throws GameCreationException {
@@ -109,10 +106,7 @@ public class Game {
 	 */
 	public void joinGame(final User player) throws GameAlreadyRunningException {
         if (!isInGame(player) && !active) {
-            usersWithDevices.add(player);
-            unassignedUsers.add(player);
-            webSocketService.sendWaitingDataToFrontend(gameCode, dtoFactory.buildWaitingDataDTO(this));
-            addToReadyMapIfNotAlreadyExists(player, false);
+            gameLobby.joinNewUserToGame(player);
         } else if (!isInGame(player) && active) {
             throw new GameAlreadyRunningException();
         } else {
@@ -120,32 +114,10 @@ public class Game {
             if (!usersWithDevices.contains((player))) {
                 usersWithDevices.add(player);
                 if (!active) {
-                    readyPlayers.put(player, false);
-                    new Thread(() -> {
-                        try {
-                            //dirty workaround
-                            Thread.sleep(100);
-                            webSocketService.sendWaitingDataToFrontend(gameCode, dtoFactory.buildWaitingDataDTO(this));
-                        } catch (InterruptedException ignored) {
-                        }
-                    }).start();
-                    // webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+                    gameLobby.promoteNoDeviceUserToDeviceUSer(player);
                 }
             }
 
-        }
-	}
-
-	/**
-	 * Method that adds a player to the ready map if he is not already in.
-	 *
-	 * @param player      player to add
-	 * @param readyStatus status to add the player with
-	 */
-	private void addToReadyMapIfNotAlreadyExists(final User player, final boolean readyStatus) {
-		if (!readyPlayers.containsKey(player)) {
-            readyPlayers.put(player, readyStatus);
-            webSocketService.sendWaitingDataToFrontend(gameCode, dtoFactory.buildWaitingDataDTO(this));
         }
 	}
 
@@ -158,53 +130,8 @@ public class Game {
 	 * @throws HostAlreadyReadyException
 	 */
 	public void joinTeam(final Team team, final User player) throws HostAlreadyReadyException {
-        if (!readyPlayers.get(host)) {
-            if (readyPlayers.get(player) != null && readyPlayers.get(player)) {
-                // if player is ready, no switch
-                return;
-            }
-
-            if (team == null) {
-                leaveTeam(player);
-                webSocketService.sendTeamUpdateToFrontend(gameCode, dtoFactory.buildTeamDTOs(teams));
-                webSocketService.sendWaitingDataToFrontend(gameCode, dtoFactory.buildWaitingDataDTO(this));
-            } else {
-                leaveTeam(player);
-                if (unassignedUsers.contains(player)) {
-                    unassignedUsers.remove(player);
-                }
-                // add to ready map if offline player
-                addToReadyMapIfNotAlreadyExists(player, true);
-                team.joinTeam(player);
-                webSocketService.sendTeamUpdateToFrontend(gameCode, dtoFactory.buildTeamDTOs(teams));
-                webSocketService.sendWaitingDataToFrontend(gameCode, dtoFactory.buildWaitingDataDTO(this));
-            }
-        } else {
-            throw new HostAlreadyReadyException("Host is already ready");
-        }
-
+        gameLobby.joinTeam(team, player);
 	}
-
-	/**
-	 * Method to make a player leave a team and add it to the unassigned list.
-	 *
-	 * @param player player to unassign.
-	 * @throws HostAlreadyReadyException
-	 */
-	private void leaveTeam(final User player) throws HostAlreadyReadyException {
-        if (!readyPlayers.get(host)) {
-            for (final Team current : teams) {
-                if (current.isInTeam(player)) {
-                    unassignedUsers.add(player);
-                    current.leaveTeam(player);
-                    break;
-                }
-            }
-        } else {
-            throw new HostAlreadyReadyException("Host is already ready");
-        }
-
-    }
 
 	/**
 	 * Method to make a player leave a game if he is not assigned to a team or set
@@ -219,67 +146,30 @@ public class Game {
         }
 
         if (!active) {
-            for (Team current : teams) {
-                if (current.isInTeam(player)) {
-                    current.leaveTeam(player);
-                    break;
-                }
-            }
-            unassignedUsers.remove(player);
-            readyPlayers.remove(player);
-            usersWithDevices.remove(player);
-            updateReadyStatus(host, false);
-            webSocketService.sendTeamUpdateToFrontend(gameCode, dtoFactory.buildTeamDTOs(teams));
-            webSocketService.sendWaitingDataToFrontend(gameCode, dtoFactory.buildWaitingDataDTO(this));
+            gameLobby.leaveNotStartedGame(player);
+
+            //TODO revisit especially PlayersWithDevices
         }
+        getWebSocketService().sendTeamUpdateToFrontend(getGameCode(), getDtoFactory().buildTeamDTOs(getTeams()));
+        getWebSocketService().sendWaitingDataToFrontend(getGameCode(), getDtoFactory().buildWaitingDataDTO(this));
+        getUsersWithDevices().remove(player);
     }
 
-	/**
+    /**
      * Method to update the ready status of a user. Also sends messages to frontend
      * via websocket.
      *
      * @param user    user to update the ready status of.
      * @param isReady new ready status.
      */
-	public void updateReadyStatus(final User user, final Boolean isReady) {
-        if (user.equals(host) && isReady.equals(false) && readyPlayers.get(host)) {
-            // hosts sets ready to false
-            for (final User current : usersWithDevices) {
-                readyPlayers.put(current, false);
-                webSocketService.sendWaitingDataToFrontend(gameCode, dtoFactory.buildWaitingDataDTO(this));
-            }
+    public void updateReadyStatus(final User user, final Boolean isReady) {
+        gameLobby.updateReadyStatus(user, isReady);
+    }
 
-        } else if (user.equals(host) && !checkGameStartable()) {
-            // host tries to set ready to true, but not startable - do nothing
-            webSocketService.sendWaitingDataToFrontend(gameCode, dtoFactory.buildWaitingDataDTO(this));
-        } else if (unassignedUsers.contains(user)) {
-            // do nothing intentionally
-        } else {
-            // set ready of player
-            readyPlayers.put(user, isReady);
-            webSocketService.sendWaitingDataToFrontend(gameCode, dtoFactory.buildWaitingDataDTO(this));
-            checkAllPlayersReadyAndStartGame();
-        }
-	}
-
-	/**
-	 * Checks whether all players are ready. If this is the case, game gets started.
-	 */
-	private void checkAllPlayersReadyAndStartGame() {
-		if (readyPlayers.get(host)) {
-            for (final User user : readyPlayers.keySet()) {
-                if (!readyPlayers.get(user)) {
-                    return;
-                }
-            }
-            startGame();
-        }
-	}
-
-	/**
-	 * Method that starts the active game phase and initializes all parameters.
-	 */
-	private void startGame() {
+    /**
+     * Method that starts the active game phase and initializes all parameters.
+     */
+    protected void startGame() {
         active = true;
         expressionConfirmed = false;
         currentFacet = null;
@@ -370,16 +260,13 @@ public class Game {
         final long endTime = System.currentTimeMillis() / 1000L;
 
         active = false;
-        Collections.sort(teams, new Comparator<Team>() {
-            @Override
-            public int compare(final Team o1, final Team o2) {
-                if (o1.getScore() < o2.getScore()) {
-                    return 1;
-                } else if (o1.getScore() == o2.getScore()) {
-                    return 0;
-                } else {
-                    return -1;
-                }
+        Collections.sort(teams, (o1, o2) -> {
+            if (o1.getScore() < o2.getScore()) {
+                return 1;
+            } else if (o1.getScore() == o2.getScore()) {
+                return 0;
+            } else {
+                return -1;
             }
         });
 
@@ -439,7 +326,7 @@ public class Game {
      *
      * @return true if all teams have enough devices.
      */
-    private boolean allTeamsEnoughPlayersWithDevice() {
+    protected boolean allTeamsEnoughPlayersWithDevice() {
         for (final Team current : teams) {
             if (!hasEnoughPlayersWithDevices(current)) {
                 return false;
@@ -462,24 +349,6 @@ public class Game {
             }
         }
         return false;
-    }
-
-    /**
-     * Method that checks whether all conditions for a game start are satisfied.
-     *
-     * @return true iff no unassigneds, enough devices and all teams > 2 users.
-     */
-    protected boolean checkGameStartable() {
-        final boolean unassigned = this.unassignedUsers.size() == 0;
-        final boolean devices = allTeamsEnoughPlayersWithDevice();
-        boolean teamSizes = true;
-        for (final Team t : teams) {
-            if (t.getPlayers().size() < 2) {
-                teamSizes = false;
-                break;
-            }
-        }
-        return unassigned && devices && teamSizes;
     }
 
 	/**
@@ -526,7 +395,7 @@ public class Game {
             }
         }
 
-        for (final User u : unassignedUsers) {
+        for (final User u : gameLobby.getUnassignedUsers()) {
             if (u.equals(user)) {
                 return true;
             }
@@ -605,54 +474,62 @@ public class Game {
         return result;
     }
 
+    protected boolean checkGameStartable() {
+        return gameLobby.checkGameStartable();
+    }
+
     // Quick fixes for missing dependency injection into POJOS.
 
-	@SuppressWarnings("static-access")
-	public void setWebSocketController(final WebSocketService websock) {
-		this.webSocketService = websock;
-	}
+    @SuppressWarnings("static-access")
+    public void setWebSocketController(final WebSocketService websock) {
+        this.webSocketService = websock;
+    }
 
-	@SuppressWarnings("static-access")
-	public void setExpressionService(final ExpressionService expServ) {
-		this.expressionService = expServ;
-	}
+    @SuppressWarnings("static-access")
+    public void setExpressionService(final ExpressionService expServ) {
+        this.expressionService = expServ;
+    }
 
-	@SuppressWarnings("static-access")
-	public void setLobbyService(final LobbyService lobServ) {
-		this.lobbyService = lobServ;
-	}
+    @SuppressWarnings("static-access")
+    public void setLobbyService(final LobbyService lobServ) {
+        this.lobbyService = lobServ;
+    }
 
-	@SuppressWarnings("static-access")
-	public void setStatisticService(final StatisticsService statsServ) {
-		this.statsService = statsServ;
-	}
+    @SuppressWarnings("static-access")
+    public void setStatisticService(final StatisticsService statsServ) {
+        this.statsService = statsServ;
+    }
 
-	public int getGameCode() {
-		return this.gameCode;
-	}
+    public WebSocketService getWebSocketService() {
+        return this.webSocketService;
+    }
 
-	public List<Team> getTeams() {
-		return teams;
-	}
+    public int getGameCode() {
+        return this.gameCode;
+    }
 
-	public User getHost() {
-		return host;
-	}
+    public List<Team> getTeams() {
+        return teams;
+    }
 
-	public Category getCategory() {
-		return category;
-	}
+    public User getHost() {
+        return host;
+    }
 
-	public String getRaspberryId() {
-		return raspberryId;
-	}
+    public Category getCategory() {
+        return category;
+    }
 
-	public Dice getDice() {
-		return dice;
+    public String getRaspberryId() {
+        return raspberryId;
+    }
+
+    public Dice getDice() {
+        return dice;
     }
 
     public List<User> getUnassignedUsers() {
-        return this.unassignedUsers;
+        return gameLobby.getUnassignedUsers();
     }
 
     public int getMaxPoints() {
@@ -668,7 +545,7 @@ public class Game {
     }
 
     public Map<User, Boolean> getReadyPlayers() {
-        return readyPlayers;
+        return gameLobby.getReadyPlayers();
     }
 
     public int getCurrentTeam() {
@@ -707,7 +584,7 @@ public class Game {
         return active;
     }
 
-    public class UserStateException extends Exception {
+    public static class UserStateException extends Exception {
         private static final long serialVersionUID = 1L;
 
         public UserStateException(final String message) {
@@ -715,35 +592,35 @@ public class Game {
         }
     }
 
-	public class HostAlreadyReadyException extends Exception {
-		private static final long serialVersionUID = 1L;
+    public static class HostAlreadyReadyException extends Exception {
+        private static final long serialVersionUID = 1L;
 
-		public HostAlreadyReadyException(final String message) {
-			super(message);
-		}
-	}
+        public HostAlreadyReadyException(final String message) {
+            super(message);
+        }
+    }
 
-	public class TeamIndexOutOfBoundsException extends Exception {
+    public static class TeamIndexOutOfBoundsException extends Exception {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-	}
+    }
 
-	public class GameAlreadyRunningException extends Exception {
-		private static final long serialVersionUID = 1L;
-	}
+    public static class GameAlreadyRunningException extends Exception {
+        private static final long serialVersionUID = 1L;
+    }
 
-	public class GameCreationException extends Exception {
+    public static class GameCreationException extends Exception {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		public GameCreationException(final String message) {
-			super(message);
-		}
+        public GameCreationException(final String message) {
+            super(message);
+        }
 
-	}
+    }
 
-	@Override
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -768,5 +645,4 @@ public class Game {
         }
         return true;
     }
-
 }
