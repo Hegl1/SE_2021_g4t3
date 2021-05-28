@@ -21,7 +21,10 @@ public class SetupGamePhase {
         this.unassignedUsers.add(game.getHost());
     }
 
-
+    /**
+     * Method that handles the event of a user
+     * @param player player who joins the game
+     */
     protected void joinNewUserToGame(User player){
         game.getUsersWithDevices().add(player);
         unassignedUsers.add(player);
@@ -29,6 +32,11 @@ public class SetupGamePhase {
         addToReadyMapIfNotAlreadyExists(player, false);
     }
 
+    /**
+     * Method that handles the event of a user without device who is already in game joining the game with a device
+     * in setup phase.
+     * @param player player who joins the game.
+     */
     protected void promoteNoDeviceUserToDeviceUSer(User player){
         readyPlayers.put(player, false);
         new Thread(() -> {
@@ -62,7 +70,7 @@ public class SetupGamePhase {
      *
      * @param team   Team to move the user to
      * @param player User to move
-     * @throws Game.HostAlreadyReadyException
+     * @throws Game.HostAlreadyReadyException thrown when a player tries to join a team although the host is already ready.
      */
     protected void joinTeam(final Team team, final User player) throws Game.HostAlreadyReadyException {
         if (!readyPlayers.get(game.getHost())) {
@@ -94,7 +102,7 @@ public class SetupGamePhase {
      * Method to make a player leave a team and add it to the unassigned list.
      *
      * @param player player to unassign.
-     * @throws Game.HostAlreadyReadyException
+     * @throws Game.HostAlreadyReadyException Thrown when a player tries to leave a team although the host is already ready
      */
     protected void leaveTeam(final User player) throws Game.HostAlreadyReadyException {
         if (!readyPlayers.get(game.getHost())) {
@@ -110,6 +118,10 @@ public class SetupGamePhase {
         }
     }
 
+    /**
+     * Method that is used by {@link at.qe.timeguess.gamelogic.Game#leaveGame(User user)} to handle setup phase changes when leaving a game.
+     * @param player the player who leaves the game
+     */
     protected void leaveNotStartedGame(final User player){
         for (Team current : game.getTeams()) {
             if (current.isInTeam(player)) {
@@ -120,9 +132,13 @@ public class SetupGamePhase {
         unassignedUsers.remove(player);
         readyPlayers.remove(player);
         updateReadyStatus(game.getHost(), false);
-
     }
 
+    /**
+     * Method to update the ready status of a player. If the host gets updated to false, all other players will become unready too.
+     * @param user the player to update the ready status of
+     * @param isReady the new ready status
+     */
     protected void updateReadyStatus(final User user, final Boolean isReady) {
         if (user.equals(game.getHost()) && isReady.equals(false) && readyPlayers.get(game.getHost()) != null && readyPlayers.get(game.getHost())) {
             // hosts sets ready to false
@@ -183,5 +199,4 @@ public class SetupGamePhase {
     protected Map<User, Boolean> getReadyPlayers() {
         return readyPlayers;
     }
-
 }

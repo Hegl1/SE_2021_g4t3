@@ -30,7 +30,11 @@ public class RunningGamePhase {
         this.game = game;
     }
 
+    /**
+     * Method that starts the game and sets it up for the first round.
+     */
     protected void startGame() {
+        game.setActive(true);
         expressionConfirmed = false;
         currentFacet = null;
         gameStartTime = System.currentTimeMillis() / 1000L;
@@ -44,6 +48,10 @@ public class RunningGamePhase {
         game.getWebSocketService().sendCompleteGameUpdateToFrontend(game.getGameCode(), game.getDtoFactory().buildStateUpdate(game));
     }
 
+    /**
+     * Method that handles incoming facet updates from the rasperry.
+     * @param facet the new facet received by the raspberry.
+     */
     protected void diceUpdate(final int facet) {
         if (roundStartTime == -1 && game.getDice().isRaspberryConnected()) {
             // between round phase - start timer
@@ -59,38 +67,72 @@ public class RunningGamePhase {
         }
     }
 
+
+    /**
+     * Method that contains the main logic for deciding whether a player guess the expression correctly and how many
+     * points are added to the team scores.
+     * @param decision decision, whether an expression got guessed correctly. Has one of the three values: CORRECT, INVALID or WRONG
+     */
     protected synchronized void confirmExpression(final String decision) {
         if (roundStartTime != -1 && !expressionConfirmed && game.getDice().isRaspberryConnected()) {
             expressionConfirmed = true;
             if (decision.equals("CORRECT")) {
-                game.getTeams().get(currentTeam).incrementScore(game.getDice().getPoints(currentFacet));
-                game.getTeams().get(currentTeam).incrementCorrectExpressions();
-                game.getWebSocketService().sendScoreChangeToFrontend(game.getGameCode(),
-                    new ScoreUpdateDTO(currentTeam, game.getTeams().get(currentTeam).getScore()));
+                correctGuessAction();
                 if (game.getTeams().get(currentTeam).getScore() >= game.getMaxPoints()) {
                     finishGame(false);
                     return;
                 }
             } else if (decision.equals("INVALID")) {
-                game.getTeams().get(currentTeam).decrementScore(1);
-                game.getTeams().get(currentTeam).incrementWrongExpressions();
-                game.getWebSocketService().sendScoreChangeToFrontend(game.getGameCode(),
-                    new ScoreUpdateDTO(currentTeam, game.getTeams().get(currentTeam).getScore()));
+                invalidGuessAction();
             } else {
-                game.getTeams().get(currentTeam).incrementWrongExpressions();
+                wrongGuessAction();
             }
-            game.getTeams().get(currentTeam).incrementCurrentPlayer();
-            incrementCurrentTeam();
-            if (!pickNewExpression()) {
-                finishGame(true);
-            }
-            currentFacet = null;
-            roundStartTime = -1L;
-            roundEndTime = -1L;
-            expressionConfirmed = false;
-            roundCounter++;
-            sendRunningDataToTeams();
+            start_new_round();
         }
+    }
+
+    /**
+     * Method that gets called when a guess is correct. Adds points and notifies players accordingly
+     */
+    private void correctGuessAction(){
+        game.getTeams().get(currentTeam).incrementScore(game.getDice().getPoints(currentFacet));
+        game.getTeams().get(currentTeam).incrementCorrectExpressions();
+        game.getWebSocketService().sendScoreChangeToFrontend(game.getGameCode(),
+            new ScoreUpdateDTO(currentTeam, game.getTeams().get(currentTeam).getScore()));
+    }
+
+    /**
+     * Method that gets called when a guess is invalid. Adds points and notifies players accordingly
+     */
+    private void invalidGuessAction(){
+        game.getTeams().get(currentTeam).decrementScore(1);
+        game.getTeams().get(currentTeam).incrementWrongExpressions();
+        game.getWebSocketService().sendScoreChangeToFrontend(game.getGameCode(),
+            new ScoreUpdateDTO(currentTeam, game.getTeams().get(currentTeam).getScore()));
+    }
+
+    /**
+     * Method that gets called when a guess is wrong. Adds points and notifies players accordingly
+     */
+    private void wrongGuessAction(){
+        game.getTeams().get(currentTeam).incrementWrongExpressions();
+    }
+
+    /**
+     * Method that starts a new round after a guess was made.
+     */
+    private void start_new_round(){
+        game.getTeams().get(currentTeam).incrementCurrentPlayer();
+        incrementCurrentTeam();
+        if (!pickNewExpression()) {
+            finishGame(true);
+        }
+        currentFacet = null;
+        roundStartTime = -1L;
+        roundEndTime = -1L;
+        expressionConfirmed = false;
+        roundCounter++;
+        sendRunningDataToTeams();
     }
 
     /**
@@ -121,7 +163,7 @@ public class RunningGamePhase {
     /**
      * Method that updates the dices battery status
      */
-    public void updateDiceBattery(final int batteryStatus) {
+    protected void updateDiceBattery(final int batteryStatus) {
         game.getDice().setBatteryPower(batteryStatus);
         game.getWebSocketService().sendBatteryUpdateToFrontend(game.getGameCode(), new BatteryUpdateDTO(batteryStatus));
     }
@@ -131,7 +173,7 @@ public class RunningGamePhase {
      * dice is disconnected and starts a fresh round with a fresh expression upon
      * reconnection.
      */
-    public void updateDiceConnection(final boolean isConnected) {
+    protected void updateDiceConnection(final boolean isConnected) {
 
         currentFacet = null;
         roundStartTime = -1L;
@@ -148,11 +190,6 @@ public class RunningGamePhase {
         }
         sendRunningDataToTeams();
     }
-
-    /**
-     * Persist all the necessary information of the finished game
-     */
-
 
     /**
      * Method that calculates the total number of correct expressions.

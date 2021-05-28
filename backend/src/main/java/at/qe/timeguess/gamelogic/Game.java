@@ -82,7 +82,7 @@ public class Game {
 	 * Method to assign a new user to the game.
 	 *
 	 * @param player user that wants to join the game.
-	 * @throws GameAlreadyRunningException
+	 * @throws GameAlreadyRunningException thrown when the game is already running
 	 */
 	public void joinGame(final User player) throws GameAlreadyRunningException {
         if (!isInGame(player) && !active) {
@@ -105,7 +105,7 @@ public class Game {
 	 *
 	 * @param team   Team to move the user to
 	 * @param player User to move
-	 * @throws HostAlreadyReadyException
+	 * @throws HostAlreadyReadyException thrown when the host is already ready.
 	 */
 	public void joinTeam(final Team team, final User player) throws HostAlreadyReadyException {
         setupGamePhase.joinTeam(team, player);
@@ -260,7 +260,7 @@ public class Game {
     /**
      * Method that returns the player that is currently guessing.
      *
-     * @return
+     * @return the player that is currently guessing
      */
     protected User getCurrentPlayer() {
         return runningGamePhase.getCurrentPlayer();
