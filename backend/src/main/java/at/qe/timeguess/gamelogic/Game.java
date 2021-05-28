@@ -21,23 +21,16 @@ public class Game {
     private static StatisticsService statsService;
     private IngameDTOFactory dtoFactory;
 
-    // general game information
     private int gameCode;
     private String raspberryId;
     private Dice dice;
     private int maxPoints;
-    private int numberOfTeams;
     private Category category;
     private User host;
     private boolean active;
     private List<Team> teams;
     private Set<User> usersWithDevices;
-
-    //setup phase
     private SetupGamePhase setupGamePhase;
-
-
-    // ingame phase
     private RunningGamePhase runningGamePhase;
 
     /**
@@ -64,7 +57,6 @@ public class Game {
         this.host = host;
         this.setupGamePhase = new SetupGamePhase(this);
         this.maxPoints = maxPoints;
-        this.numberOfTeams = numberOfTeams;
         if (numberOfTeams < 2) {
             throw new GameCreationException("Too less teams for game construction");
         }
@@ -183,6 +175,9 @@ public class Game {
         webSocketService.sendGameNotContinuableToFrontend(gameCode);
     }
 
+    /**
+     * Method to persist a finished game
+     */
     protected void persistFinishedGame() {
         statsService.persistCompletedGame(new Date(getGameStartTime() * 1000L), new Date(), getCategory(), getTeams());
     }
@@ -281,7 +276,7 @@ public class Game {
      *                                       teams
      */
     public Team getTeamByIndex(final Integer index) throws TeamIndexOutOfBoundsException {
-        if (index >= numberOfTeams) {
+        if (index >= getNumberOfTeams()) {
             throw new TeamIndexOutOfBoundsException();
         } else if (index == -1) {
             return null;
@@ -290,6 +285,11 @@ public class Game {
         }
     }
 
+    /**
+     * Method that checks whether the game is startable
+     *
+     * @return True if the game is startable, false if not
+     */
     protected boolean checkGameStartable() {
         return setupGamePhase.checkGameStartable();
     }
@@ -316,101 +316,53 @@ public class Game {
         this.statsService = statsServ;
     }
 
-    protected WebSocketService getWebSocketService() {
-        return this.webSocketService;
-    }
+    protected WebSocketService getWebSocketService() { return this.webSocketService; }
 
-    protected ExpressionService getExpressionService() {
-        return this.expressionService;
-    }
+    protected ExpressionService getExpressionService() { return this.expressionService; }
 
-    protected LobbyService getLobbyService() {
-        return this.lobbyService;
-    }
+    protected LobbyService getLobbyService() { return this.lobbyService; }
 
-    public int getGameCode() {
-        return this.gameCode;
-    }
+    public int getGameCode() { return this.gameCode; }
 
-    public List<Team> getTeams() {
-        return teams;
-    }
+    public List<Team> getTeams() { return teams; }
 
-    public User getHost() {
-        return host;
-    }
+    public User getHost() { return host; }
 
-    public Category getCategory() {
-        return category;
-    }
+    public Category getCategory() { return category; }
 
-    public String getRaspberryId() {
-        return raspberryId;
-    }
+    public String getRaspberryId() { return raspberryId; }
 
-    public Dice getDice() {
-        return dice;
-    }
+    public Dice getDice() { return dice; }
 
-    public List<User> getUnassignedUsers() {
-        return setupGamePhase.getUnassignedUsers();
-    }
+    public List<User> getUnassignedUsers() { return setupGamePhase.getUnassignedUsers(); }
 
-    protected void setActive(boolean active) {
-        this.active = active;
-    }
+    protected void setActive(boolean active) { this.active = active; }
 
-    public int getMaxPoints() {
-        return this.maxPoints;
-    }
+    public int getMaxPoints() { return this.maxPoints; }
 
-    public Set<User> getUsersWithDevices() {
-        return this.usersWithDevices;
-    }
+    public Set<User> getUsersWithDevices() { return this.usersWithDevices; }
 
-    public IngameDTOFactory getDtoFactory() {
-        return this.dtoFactory;
-    }
+    public IngameDTOFactory getDtoFactory() { return this.dtoFactory; }
 
-    public Map<User, Boolean> getReadyPlayers() {
-        return setupGamePhase.getReadyPlayers();
-    }
+    public Map<User, Boolean> getReadyPlayers() { return setupGamePhase.getReadyPlayers(); }
 
-    public int getCurrentTeam() {
-        return runningGamePhase.getCurrentTeam();
-    }
+    public int getCurrentTeam() { return runningGamePhase.getCurrentTeam(); }
 
-    public int getRoundCounter() {
-        return runningGamePhase.getRoundCounter();
-    }
+    public int getRoundCounter() { return runningGamePhase.getRoundCounter(); }
 
-    public int getNumberOfTeams() {
-        return numberOfTeams;
-    }
+    public int getNumberOfTeams() { return teams.size(); }
 
-    public Expression getCurrentExpression() {
-        return runningGamePhase.getCurrentExpression();
-    }
+    public Expression getCurrentExpression() { return runningGamePhase.getCurrentExpression(); }
 
-    public Integer getCurrentFacet() {
-        return runningGamePhase.getCurrentFacet();
-    }
+    public Integer getCurrentFacet() { return runningGamePhase.getCurrentFacet(); }
 
-    public Long getRoundStartTime() {
-        return runningGamePhase.getRoundStartTime();
-    }
+    public Long getRoundStartTime() { return runningGamePhase.getRoundStartTime(); }
 
-    public Long getRoundEndTime() {
-        return runningGamePhase.getRoundEndTime();
-    }
+    public Long getRoundEndTime() { return runningGamePhase.getRoundEndTime(); }
 
-    public long getGameStartTime() {
-        return runningGamePhase.getGameStartTime();
-    }
+    public long getGameStartTime() { return runningGamePhase.getGameStartTime(); }
 
-    public boolean isActive() {
-        return active;
-    }
+    public boolean isActive() { return active; }
 
     public static class UserStateException extends Exception {
         private static final long serialVersionUID = 1L;
