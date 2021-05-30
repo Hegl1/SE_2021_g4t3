@@ -73,7 +73,7 @@ public class CategoryServiceTest {
     @Test
     @DirtiesContext
     public void testCategoryIsReferencedInCompletedGameException() throws CategoryService.CategoryIsReferencedInCompletedGamesException {
-        Category categoryToDelete = this.categoryService.getCategoryById(0L);
+        Category categoryToDelete = this.categoryService.getCategoryById(2L);
         Assertions.assertThrows(CategoryService.CategoryIsReferencedInCompletedGamesException.class, () -> this.categoryService.deleteCategory(categoryToDelete));
     }
 }

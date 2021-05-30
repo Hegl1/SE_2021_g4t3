@@ -97,7 +97,7 @@ public class CategoryControllerTest {
     @DirtiesContext
     @WithMockUser(username = "admin", authorities = { "ADMIN" })
     public void testDeleteCategoryHttpStatusForbidden() {
-        ResponseEntity<Category> response = this.categoryController.deleteCategory(0L);
+        ResponseEntity<Category> response = this.categoryController.deleteCategory(2L);
         Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     }
 

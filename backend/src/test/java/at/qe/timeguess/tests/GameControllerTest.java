@@ -4,6 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
+import at.qe.timeguess.model.User;
+import at.qe.timeguess.model.UserRole;
+import at.qe.timeguess.services.AuthenticationService;
+import at.qe.timeguess.services.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,10 +26,31 @@ public class GameControllerTest {
 	@Autowired
 	private GameController gameController;
 
+    @Autowired
+    private AuthenticationService authenticationService;
+
+    @Autowired
+    private UserService userService;
+
+    private User admin;
+
+    @BeforeEach
+    public void init() throws UserService.UsernameNotAvailableException, UserService.EmptyPasswordException {
+        this.admin = userService.getUserByUsername("admin");
+        if (this.admin == null) {
+            this.admin = new User();
+        }
+        this.admin.setPassword("passwd");
+        this.admin.setUsername("admin");
+        this.admin.setRole(UserRole.ADMIN);
+        this.userService.saveUser(this.admin);
+    }
+
 	private static String RASPIID = "TESTRASPIID";
 
 	@Test
 	public void testCreateGame() {
+        authenticationService.setUserAuthentication(this.admin);
 		CreateGame successDTO = new CreateGame(RASPIID, 0, null, 2, 30);
 		ResponseEntity<Integer> success = gameController.createGame(successDTO);
 		assertEquals(HttpStatus.CREATED, success.getStatusCode());
@@ -47,6 +73,7 @@ public class GameControllerTest {
 
 	@Test
 	public void testGetAllRunningGames() {
+        authenticationService.setUserAuthentication(this.admin);
 		List<GameDTO> runningGames = gameController.getAllRunningGames().getBody();
 		assertEquals(0, runningGames.size());
 		ResponseEntity<Integer> success = gameController.createGame(new CreateGame(RASPIID, 0, null, 2, 30));
@@ -59,6 +86,7 @@ public class GameControllerTest {
 
 	@Test
 	public void testGetGameInfo() {
+        authenticationService.setUserAuthentication(this.admin);
 		ResponseEntity<Integer> success = gameController.createGame(new CreateGame(RASPIID, 0, null, 2, 30));
 		ResponseEntity<GameDTO> gameInfo = gameController.getGameInfo(success.getBody());
 		assertEquals(HttpStatus.OK, gameInfo.getStatusCode());
@@ -73,6 +101,7 @@ public class GameControllerTest {
 	@Test
     @WithMockUser(username = "admin")
 	public void testForceCloseRunningGame() {
+        authenticationService.setUserAuthentication(this.admin);
 	    ResponseEntity<Integer> success = gameController.createGame(new CreateGame(RASPIID, 0, null, 2, 30));
 		ResponseEntity<Void> response = gameController.forceCloseRunningGame(success.getBody());
 		assertEquals(HttpStatus.OK, response.getStatusCode());

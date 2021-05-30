@@ -5,6 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ApiService } from 'src/app/core/api/api.service';
 import { UserService } from 'src/app/core/auth/user.service';
 
+const DEFAULT_PASSWORD = '123456789';
 @Component({
   selector: 'tg-settings-dialog',
   templateUrl: './settings-dialog.component.html',
@@ -13,7 +14,9 @@ import { UserService } from 'src/app/core/auth/user.service';
 export class SettingsDialogComponent {
   settingsForm: FormGroup;
 
-  changePassword = false;
+  private _editUsername = false;
+  private _editPassword = false;
+
   private _saving = false;
   error: string | null = null;
 
@@ -24,19 +27,57 @@ export class SettingsDialogComponent {
     private dialogRef: MatDialogRef<SettingsDialogComponent>,
     private snackBar: MatSnackBar
   ) {
-    this.settingsForm = this.fb.group({
-      username: [''],
-      current_password: ['', Validators.required],
-      password: [''],
-      password_confirm: [
-        '',
-        () => {
-          if (this.password?.value != this.password_confirm?.value) {
-            return { passwordsMismatch: true };
-          }
-          return null;
-        },
-      ],
+    this.settingsForm = this.fb.group(
+      {
+        username: [
+          { value: this.user.user?.username || '', disabled: true },
+          () => {
+            if (this.editUsername && this.username?.value.trim().length === 0) {
+              return { required: true };
+            }
+            return null;
+          },
+        ],
+        current_password: ['', Validators.required],
+        password: [
+          { value: DEFAULT_PASSWORD, disabled: true },
+          () => {
+            if (this.editPassword && this.password?.value.trim().length === 0) {
+              return { required: true };
+            }
+            return null;
+          },
+        ],
+        password_confirm: [
+          '',
+          () => {
+            if (this.editPassword && this.password?.value != this.password_confirm?.value) {
+              return { passwordsMismatch: true };
+            }
+            if (this.editPassword && this.password_confirm?.value.trim().length === 0) {
+              return { required: true };
+            }
+            return null;
+          },
+        ],
+      },
+      {
+        validators: [
+          () => {
+            if (!this.editPassword && !this.editUsername) {
+              return { updateRequired: true };
+            }
+
+            return null;
+          },
+        ],
+      }
+    );
+
+    this.password?.valueChanges.subscribe(() => {
+      if (this.password_confirm) {
+        this.password_confirm.updateValueAndValidity();
+      }
     });
   }
 
@@ -67,6 +108,40 @@ export class SettingsDialogComponent {
     return null;
   }
 
+  get editUsername() {
+    return this._editUsername;
+  }
+  set editUsername(editUsername: boolean) {
+    this._editUsername = editUsername;
+
+    if (this.username) {
+      if (editUsername) {
+        this.username.enable();
+        this.username.setValue('');
+      } else {
+        this.username.disable();
+        this.username.setValue(this.user.user?.username || '');
+      }
+    }
+  }
+
+  get editPassword() {
+    return this._editPassword;
+  }
+  set editPassword(editPassword: boolean) {
+    this._editPassword = editPassword;
+
+    if (this.password) {
+      if (editPassword) {
+        this.password.enable();
+        this.password.setValue('');
+      } else {
+        this.password.disable();
+        this.password.setValue(DEFAULT_PASSWORD);
+      }
+    }
+  }
+
   /**
    * Save the updated user information
    */
@@ -86,10 +161,10 @@ export class SettingsDialogComponent {
       old_password: this.current_password?.value,
     };
 
-    if (this.username?.value.trim().length > 0) {
+    if (this.editUsername) {
       updateValues.username = this.username?.value.trim();
     }
-    if (this.changePassword && this.password?.value.trim().length > 0) {
+    if (this.editPassword) {
       updateValues.password = this.password?.value.trim();
     }
 

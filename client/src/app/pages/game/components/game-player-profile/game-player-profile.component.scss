@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.container {
+  display: block;
+  padding: 0.5em;
+  transition: background-color 0.2s;
+  cursor: pointer;
+  border-radius: 5px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+* {
+  vertical-align: middle;
+  display: inline-block;
+}
+
+mat-icon:first-child {
+  margin-right: 0.25em;
+  font-size: 1.5rem;
+}
+
+mat-icon:not(:first-child) {
+  margin-left: 0.5em;
+  font-size: 1em;
+  height: 1em;
+  width: 1ch;
+}

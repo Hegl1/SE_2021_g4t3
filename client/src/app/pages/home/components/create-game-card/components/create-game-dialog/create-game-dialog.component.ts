@@ -9,6 +9,8 @@ import { Category, DiceMapping } from 'src/app/core/api/ApiInterfaces';
 import StorageNames from 'src/app/core/StorageNames';
 import { AddDiceMappingDialogComponent } from '../add-dice-mapping-dialog/add-dice-mapping-dialog.component';
 
+const MAX_TEAMS = 10;
+const MAX_SCORE = 10000;
 @Component({
   selector: 'tg-create-game-dialog',
   templateUrl: './create-game-dialog.component.html',
@@ -42,8 +44,14 @@ export class CreateGameDialogComponent implements OnInit {
     private dialog: MatDialog
   ) {
     this.createForm = this.fb.group({
-      number_teams: [null, [Validators.required, Validators.min(2), Validators.pattern('^[0-9]*$')]],
-      maximum_score: [null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$')]],
+      number_teams: [
+        null,
+        [Validators.required, Validators.min(2), Validators.max(MAX_TEAMS), Validators.pattern('^[0-9]*$')],
+      ],
+      maximum_score: [
+        null,
+        [Validators.required, Validators.min(1), Validators.max(MAX_SCORE), Validators.pattern('^[0-9]*$')],
+      ],
       category: [{ value: null, disabled: true }, [Validators.required]],
       dice_code: [null, [Validators.required]],
       dice_mapping: [this.DEFAULT_MAPPING_NAME],
@@ -239,6 +247,14 @@ export class CreateGameDialogComponent implements OnInit {
           return 'A minimum of 1 points must be set';
         }
         return 'The number is too small';
+      }
+      if (field.hasError('max')) {
+        if (key === 'number_teams') {
+          return `Only a maximum of ${MAX_TEAMS} teams allowed`;
+        } else if (key === 'maximum_score') {
+          return `Only a maximum of ${MAX_SCORE} points allowed`;
+        }
+        return 'The number is too big';
       }
       if (field.hasError('pattern')) {
         return 'A positive integer must be supplied';

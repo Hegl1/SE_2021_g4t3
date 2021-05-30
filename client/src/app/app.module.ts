@@ -46,6 +46,7 @@ import { HelpDiceMappingComponent } from './components/help-dialog/components/he
 import { PlayerListDialogComponent } from './components/player-list-dialog/player-list-dialog.component';
 import { AddDiceMappingDialogComponent } from './pages/home/components/create-game-card/components/add-dice-mapping-dialog/add-dice-mapping-dialog.component';
 import { RunningGameDetailsDialogComponent } from './pages/admin/games/components/running-game-details-dialog/running-game-details-dialog.component';
+import { GamePlayerProfileComponent } from './pages/game/components/game-player-profile/game-player-profile.component';
 
 export function setupConfig(service: ConfigService) {
   return () => service.load();
@@ -96,6 +97,7 @@ export function setupTheme(service: ThemeService) {
     PlayerListDialogComponent,
     AddDiceMappingDialogComponent,
     RunningGameDetailsDialogComponent,
+    GamePlayerProfileComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, HttpClientModule],
   providers: [

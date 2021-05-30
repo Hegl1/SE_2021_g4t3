@@ -29,7 +29,7 @@
     </ng-container>
 
     <mat-card-actions align="end">
-        <button mat-raised-button color="warn" (click)="doCloseGame()" [disabled]="loading">
+        <button mat-raised-button color="warn" (click)="doCloseGame()" [disabled]="loading" *ngIf="isUserAdmin">
             <mat-icon [inline]="true" style="margin-right: 0.25em">block</mat-icon>
             <span>Close game</span>
         </button>
