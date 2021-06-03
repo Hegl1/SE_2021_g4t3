@@ -4,6 +4,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ApiService } from 'src/app/core/api/api.service';
+import { Category } from 'src/app/core/api/ApiInterfaces';
 
 @Component({
   selector: 'tg-add-expressions-dialog',
@@ -21,7 +22,7 @@ export class AddExpressionsDialogComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
-      category_id: number;
+      category: Category;
     },
     private api: ApiService,
     private dialogRef: MatDialogRef<AddExpressionsDialogComponent>,
@@ -68,7 +69,7 @@ export class AddExpressionsDialogComponent {
     this.error = null;
     this.dialogRef.disableClose = true;
 
-    let res = await this.api.importExpressionsForCategory(this.data.category_id, this.expressions);
+    let res = await this.api.importExpressionsForCategory(this.data.category.id, this.expressions);
 
     this.saving = false;
     this.dialogRef.disableClose = false;
