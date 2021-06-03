@@ -1,17 +1,22 @@
 package at.qe.skeleton.bleclient;
 
+import tinyb.BluetoothDevice;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mockito.Mockito;
+import static org.mockito.Mockito.when;
+
 public class ValueNotificationTest {
 
     @Test
     public void testFillListWithValues() {
-        BackendCommunicator backendCommunicator = new BackendCommunicator();
-        ValueNotification valueNotification = new ValueNotification(backendCommunicator);
+        BluetoothDevice mockDevice = utilMockDevice();
+        Dice dice = new Dice(mockDevice);
+        ValueNotification valueNotification = new ValueNotification(dice);
         List<Integer> filledList = valueNotification.fillListWithValues(new ArrayList<>());
         Assert.assertEquals(12, filledList.size());
         for (int value : filledList) {
@@ -22,8 +27,9 @@ public class ValueNotificationTest {
 
     @Test
     public void testGetMappedFacetValue() {
-        BackendCommunicator backendCommunicator = new BackendCommunicator();
-        ValueNotification valueNotification = new ValueNotification(backendCommunicator);
+        BluetoothDevice mockDevice = utilMockDevice();
+        Dice dice = new Dice(mockDevice);
+        ValueNotification valueNotification = new ValueNotification(dice);
         Assert.assertNotNull(valueNotification);
         
         Assert.assertEquals(0, valueNotification.getFacetMapping().size());
@@ -42,8 +48,9 @@ public class ValueNotificationTest {
 
     @Test
     public void testGetMappedFacetValueNoMoreAvailableValues() {
-        BackendCommunicator backendCommunicator = new BackendCommunicator();
-        ValueNotification valueNotification = new ValueNotification(backendCommunicator);
+        BluetoothDevice mockDevice = utilMockDevice();
+        Dice dice = new Dice(mockDevice);
+        ValueNotification valueNotification = new ValueNotification(dice);
         Assert.assertNotNull(valueNotification);
         
         Assert.assertEquals(0, valueNotification.getFacetMapping().size());
@@ -64,8 +71,9 @@ public class ValueNotificationTest {
 
     @Test
     public void testRun() {
-        BackendCommunicator backendCommunicator = new BackendCommunicator();
-        ValueNotification valueNotification = new ValueNotification(backendCommunicator);
+        BluetoothDevice mockDevice = utilMockDevice();
+        Dice dice = new Dice(mockDevice);
+        ValueNotification valueNotification = new ValueNotification(dice);
         Assert.assertNotNull(valueNotification);
 
         Assert.assertEquals(0, valueNotification.getFacetMapping().size());
@@ -76,5 +84,44 @@ public class ValueNotificationTest {
 
         Assert.assertEquals(1, valueNotification.getFacetMapping().size());
         Assert.assertEquals(11, valueNotification.getAvailableFacetValues().size());
+    }
+
+    @Test
+    public void testRunFreshlyReconnected() {
+        BluetoothDevice mockDevice = utilMockDevice();
+        Dice dice = new Dice(mockDevice);
+        ValueNotification valueNotification = new ValueNotification(dice);
+        Assert.assertNotNull(valueNotification);
+
+        Assert.assertEquals(0, valueNotification.getFacetMapping().size());
+        Assert.assertEquals(12, valueNotification.getAvailableFacetValues().size());
+
+        byte[] testData = { 0x11 };
+        valueNotification.run(testData);
+
+        Assert.assertEquals(1, valueNotification.getFacetMapping().size());
+        Assert.assertEquals(11, valueNotification.getAvailableFacetValues().size());
+
+        byte[] testData2 = { 0x12 };
+        valueNotification.run(testData2);
+
+        Assert.assertEquals(2, valueNotification.getFacetMapping().size());
+        Assert.assertEquals(10, valueNotification.getAvailableFacetValues().size());
+
+        dice.setFreshlyReconnected(true);
+        valueNotification.run(testData2);
+
+        Assert.assertEquals(1, valueNotification.getFacetMapping().size());
+        Assert.assertEquals(11, valueNotification.getAvailableFacetValues().size());
+        Assert.assertFalse(dice.isFreshlyReconnected());
+    }
+
+    private BluetoothDevice utilMockDevice() {
+        BluetoothDevice mockTimeFlip = Mockito.mock(BluetoothDevice.class);
+        when(mockTimeFlip.getName()).thenReturn("timeflip");
+        when(mockTimeFlip.getAddress()).thenReturn("A8:A8:9F:B9:28:AD");
+        when(mockTimeFlip.getRSSI()).thenReturn((short) -42);
+
+        return mockTimeFlip;
     }
 }

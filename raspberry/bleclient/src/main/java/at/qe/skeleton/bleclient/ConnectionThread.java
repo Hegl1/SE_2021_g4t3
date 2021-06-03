@@ -52,6 +52,7 @@ public class ConnectionThread extends Thread {
                     } catch (InterruptedException e) {
                         System.out.println("Connection thread: sleep got interrupted.");
                     }
+                    dice.setFreshlyReconnected(true);
                     dice.inputPassword();
                 }
             }

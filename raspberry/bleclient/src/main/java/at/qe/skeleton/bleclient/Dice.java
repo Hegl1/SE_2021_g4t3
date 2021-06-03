@@ -14,6 +14,7 @@ public final class Dice {
 	private String id;
 	private BluetoothDevice device;
 	private BackendCommunicator backendCommunicator;
+	private boolean freshlyReconnected;
 
 	private static final String batteryServiceUuid = "0000180f-0000-1000-8000-00805f9b34fb";
 	private static final String timeFlipServiceUuid = "f1196f50-71a4-11e6-bdf4-0800200c9a66";
@@ -32,6 +33,7 @@ public final class Dice {
 		this.device = device;
 		this.backendCommunicator = new BackendCommunicator();
 		this.id = this.backendCommunicator.getDiceId();
+		this.freshlyReconnected = false;
 	}
 
 	public BluetoothDevice getDevice() {
@@ -44,6 +46,14 @@ public final class Dice {
 
 	public String getId() {
 		return this.id;
+	}
+
+	public boolean isFreshlyReconnected() {
+		return this.freshlyReconnected;
+	}
+
+	public void setFreshlyReconnected(boolean freshlyReconnected) {
+		this.freshlyReconnected = freshlyReconnected;
 	}
 
 	/**
@@ -105,7 +115,7 @@ public final class Dice {
 			BluetoothGattCharacteristic facetsCharacteristic = timeFlipService.find(facetsCharacteristicUuid);
 			if (facetsCharacteristic != null) {
 				try {
-					facetsCharacteristic.enableValueNotifications(new ValueNotification(this.backendCommunicator));
+					facetsCharacteristic.enableValueNotifications(new ValueNotification(this));
 					System.out.println("Facet notifications are enabled");
 					return true;
 				} catch (Exception e) {

@@ -29,6 +29,8 @@ Then, for building with tests and javadoc, locate the file `buildScriptWithTests
 
 Run it: ```sudo bash buildScriptWithTests.sh```
 
+This will take about 3.5 minutes.
+
 ## Execution
 
 Make sure that the **backend is running** and that you write the **correct URL of the backend** into the file `timeGuessBackendUrl.txt` in the folder `bleclient` or create such a file if it doesn't exist, **before** running the execution script. You can get the IP of the backend by executing the following command on the computer you are running the backend on: 
