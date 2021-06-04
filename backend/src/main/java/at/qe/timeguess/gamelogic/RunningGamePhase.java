@@ -265,35 +265,35 @@ public class RunningGamePhase {
         return game.getTeams().get(currentTeam).getPlayers().contains(user);
     }
 
-    protected User getCurrentPlayer() {
+    public User getCurrentPlayer() {
         return game.getTeams().get(currentTeam).getCurrentPlayer();
     }
 
-    protected int getCurrentTeam() {
+    public int getCurrentTeam() {
         return currentTeam;
     }
 
-    protected int getRoundCounter() {
+    public int getRoundCounter() {
         return roundCounter;
     }
 
-    protected Expression getCurrentExpression() {
+    public Expression getCurrentExpression() {
         return currentExpression;
     }
 
-    protected Integer getCurrentFacet() {
+    public Integer getCurrentFacet() {
         return currentFacet;
     }
 
-    protected Long getRoundStartTime() {
+    public Long getRoundStartTime() {
         return roundStartTime;
     }
 
-    protected Long getRoundEndTime() {
+    public Long getRoundEndTime() {
         return roundEndTime;
     }
 
-    protected long getGameStartTime() {
+    public long getGameStartTime() {
         return gameStartTime;
     }
 
