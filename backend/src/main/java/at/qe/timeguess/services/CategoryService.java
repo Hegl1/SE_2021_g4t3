@@ -68,8 +68,8 @@ public class CategoryService {
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         Collection<Game> allRunningGames = this.lobbyService.getAllRunningGames();
 
-        return allCompletedGames.stream().noneMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName())) ||
-            allRunningGames.stream().anyMatch(runningGame -> runningGame.getCategory().getId().equals(category.getId()));
+        return allCompletedGames.stream().noneMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName())) &&
+            allRunningGames.stream().noneMatch(runningGame -> runningGame.getCategory().getId().equals(category.getId()));
     }
 
     /**
