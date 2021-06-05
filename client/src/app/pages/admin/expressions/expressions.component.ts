@@ -298,7 +298,7 @@ export class ExpressionsComponent implements OnInit {
           }
 
           if (res.isOK()) {
-            this.snackBar.open('The expressions where imported successfully!', 'OK', {
+            this.snackBar.open('The expressions were imported successfully!', 'OK', {
               duration: 5000,
             });
 

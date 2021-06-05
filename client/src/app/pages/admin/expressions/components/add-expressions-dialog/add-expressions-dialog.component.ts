@@ -75,7 +75,7 @@ export class AddExpressionsDialogComponent {
     this.dialogRef.disableClose = false;
 
     if (res.isOK()) {
-      this.snackBar.open(`Expressions where created successfully!`, 'OK', {
+      this.snackBar.open(`Expressions were created successfully!`, 'OK', {
         duration: 5000,
       });
       this.dialogRef.close(true);
