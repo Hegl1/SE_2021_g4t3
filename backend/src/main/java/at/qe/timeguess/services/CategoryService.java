@@ -68,8 +68,8 @@ public class CategoryService {
         Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
         Collection<Game> allRunningGames = this.lobbyService.getAllRunningGames();
 
-        return allCompletedGames.stream().noneMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName())) ||
-            allRunningGames.stream().anyMatch(runningGame -> runningGame.getCategory().getId().equals(category.getId()));
+        return allCompletedGames.stream().noneMatch(completedGame -> completedGame.getCategory().getName().equals(category.getName())) &&
+            allRunningGames.stream().noneMatch(runningGame -> runningGame.getCategory().getId().equals(category.getId()));
     }
 
     /**
@@ -93,8 +93,6 @@ public class CategoryService {
      * @throws CategoryIsReferencedInCompletedGamesException if the Category to be deleted is referenced in the persisted completed games
      */
     public void deleteCategory(final Category category) throws CategoryIsReferencedInCompletedGamesException {
-        Collection<CompletedGame> allCompletedGames = this.completedGameRepository.findAll();
-        Collection<Game> allRunningGames = this.lobbyService.getAllRunningGames();
 
         if(!this.isDeletable(category)) {
             throw new CategoryIsReferencedInCompletedGamesException("This Category can not be deleted, because it is referenced in a game!");

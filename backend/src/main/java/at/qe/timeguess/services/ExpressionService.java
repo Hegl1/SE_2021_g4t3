@@ -6,7 +6,6 @@ import at.qe.timeguess.dto.ExpressionDTO;
 import at.qe.timeguess.dto.NameDTO;
 import at.qe.timeguess.model.Category;
 import at.qe.timeguess.model.Expression;
-import at.qe.timeguess.repositories.CompletedGameRepository;
 import at.qe.timeguess.repositories.ExpressionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -29,14 +28,10 @@ public class ExpressionService {
     @Autowired
     private ExpressionRepository expressionRepository;
 
-    @Autowired
-    private CompletedGameRepository completedGameRepository;
 
     @Autowired
     private CategoryService categoryService;
 
-    @Autowired
-    private LobbyService lobbyService;
 
     /**
      * Returns a Expression which is searched by an ID

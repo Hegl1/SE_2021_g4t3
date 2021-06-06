@@ -336,7 +336,8 @@ public class Game {
 
     public List<User> getUnassignedUsers() { return setupGamePhase.getUnassignedUsers(); }
 
-    protected void setActive(boolean active) { this.active = active; }
+    //use for testing purposes only!!
+    public void setActive(boolean active) { this.active = active; }
 
     public int getMaxPoints() { return this.maxPoints; }
 
@@ -363,6 +364,9 @@ public class Game {
     public long getGameStartTime() { return runningGamePhase.getGameStartTime(); }
 
     public boolean isActive() { return active; }
+
+    public RunningGamePhase getRunningGamePhase() { return runningGamePhase; }
+
 
     public static class UserStateException extends Exception {
         private static final long serialVersionUID = 1L;

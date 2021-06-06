@@ -9,7 +9,7 @@ import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confir
 import { HelpDialogComponent } from 'src/app/components/help-dialog/help-dialog.component';
 import { InputDialogComponent } from 'src/app/components/input-dialog/input-dialog.component';
 import { ApiService } from 'src/app/core/api/api.service';
-import { CategoryInfo } from 'src/app/core/api/ApiInterfaces';
+import { Category, CategoryInfo } from 'src/app/core/api/ApiInterfaces';
 import { ApiResponse } from 'src/app/core/api/ApiResponse';
 import { FileHelper } from 'src/app/core/files/file-helper';
 import { AddExpressionsDialogComponent } from './components/add-expressions-dialog/add-expressions-dialog.component';
@@ -142,7 +142,7 @@ export class ExpressionsComponent implements OnInit {
               await this.dialog
                 .open(AddExpressionsDialogComponent, {
                   data: {
-                    category_id: res.value?.id,
+                    category: res.value,
                   },
                   width: '500px',
                 })
@@ -173,13 +173,14 @@ export class ExpressionsComponent implements OnInit {
    * Opens an input field to insert new expressions
    * for the supplied category
    *
-   * @param category_id the id of the category
+   * @param category the category
    */
-  addExpressions(category_id: number) {
+  addExpressions(category: Category) {
+    // TODO:
     this.dialog
       .open(AddExpressionsDialogComponent, {
         data: {
-          category_id: category_id,
+          category: category,
         },
         width: '500px',
       })
@@ -297,7 +298,7 @@ export class ExpressionsComponent implements OnInit {
           }
 
           if (res.isOK()) {
-            this.snackBar.open('The expressions where imported successfully!', 'OK', {
+            this.snackBar.open('The expressions were imported successfully!', 'OK', {
               duration: 5000,
             });
 

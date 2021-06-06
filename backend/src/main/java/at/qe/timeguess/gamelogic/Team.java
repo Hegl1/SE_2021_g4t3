@@ -118,10 +118,6 @@ public class Team {
 		this.index = index;
 	}
 
-	public int getCurrentPlayerIndex() {
-		return currentPlayer;
-	}
-
 	public User getCurrentPlayer() {
 		return players.get(currentPlayer);
 	}

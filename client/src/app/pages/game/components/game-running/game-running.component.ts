@@ -125,10 +125,12 @@ export class GameRunningComponent implements OnInit {
           this.updateTimer();
         }, 1000);
       } else if (this.game.currentState.running_data.round_start_time !== -1) {
-        this.time =
+        this.time = Math.max(
           this.game.currentState.running_data.round_start_time +
-          this.game.currentState?.running_data?.total_time -
-          this.game.currentState.running_data.round_pause_time;
+            this.game.currentState?.running_data?.total_time -
+            this.game.currentState.running_data.round_pause_time,
+          0
+        );
       } else {
         this.time = 0;
       }
@@ -159,10 +161,12 @@ export class GameRunningComponent implements OnInit {
         this.game.currentState?.running_data?.round_pause_time !== -1 &&
         this.game.currentState?.running_data?.round_start_time !== -1
       ) {
-        this.time =
+        this.time = Math.max(
           this.game.currentState.running_data.round_start_time +
-          this.game.currentState?.running_data?.total_time -
-          this.game.currentState.running_data.round_pause_time;
+            this.game.currentState?.running_data?.total_time -
+            this.game.currentState.running_data.round_pause_time,
+          0
+        );
       } else {
         this.time = 0;
       }

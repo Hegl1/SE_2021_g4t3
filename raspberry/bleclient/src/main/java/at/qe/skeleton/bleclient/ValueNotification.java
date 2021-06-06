@@ -9,13 +9,13 @@ import tinyb.*;
  * The ValueNotification class provides methods needed for TimeFlip dice facet value notifications.
  */
 class ValueNotification implements BluetoothNotification<byte[]> {
-    private BackendCommunicator backendCommunicator;
+    private Dice dice;
     private Map<Integer, Integer> facetMapping;
     private List<Integer> availableFacetValues;
 
-    public ValueNotification(BackendCommunicator backendCommunicator) {
+    public ValueNotification(Dice dice) {
         super();
-        this.backendCommunicator = backendCommunicator;
+        this.dice = dice;
         this.facetMapping = new HashMap<>();
         this.availableFacetValues = fillListWithValues(new ArrayList<>());
     }
@@ -35,9 +35,14 @@ class ValueNotification implements BluetoothNotification<byte[]> {
 	 */
     public void run(byte[] data) {
         int facetValue = Byte.toUnsignedInt(data[0]);
+        if (dice.isFreshlyReconnected()) {
+            facetMapping = new HashMap<>();
+            availableFacetValues = fillListWithValues(new ArrayList<>());
+            dice.setFreshlyReconnected(false);
+        }
         int mappedFacetValue = getMappedFacetValue(facetValue);
         System.out.println("facet: (actual) " + facetValue + ", (mapped) " + mappedFacetValue); 
-        backendCommunicator.postDicePosition(mappedFacetValue);
+        dice.getBackendCommunicator().postDicePosition(mappedFacetValue);
     }
 
     /**

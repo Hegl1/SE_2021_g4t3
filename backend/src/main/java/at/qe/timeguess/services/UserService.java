@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserService {
@@ -53,13 +54,13 @@ public class UserService {
      * The method checks if the password has been changed or is new because if that is the case it needs to be
      * encrypted before the user gets saved.
      *
-     * @param user
+     * @param user object to save, can be new user or modified user
      * @return null if no user could be saved otherwise the saved user
      * @throws UsernameNotAvailableException thrown if other user with same username already exists
      */
     public User saveUser(final User user) throws UsernameNotAvailableException, EmptyPasswordException {
         User existingUser = this.userRepository.findFirstByUsername(user.getUsername());
-        if (existingUser != null && existingUser.getId() != user.getId()) {
+        if (existingUser != null && !Objects.equals(existingUser.getId(), user.getId())) {
             throw new UsernameNotAvailableException("User can't be saved because another user with same username already exists!");
         }
 
@@ -75,7 +76,7 @@ public class UserService {
     /**
      * Removes all references from the user to completedGameTeams and deletes the user afterwards.
      *
-     * @param user
+     * @param user object to be removed
      */
     public void deleteUser(final User user) {
         for (CompletedGameTeam completedGameTeam : completedGameTeamRepository.findByUser(user)) {
@@ -106,7 +107,7 @@ public class UserService {
     /**
      * Returns all users where the username contains the search string.
      *
-     * @param searchString
+     * @param searchString used to search users
      * @return List of users
      */
     public List<String> searchUsers(String searchString) {

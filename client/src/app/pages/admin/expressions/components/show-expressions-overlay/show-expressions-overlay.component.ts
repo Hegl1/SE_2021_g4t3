@@ -106,7 +106,7 @@ export class ShowExpressionsOverlayComponent implements OnInit {
     this.dialog
       .open(AddExpressionsDialogComponent, {
         data: {
-          category_id: this.data.category_id,
+          category: this.category,
         },
         width: '500px',
       })
