@@ -57,7 +57,7 @@ public class IngameController {
 	}
 
 	@DeleteMapping("/{gameCode}/leave")
-	public ResponseEntity<Void> LeaveGame(@PathVariable final int gameCode) {
+	public ResponseEntity<Void> leaveGame(@PathVariable final int gameCode) {
 
 		User authUser = userService.getAuthenticatedUser();
 		if (authUser == null) {
