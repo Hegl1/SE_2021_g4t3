@@ -105,7 +105,7 @@ public class LobbyService {
 			final String raspberryId)
 			throws RaspberryAlreadyInUseException, GameCreationException, RaspberryNotFoundException {
 		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,
-				userService.getAuthenticatedUser(), raspberryId);
+				userService.getAuthenticatedUser(), dice, raspberryId);
 		raspberryService.registerGame(raspberryId, newGame);
 		webSocketController.setWebsocketControllerForGame(newGame);
 		newGame.setExpressionService(expService);
