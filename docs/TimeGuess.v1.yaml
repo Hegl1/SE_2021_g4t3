@@ -177,6 +177,8 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Wrong password
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -977,8 +979,6 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           description: Not Found
-        "409":
-          description: "Could not be deleted, since already used in a game"
       tags:
         - Expression
       description: Deletes the expression having the given id
@@ -1156,9 +1156,9 @@ paths:
           application/json:
             schema:
               type: number
-              minimum: 0
+              minimum: -1
               maximum: 100
-              description: The battery percentage
+              description: The battery percentage (if -1 it is unknown)
   "/dice/{id}/notify/connection":
     parameters:
       - schema:
@@ -1413,10 +1413,26 @@ components:
                 - total_time
                 - expression
                 - action
+            dice_info:
+              type: object
+              nullable: true
+              properties:
+                status:
+                  type: boolean
+                  description: Whether the dice is connected or not
+                level:
+                  type: integer
+                  minimum: -1
+                  maximum: 100
+                  description: The battery level of the dice
+              required:
+                - status
+                - level
           required:
             - status
             - waiting_data
             - running_data
+            - dice_info
         - $ref: "#/components/schemas/RunningGame"
     UserStats:
       title: UserStats
