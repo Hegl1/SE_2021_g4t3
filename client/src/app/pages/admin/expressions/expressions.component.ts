@@ -176,7 +176,6 @@ export class ExpressionsComponent implements OnInit {
    * @param category the category
    */
   addExpressions(category: Category) {
-    // TODO:
     this.dialog
       .open(AddExpressionsDialogComponent, {
         data: {

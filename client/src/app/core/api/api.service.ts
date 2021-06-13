@@ -93,6 +93,10 @@ export class ApiService {
           error = null;
         }
 
+        if (typeof error !== 'string') {
+          error = null;
+        }
+
         return new ApiResponse<T>(e.status, null, error);
       }
       value = error;
