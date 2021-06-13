@@ -36,9 +36,10 @@ bluetoothConfig=$(cat /etc/dbus-1/system.d/bluetooth.conf)
 insertText=( "<policy group=\"bluetooth\">\n"
         "<allow send_destination=\"org.bluez\"/>\n"
 "</policy>" )
-if [[ $bluetoothConfig != *"${insertText[*]}"* ]];
+searchText="<policy group=\"bluetooth\">\s*<allow send_destination=\"org.bluez\"\/>\s*<\/policy>"
+if [[ ! $bluetoothConfig =~ $searchText ]];
 then
-        sed -i '/<\/busconfig>/i'\ "${insertText[*]}\ " /etc/dbus-1/system.d/bluetooth.conf
+    sed -i '/<\/busconfig>/i'\ "${insertText[*]}\ " /etc/dbus-1/system.d/bluetooth.conf
 fi
 
 adduser --system --no-create-home --group --disabled-login openhab
