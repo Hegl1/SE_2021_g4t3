@@ -12,6 +12,8 @@ This project models a game similar to "Activity" with a webinterface and an IoT 
 - Aaron Targa
 - Matthias Thalmann
 
+If anything is unclear, please contact: t.klotz@student.uibk.ac.at
+
 ## Project structure
 
 ```
@@ -101,3 +103,14 @@ This defines the changed component/part of the project. E.g. `userManagement`
 ### Short summary
 
 Shortly describe the changes and **reference related issues**. E.g. `added possibility to remove users (#2)` where `#2` references the commit with the id 2
+
+## Differences Assignment/Implementation
+
+- Not all open games get listed for regular users. Since it was unclear whether this behaviour was intended and we do not think that this functionality
+ would be benifitial for people that play a game together, sitting at the same table, we omitted this functionality. We use generated codes for joining games instead. 
+
+- The host does not need to click 'ready'. Instead he can use the 'start game' button once the game is ready to start.
+
+## Known issues
+
+Known issues can be found in the 'closed' section of the issues tab in GitLab. Everything marked with the label `wont-fix` will not be fixed by the time of the project deadline. 
