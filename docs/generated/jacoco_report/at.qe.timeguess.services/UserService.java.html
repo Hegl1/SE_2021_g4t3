@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.services</a> &gt; <span class="el_source">UserService.java</span></div><h1>UserService.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.services;
+
+import at.qe.timeguess.model.CompletedGameTeam;
+import at.qe.timeguess.model.User;
+import at.qe.timeguess.model.UserRole;
+import at.qe.timeguess.repositories.CompletedGameTeamRepository;
+import at.qe.timeguess.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Class that manages creation, deletion and updating of users.
+ */
+@Service
+<span class="fc" id="L21">public class UserService {</span>
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CompletedGameTeamRepository completedGameTeamRepository;
+
+    public List&lt;User&gt; getAllUsers() {
+<span class="fc" id="L30">        return this.userRepository.findAll();</span>
+    }
+
+    public User getUserById(final Long id) {
+<span class="fc" id="L34">        return userRepository.findFirstById(id);</span>
+    }
+
+    public User getUserByUsername(final String username) {
+<span class="fc" id="L38">        return userRepository.findFirstByUsername(username);</span>
+    }
+
+    /**
+     * Returns the authenticated user of the current request.
+     *
+     * @return null if no user authenticated otherwise the authenticated user of the request
+     */
+    public User getAuthenticatedUser() {
+<span class="fc" id="L47">        Authentication auth = SecurityContextHolder.getContext().getAuthentication();</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (auth != null) {</span>
+<span class="fc" id="L49">            return userRepository.findFirstByUsername(auth.getName());</span>
+        }
+
+<span class="fc" id="L52">        return null;</span>
+    }
+
+    /**
+     * If existing user was edited it saves the new values of the user otherwise it creates a new user.
+     * The method checks if the password has been changed or is new because if that is the case it needs to be
+     * encrypted before the user gets saved.
+     *
+     * @param user object to save, can be new user or modified user
+     * @return null if no user could be saved otherwise the saved user
+     * @throws UsernameNotAvailableException thrown if other user with same username already exists
+     */
+    public User saveUser(final User user) throws UsernameNotAvailableException, EmptyPasswordException {
+<span class="fc" id="L65">        User existingUser = this.userRepository.findFirstByUsername(user.getUsername());</span>
+<span class="fc bfc" id="L66" title="All 4 branches covered.">        if (existingUser != null &amp;&amp; !Objects.equals(existingUser.getId(), user.getId())) {</span>
+<span class="fc" id="L67">            throw new UsernameNotAvailableException(&quot;User can't be saved because another user with same username already exists!&quot;);</span>
+        }
+
+<span class="pc bpc" id="L70" title="1 of 4 branches missed.">        if (user.getPassword() == null || user.getPassword().isEmpty()) {</span>
+<span class="fc" id="L71">            throw new EmptyPasswordException(&quot;User can't be saved because given password is empty!&quot;);</span>
+        }
+
+<span class="fc" id="L74">        user.setUpdateDate(new Date(System.currentTimeMillis()));</span>
+<span class="fc" id="L75">        return this.userRepository.save(user);</span>
+
+    }
+
+    /**
+     * Removes all references from the user to completedGameTeams and deletes the user afterwards.
+     *
+     * @param user object to be removed
+     */
+    public void deleteUser(final User user) {
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        for (CompletedGameTeam completedGameTeam : completedGameTeamRepository.findByUser(user)) {</span>
+<span class="fc" id="L86">            List&lt;User&gt; playerList = completedGameTeam.getPlayers();</span>
+<span class="fc" id="L87">            playerList.set(playerList.indexOf(user), null);</span>
+<span class="fc" id="L88">            this.completedGameTeamRepository.save(completedGameTeam);</span>
+<span class="fc" id="L89">        }</span>
+
+<span class="fc" id="L91">        this.userRepository.delete(user);</span>
+<span class="fc" id="L92">    }</span>
+
+    public static UserRole parseRole(String role) {
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (role == null) {</span>
+<span class="fc" id="L96">            return null;</span>
+        }
+<span class="pc bpc" id="L98" title="3 of 4 branches missed.">        switch(role) {</span>
+            case &quot;ADMIN&quot;:
+<span class="nc" id="L100">                return UserRole.ADMIN;</span>
+            case &quot;GAMEMANAGER&quot;:
+<span class="fc" id="L102">                return UserRole.GAMEMANAGER;</span>
+            case &quot;PLAYER&quot;:
+<span class="nc" id="L104">                return UserRole.PLAYER;</span>
+        }
+
+<span class="nc" id="L107">        return null;</span>
+    }
+
+    /**
+     * Returns all users where the username contains the search string.
+     *
+     * @param searchString used to search users
+     * @return List of users
+     */
+    public List&lt;String&gt; searchUsers(String searchString) {
+<span class="fc" id="L117">        return userRepository.searchByUsername(searchString);</span>
+    }
+
+    public class UsernameNotAvailableException extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L124">        public UsernameNotAvailableException(final String message) {</span>
+<span class="fc" id="L125">            super(message);</span>
+<span class="fc" id="L126">        }</span>
+    }
+
+    public class EmptyPasswordException extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L133">        public EmptyPasswordException(final String message) {</span>
+<span class="fc" id="L134">            super(message);</span>
+<span class="fc" id="L135">        }</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

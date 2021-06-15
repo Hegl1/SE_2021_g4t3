@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserStatisticsDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.dto</a> &gt; <span class="el_source">UserStatisticsDTO.java</span></div><h1>UserStatisticsDTO.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.dto;
+
+import at.qe.timeguess.model.Category;
+
+import java.util.Collection;
+import java.util.List;
+
+public class UserStatisticsDTO {
+
+    private Collection&lt;GameStatisticsDTO&gt; won_games;
+    private Collection&lt;GameStatisticsDTO&gt; lost_games;
+    private Category most_played_category;
+    private int played_games;
+    private List&lt;UserDTO&gt; played_with;
+
+<span class="nc" id="L16">    public UserStatisticsDTO() {</span>
+<span class="nc" id="L17">    }</span>
+
+    public UserStatisticsDTO(Collection&lt;GameStatisticsDTO&gt; won_games, Collection&lt;GameStatisticsDTO&gt; lost_games,
+<span class="fc" id="L20">                             Category most_played_category, int played_games, List&lt;UserDTO&gt; played_with) {</span>
+<span class="fc" id="L21">        this.won_games = won_games;</span>
+<span class="fc" id="L22">        this.lost_games = lost_games;</span>
+<span class="fc" id="L23">        this.most_played_category = most_played_category;</span>
+<span class="fc" id="L24">        this.played_games = played_games;</span>
+<span class="fc" id="L25">        this.played_with = played_with;</span>
+<span class="fc" id="L26">    }</span>
+
+    public Collection&lt;GameStatisticsDTO&gt; getWon_games() {
+<span class="nc" id="L29">        return won_games;</span>
+    }
+
+    public Collection&lt;GameStatisticsDTO&gt; getLost_games() {
+<span class="nc" id="L33">        return lost_games;</span>
+    }
+
+    public Category getMost_played_category() {
+<span class="fc" id="L37">        return most_played_category;</span>
+    }
+
+    public int getPlayed_games() {
+<span class="fc" id="L41">        return played_games;</span>
+    }
+
+    public List&lt;UserDTO&gt; getPlayed_with() {
+<span class="nc" id="L45">        return played_with;</span>
+    }
+
+    public void setWon_games(List&lt;GameStatisticsDTO&gt; won_games) {
+<span class="nc" id="L49">        this.won_games = won_games;</span>
+<span class="nc" id="L50">    }</span>
+
+    public void setLost_games(List&lt;GameStatisticsDTO&gt; lost_games) {
+<span class="nc" id="L53">        this.lost_games = lost_games;</span>
+<span class="nc" id="L54">    }</span>
+
+    public void setMost_played_category(Category most_played_category) {
+<span class="nc" id="L57">        this.most_played_category = most_played_category;</span>
+<span class="nc" id="L58">    }</span>
+
+    public void setPlayed_games(int played_games) {
+<span class="nc" id="L61">        this.played_games = played_games;</span>
+<span class="nc" id="L62">    }</span>
+
+    public void setPlayed_with(List&lt;UserDTO&gt; played_with) {
+<span class="nc" id="L65">        this.played_with = played_with;</span>
+<span class="nc" id="L66">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

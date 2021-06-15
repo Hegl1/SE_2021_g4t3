@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateGame.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.dto</a> &gt; <span class="el_source">CreateGame.java</span></div><h1>CreateGame.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.dto;
+
+/**
+ * Class used to send receive information about a new game via rest.
+ *
+ */
+public class CreateGame {
+
+	private String dice_code;
+
+	private int category_id;
+
+	private Mapping[] mapping;
+
+	private int number_of_teams;
+
+	private int max_score;
+
+	public CreateGame(final String dice_code, final int category_id, final Mapping[] mapping, final int number_of_teams,
+			final int max_score) {
+<span class="fc" id="L21">		super();</span>
+<span class="fc" id="L22">		this.dice_code = dice_code;</span>
+<span class="fc" id="L23">		this.category_id = category_id;</span>
+<span class="fc" id="L24">		this.mapping = mapping;</span>
+<span class="fc" id="L25">		this.number_of_teams = number_of_teams;</span>
+<span class="fc" id="L26">		this.max_score = max_score;</span>
+<span class="fc" id="L27">	}</span>
+
+	public String getDice_code() {
+<span class="fc" id="L30">		return dice_code;</span>
+	}
+
+	public int getMax_score() {
+<span class="fc" id="L34">		return max_score;</span>
+	}
+
+	public void setMax_score(final int max_score) {
+<span class="nc" id="L38">		this.max_score = max_score;</span>
+<span class="nc" id="L39">	}</span>
+
+	public int getCategory_id() {
+<span class="fc" id="L42">		return category_id;</span>
+	}
+
+	public Mapping[] getMapping() {
+<span class="fc" id="L46">		return mapping;</span>
+	}
+
+	public int getNumber_of_teams() {
+<span class="fc" id="L50">		return number_of_teams;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

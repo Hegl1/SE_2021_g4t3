@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Dice.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.gamelogic</a> &gt; <span class="el_source">Dice.java</span></div><h1>Dice.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.gamelogic;
+
+/**
+ * Class that holds the dice mapping for a running game.
+ */
+public class Dice {
+
+    private int batteryPower;
+    private boolean raspberryConnected;
+    private int[] pointsMapping;
+    private String[] activityMapping;
+    private int[] durationMapping;
+
+    /**
+     * Default constructor that initializes the dice with the default mapping.
+     */
+<span class="fc" id="L17">    public Dice() {</span>
+<span class="fc" id="L18">        pointsMapping = new int[12];</span>
+<span class="fc" id="L19">        activityMapping = new String[12];</span>
+<span class="fc" id="L20">        durationMapping = new int[12];</span>
+<span class="fc" id="L21">        this.raspberryConnected = true;</span>
+<span class="fc" id="L22">        this.batteryPower = -1;</span>
+<span class="fc" id="L23">        loadDefaultMapping();</span>
+<span class="fc" id="L24">    }</span>
+
+    /**
+     * Constructor that initializes the dice with a given mapping. All arrays
+     * provided need to be in of size 12
+     *
+     * @param pointsMapping   array that maps facet to points
+     * @param activityMapping array that maps facet to activity.
+     * @param durationMapping array that maps facet to duration.
+     */
+    public Dice(final int[] pointsMapping, final String[] activityMapping, final int[] durationMapping) {
+<span class="fc" id="L35">        this();</span>
+<span class="fc" id="L36">        this.pointsMapping = pointsMapping;</span>
+<span class="fc" id="L37">        this.activityMapping = activityMapping;</span>
+<span class="fc" id="L38">		this.durationMapping = durationMapping;</span>
+<span class="fc" id="L39">	}</span>
+
+	/**
+	 * Initializes dice with default mapping.
+	 */
+	private void loadDefaultMapping() {
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        for (int i = 0; i &lt; 12; i++) {</span>
+<span class="fc" id="L46">            pointsMapping[i] = i % 3 + 1;</span>
+<span class="fc" id="L47">            durationMapping[i] = ((i % 3) + 1) * 60;</span>
+        }
+
+<span class="fc" id="L50">        activityMapping[0] = &quot;Mime&quot;;</span>
+<span class="fc" id="L51">        activityMapping[1] = &quot;Speak&quot;;</span>
+<span class="fc" id="L52">        activityMapping[2] = &quot;Draw&quot;;</span>
+<span class="fc" id="L53">        activityMapping[3] = &quot;Rhyme&quot;;</span>
+<span class="fc" id="L54">        activityMapping[4] = &quot;Mime&quot;;</span>
+<span class="fc" id="L55">        activityMapping[5] = &quot;Speak&quot;;</span>
+<span class="fc" id="L56">        activityMapping[6] = &quot;Draw&quot;;</span>
+<span class="fc" id="L57">        activityMapping[7] = &quot;Rhyme&quot;;</span>
+<span class="fc" id="L58">        activityMapping[8] = &quot;Mime&quot;;</span>
+<span class="fc" id="L59">        activityMapping[9] = &quot;Speak&quot;;</span>
+<span class="fc" id="L60">        activityMapping[10] = &quot;Draw&quot;;</span>
+<span class="fc" id="L61">        activityMapping[11] = &quot;Rhyme&quot;;</span>
+<span class="fc" id="L62">    }</span>
+
+	public Integer getPoints(final Integer facet) {
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		if (facet == null) {</span>
+<span class="fc" id="L66">			return -1;</span>
+		} else {
+<span class="fc" id="L68">			return pointsMapping[facet];</span>
+		}
+	}
+
+	public Integer getDurationInSeconds(final Integer facet) {
+<span class="fc bfc" id="L73" title="All 2 branches covered.">		if (facet == null) {</span>
+<span class="fc" id="L74">			return -1;</span>
+		} else {
+<span class="fc" id="L76">			return durationMapping[facet];</span>
+		}
+	}
+
+	public String getActivity(final Integer facet) {
+<span class="fc bfc" id="L81" title="All 2 branches covered.">		if (facet == null) {</span>
+<span class="fc" id="L82">			return null;</span>
+		} else {
+<span class="fc" id="L84">			return activityMapping[facet];</span>
+		}
+	}
+
+	public int[] getPointsMapping() {
+<span class="nc" id="L89">		return pointsMapping;</span>
+	}
+
+	public void setPointsMapping(final int[] pointsMapping) {
+<span class="nc" id="L93">		this.pointsMapping = pointsMapping;</span>
+<span class="nc" id="L94">	}</span>
+
+	public String[] getActivityMapping() {
+<span class="nc" id="L97">		return activityMapping;</span>
+	}
+
+	public void setActivityMapping(final String[] activityMapping) {
+<span class="nc" id="L101">		this.activityMapping = activityMapping;</span>
+<span class="nc" id="L102">	}</span>
+
+	public int[] getDurationMapping() {
+<span class="nc" id="L105">		return durationMapping;</span>
+	}
+
+	public void setDurationMapping(final int[] durationMapping) {
+<span class="nc" id="L109">		this.durationMapping = durationMapping;</span>
+<span class="nc" id="L110">	}</span>
+
+	public int getBatteryPower() {
+<span class="fc" id="L113">		return batteryPower;</span>
+	}
+
+	public void setBatteryPower(final int batteryPower) {
+<span class="fc" id="L117">		this.batteryPower = batteryPower;</span>
+<span class="fc" id="L118">	}</span>
+
+	public boolean isRaspberryConnected() {
+<span class="fc" id="L121">		return raspberryConnected;</span>
+	}
+
+	public void setRaspberryConnected(final boolean raspberryConnected) {
+<span class="fc" id="L125">		this.raspberryConnected = raspberryConnected;</span>
+<span class="fc" id="L126">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

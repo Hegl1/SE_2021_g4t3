@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategoryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.controllers</a> &gt; <span class="el_source">CategoryController.java</span></div><h1>CategoryController.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.controllers;
+
+import at.qe.timeguess.dto.CategoryInfoDTO;
+import at.qe.timeguess.dto.NameDTO;
+import at.qe.timeguess.model.Category;
+import at.qe.timeguess.repositories.CompletedGameRepository;
+import at.qe.timeguess.services.CategoryService;
+import at.qe.timeguess.services.ExpressionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Class that controls the managing of the Categories
+ *
+ */
+@RequestMapping(&quot;/categories&quot;)
+@RestController
+<span class="fc" id="L25">public class CategoryController {</span>
+
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
+    private ExpressionService expressionService;
+
+    @Autowired
+    private CompletedGameRepository completedGameRepository;
+
+    /**
+     * Returns a List of all Categories in the database
+     *
+     * @return ResponseEntity for REST communication:
+     *      code OK if successful
+     */
+    @GetMapping(&quot;&quot;)
+    public ResponseEntity&lt;List&lt;Category&gt;&gt; getAllCategories(){
+<span class="fc" id="L44">        List&lt;Category&gt; allCategories = new LinkedList&lt;&gt;(this.categoryService.getAllCategories());</span>
+<span class="fc" id="L45">        return new ResponseEntity&lt;List&lt;Category&gt;&gt;(allCategories, HttpStatus.OK);</span>
+    }
+
+    /**
+     * Retrieves all Categories with information regarding its id, name, deletableness and its amount of Expressions
+     *
+     * @return ResponseEntity for REST communication:
+     *      code OK if successful
+     */
+    @GetMapping(&quot;/info&quot;)
+    public ResponseEntity&lt;List&lt;CategoryInfoDTO&gt;&gt; getAllCategoriesWithInfo() {
+<span class="fc" id="L56">        Collection&lt;Category&gt; allCategories = this.categoryService.getAllCategories();</span>
+<span class="fc" id="L57">        List&lt;CategoryInfoDTO&gt; allCategoriesWithInfo = new LinkedList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        for(Category current : allCategories) {</span>
+<span class="fc" id="L60">            CategoryInfoDTO categoryInfoDTO = new CategoryInfoDTO(</span>
+<span class="fc" id="L61">                current.getId(),</span>
+<span class="fc" id="L62">                current.getName(),</span>
+<span class="fc" id="L63">                this.categoryService.isDeletable(current),</span>
+<span class="fc" id="L64">                this.expressionService.getAllExpressionsByCategory(current).size()</span>
+            );
+<span class="fc" id="L66">            allCategoriesWithInfo.add(categoryInfoDTO);</span>
+<span class="fc" id="L67">        }</span>
+<span class="fc" id="L68">        return new ResponseEntity&lt;&gt;(allCategoriesWithInfo, HttpStatus.OK);</span>
+    }
+
+    /**
+     * Returns a Category by its ID
+     *
+     * @param id the ID of the Category to be acquired
+     * @return ResponseEntity for REST communication:
+     *      code OK        if successful
+     *      code NOT_FOUND if the category was not found
+     */
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Category&gt; getCategoryById(@PathVariable final Long id) {
+<span class="fc" id="L81">        Category category = this.categoryService.getCategoryById(id);</span>
+
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if(category != null) {</span>
+<span class="fc" id="L84">            return new ResponseEntity&lt;Category&gt;(category, HttpStatus.OK);</span>
+        } else {
+<span class="fc" id="L86">            return new ResponseEntity&lt;Category&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+
+    /**
+     * Creates a new Category
+     *
+     * @param nameDTO contains the name of the Category to be created
+     * @return ResponseEntity for REST communication:
+     *      code CREATED  if successful
+     *      code CONFLICT if category with this name exists already
+     */
+    @PreAuthorize(&quot;hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')&quot;)
+    @PostMapping(&quot;&quot;)
+    public ResponseEntity&lt;Category&gt; createCategory(@RequestBody final NameDTO nameDTO) {
+<span class="fc" id="L101">        Category category = new Category(nameDTO.getName());</span>
+
+        try {
+<span class="fc" id="L104">            Category newCategory = this.categoryService.saveCategory(category);</span>
+<span class="fc" id="L105">            return new ResponseEntity&lt;Category&gt;(newCategory, HttpStatus.CREATED);</span>
+<span class="fc" id="L106">        } catch (CategoryService.CategoryAlreadyExistsException e) {</span>
+<span class="fc" id="L107">            return new ResponseEntity&lt;Category&gt;(HttpStatus.CONFLICT);</span>
+        }
+    }
+
+    /**
+     * Deletes an existing Category
+     *
+     * @param id the ID of the Category to be deleted
+     * @return ResponseEntity for REST communication:
+     *      code OK         if Category got deleted successfully
+     *      code FORBIDDEN  if a Category is referenced in persisted completed Game
+     *      code NOT_FOUND  if the Category
+     */
+    @PreAuthorize(&quot;hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')&quot;)
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Category&gt; deleteCategory(@PathVariable final Long id) {
+<span class="fc" id="L123">        Category categoryToDelete = this.categoryService.getCategoryById(id);</span>
+
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if(categoryToDelete != null) {</span>
+            try {
+<span class="fc" id="L127">                this.categoryService.deleteCategory(categoryToDelete);</span>
+<span class="fc" id="L128">            } catch (CategoryService.CategoryIsReferencedInCompletedGamesException e) {</span>
+<span class="fc" id="L129">                return new ResponseEntity&lt;Category&gt;(HttpStatus.CONFLICT);</span>
+<span class="fc" id="L130">            }</span>
+<span class="fc" id="L131">            return new ResponseEntity&lt;Category&gt;(HttpStatus.OK);</span>
+        } else {
+<span class="fc" id="L133">            return new ResponseEntity&lt;Category&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

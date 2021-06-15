@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FinishedGameDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.websockDto</a> &gt; <span class="el_source">FinishedGameDTO.java</span></div><h1>FinishedGameDTO.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.websockDto;
+
+import java.util.List;
+
+import at.qe.timeguess.dto.TeamDTO;
+
+public class FinishedGameDTO implements AbstractDTO {
+
+	private List&lt;TeamDTO&gt; ranking;
+	private int rounds;
+	private int correctExpressions;
+	private int wrongExpressions;
+	private long duration;
+
+	public FinishedGameDTO(final List&lt;TeamDTO&gt; ranking, final int rounds, final int correctExpressions,
+			final int wrongExpressions, final long duration) {
+<span class="nc" id="L17">		super();</span>
+<span class="nc" id="L18">		this.ranking = ranking;</span>
+<span class="nc" id="L19">		this.rounds = rounds;</span>
+<span class="nc" id="L20">		this.correctExpressions = correctExpressions;</span>
+<span class="nc" id="L21">		this.wrongExpressions = wrongExpressions;</span>
+<span class="nc" id="L22">		this.duration = duration;</span>
+<span class="nc" id="L23">	}</span>
+
+	public List&lt;TeamDTO&gt; getRanking() {
+<span class="nc" id="L26">		return ranking;</span>
+	}
+
+	public int getRounds() {
+<span class="nc" id="L30">		return rounds;</span>
+	}
+
+	public int getCorrectExpressions() {
+<span class="nc" id="L34">		return correctExpressions;</span>
+	}
+
+	public int getWrongExpressions() {
+<span class="nc" id="L38">		return wrongExpressions;</span>
+	}
+
+	public long getDuration() {
+<span class="nc" id="L42">		return duration;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

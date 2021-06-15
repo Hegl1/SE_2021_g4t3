@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UpdateUserDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.dto</a> &gt; <span class="el_source">UpdateUserDTO.java</span></div><h1>UpdateUserDTO.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.dto;
+
+import at.qe.timeguess.model.User;
+import at.qe.timeguess.model.UserRole;
+import at.qe.timeguess.services.UserService;
+
+/**
+ * Class used to send updated values of a user. Not possible because entity does not have
+ * a field for the old password. This is needed for security reasons.
+ */
+public class UpdateUserDTO {
+    private String username;
+    private String password;
+    private String old_password;
+    private String role;
+
+<span class="fc" id="L17">    public UpdateUserDTO(String username, String password, String old_password, String role) {</span>
+<span class="fc" id="L18">        this.username = username;</span>
+<span class="fc" id="L19">        this.password = password;</span>
+<span class="fc" id="L20">        this.old_password = old_password;</span>
+<span class="fc" id="L21">        this.role = role;</span>
+<span class="fc" id="L22">    }</span>
+
+    public String getUsername() {
+<span class="fc" id="L25">        return username;</span>
+    }
+
+    public UserRole getRole() {
+<span class="fc" id="L29">        return UserService.parseRole(this.role);</span>
+    }
+
+    public boolean hasChanges(User user) {
+<span class="pc bpc" id="L33" title="4 of 6 branches missed.">        return (this.username != null &amp;&amp; !user.getUsername().equals(this.username))</span>
+<span class="pc bnc" id="L34" title="All 4 branches missed.">            || (this.role != null &amp;&amp; !user.getRole().equals(this.role))</span>
+            || this.password != null;
+    }
+
+    public String getPassword() {
+<span class="fc" id="L39">        return password;</span>
+    }
+
+    public String getOld_password() {
+<span class="fc" id="L43">        return old_password;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

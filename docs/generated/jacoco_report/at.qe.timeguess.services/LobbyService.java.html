@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LobbyService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.services</a> &gt; <span class="el_source">LobbyService.java</span></div><h1>LobbyService.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.services;
+
+import at.qe.timeguess.gamelogic.Dice;
+import at.qe.timeguess.gamelogic.Game;
+import at.qe.timeguess.gamelogic.Game.GameAlreadyRunningException;
+import at.qe.timeguess.gamelogic.Game.GameCreationException;
+import at.qe.timeguess.gamelogic.Game.UserStateException;
+import at.qe.timeguess.model.Category;
+import at.qe.timeguess.model.User;
+import at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException;
+import at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Class that holds and manages all games.
+ */
+@Service
+@Scope(&quot;application&quot;)
+public class LobbyService {
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private RandomCodeService codeService;
+
+	@Autowired
+	private RaspberryService raspberryService;
+
+	private StatisticsService statsService;
+
+	private ExpressionService expService;
+
+	private WebSocketService webSocketController;
+
+	/**
+	 * Map that holds all open games.
+	 */
+	private Map&lt;Integer, Game&gt; runningGames;
+
+	/**
+	 * constant for generating game codes;
+	 */
+	private static final int MAX_GAME_CODE_LENGTH = 8;
+
+	public LobbyService(@Lazy final WebSocketService controller, @Lazy final ExpressionService expService,
+<span class="fc" id="L54">			@Lazy final StatisticsService statsService) {</span>
+<span class="fc" id="L55">		this.runningGames = new HashMap&lt;Integer, Game&gt;();</span>
+<span class="fc" id="L56">		this.webSocketController = controller;</span>
+<span class="fc" id="L57">		this.expService = expService;</span>
+<span class="fc" id="L58">		this.statsService = statsService;</span>
+<span class="fc" id="L59">	}</span>
+
+	/**
+	 * Creates a game with the currently logged in user as host, a randomly
+	 * generated gamecode and the default dice mapping and adds it to the
+	 * runningGames index. Also registers a game to get updates from a raspberry.
+	 *
+	 * @param maxPoints     amount of points necessary to win.
+	 * @param numberOfTeams number of teams the game should host.
+	 * @param category      category of the game.
+	 * @return the representation of the game.
+	 * @throws RaspberryAlreadyInUseException when raspberry is already assigned to
+	 *                                        a running game.
+	 * @throws GameCreationException
+	 * @throws RaspberryNotFoundException
+	 */
+	public Game createGame(final int maxPoints, final int numberOfTeams, final Category category,
+			final String raspberryId) throws at.qe.timeguess.services.RaspberryService.RaspberryAlreadyInUseException,
+			GameCreationException, at.qe.timeguess.services.RaspberryService.RaspberryNotFoundException {
+<span class="fc" id="L78">		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,</span>
+<span class="fc" id="L79">				userService.getAuthenticatedUser(), raspberryId);</span>
+<span class="fc" id="L80">		raspberryService.registerGame(raspberryId, newGame);</span>
+<span class="fc" id="L81">		webSocketController.setWebsocketControllerForGame(newGame);</span>
+<span class="fc" id="L82">		newGame.setExpressionService(expService);</span>
+<span class="fc" id="L83">		newGame.setLobbyService(this);</span>
+<span class="fc" id="L84">		newGame.setStatisticService(statsService);</span>
+<span class="fc" id="L85">		runningGames.put(newGame.getGameCode(), newGame);</span>
+<span class="fc" id="L86">		return newGame;</span>
+	}
+
+	/**
+	 * Creates a game with the currently logged in user as host, a randomly
+	 * generated gamecode and the given dice mapping and adds it to the runningGames
+	 * index. Also registers a game to get updates from a raspberry.
+	 *
+	 * @param maxPoints     amount of points necessary to win.
+	 * @param numberOfTeams number of teams the game should host.
+	 * @param category      category of the game.
+	 * @param dice          dice representation that contains the facet mapping.
+	 * @return the representation of the game.
+	 * @throws RaspberryAlreadyInUseException when raspberry is already assigned to
+	 *                                        a running game.
+	 * @throws GameCreationException
+	 * @throws RaspberryNotFoundException
+	 */
+	public Game createGame(final int maxPoints, final int numberOfTeams, final Category category, final Dice dice,
+			final String raspberryId)
+			throws RaspberryAlreadyInUseException, GameCreationException, RaspberryNotFoundException {
+<span class="nc" id="L107">		Game newGame = new Game(generateGameCode(), maxPoints, numberOfTeams, category,</span>
+<span class="nc" id="L108">				userService.getAuthenticatedUser(), dice, raspberryId);</span>
+<span class="nc" id="L109">		raspberryService.registerGame(raspberryId, newGame);</span>
+<span class="nc" id="L110">		webSocketController.setWebsocketControllerForGame(newGame);</span>
+<span class="nc" id="L111">		newGame.setExpressionService(expService);</span>
+<span class="nc" id="L112">		newGame.setLobbyService(this);</span>
+<span class="nc" id="L113">		newGame.setStatisticService(statsService);</span>
+<span class="nc" id="L114">		runningGames.put(newGame.getGameCode(), newGame);</span>
+<span class="nc" id="L115">		return newGame;</span>
+	}
+
+	/**
+	 * Generates a game code which is not already used.
+	 *
+	 * @return the generated game code.
+	 */
+	private int generateGameCode() {
+		int gamecode;
+		do {
+<span class="fc" id="L126">			gamecode = codeService.generateRandomGameCode(MAX_GAME_CODE_LENGTH);</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">		} while (runningGames.containsKey(gamecode));</span>
+<span class="fc" id="L128">		return gamecode;</span>
+	}
+
+	/**
+	 * Method to assign a user to a running game.
+	 *
+	 * @param gameCode code of the running game. If there is no running game with
+	 *                 this code, nothing happens.
+	 * @param user
+	 * @throws GameNotFoundException
+	 * @throws UserStateException
+	 * @throws GameAlreadyRunningException
+	 */
+	public void joinGame(final int gameCode, final User user)
+			throws GameNotFoundException, GameAlreadyRunningException {
+<span class="nc bnc" id="L143" title="All 2 branches missed.">		if (runningGames.containsKey(gameCode)) {</span>
+<span class="nc" id="L144">			runningGames.get(gameCode).joinGame(user);</span>
+		} else {
+<span class="nc" id="L146">			throw new GameNotFoundException();</span>
+		}
+<span class="nc" id="L148">	}</span>
+
+	public void updateReadyStatus(final int gameCode, final User user, final Boolean isReady) {
+<span class="nc bnc" id="L151" title="All 2 branches missed.">		if (runningGames.containsKey(gameCode)) {</span>
+<span class="nc" id="L152">			runningGames.get(gameCode).updateReadyStatus(user, isReady);</span>
+		}
+<span class="nc" id="L154">	}</span>
+
+	/**
+	 * Removes a game from the index. Not to be used to forcefully close a game.
+	 *
+	 * @param gameCode code of running game
+	 */
+	public void closeFinishedGame(final int gameCode) {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">		if (runningGames.containsKey(gameCode)) {</span>
+<span class="nc" id="L163">			raspberryService.unregisterGame(runningGames.get(gameCode).getRaspberryId());</span>
+<span class="nc" id="L164">			runningGames.remove(gameCode);</span>
+		}
+<span class="nc" id="L166">	}</span>
+
+    /**
+     * Forcefully eliminates a game from the index.
+     *
+     * @param gameCode code of running game
+     */
+	public void abortRunningGame(final int gameCode) {
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">		if (runningGames.containsKey(gameCode)) {</span>
+<span class="fc" id="L175">			runningGames.get(gameCode).forceClose();</span>
+<span class="fc" id="L176">			raspberryService.unregisterGame(runningGames.get(gameCode).getRaspberryId());</span>
+<span class="fc" id="L177">			runningGames.remove(gameCode);</span>
+		}
+<span class="fc" id="L179">	}</span>
+
+	/**
+	 * Method to get all running games
+	 *
+	 * @return a collection of all running games.
+	 */
+	public Collection&lt;Game&gt; getAllRunningGames() {
+<span class="fc" id="L187">		return runningGames.values();</span>
+	}
+
+	/**
+	 * Returns a running game
+	 *
+	 * @param gamecode code of the game to get
+	 * @return game with the given code
+	 */
+	public Game getGame(final int gamecode) {
+<span class="fc" id="L197">		return runningGames.get(gamecode);</span>
+	}
+
+	/**
+	 * Checks whether a user is assigned to a game
+	 *
+	 * @param user the user to check for
+	 * @return true if user is assigned, false otherwise
+	 */
+	public boolean isUserInGame(final User user) {
+<span class="pc bpc" id="L207" title="1 of 2 branches missed.">		for (Game current : runningGames.values()) {</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">			if (current.isInGame(user)) {</span>
+<span class="nc" id="L209">				return true;</span>
+			}
+<span class="nc" id="L211">		}</span>
+
+<span class="fc" id="L213">		return false;</span>
+	}
+
+	public Game getGameContainingUser(final User user) {
+<span class="nc bnc" id="L217" title="All 2 branches missed.">		for (Game current : runningGames.values()) {</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">			if (current.isInGame(user)) {</span>
+<span class="nc" id="L219">				return current;</span>
+			}
+<span class="nc" id="L221">		}</span>
+<span class="nc" id="L222">		return null;</span>
+	}
+
+<span class="nc" id="L225">	public class GameNotFoundException extends Exception {</span>
+
+		private static final long serialVersionUID = 1L;
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

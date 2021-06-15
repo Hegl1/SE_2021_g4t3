@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Game.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.gamelogic</a> &gt; <span class="el_source">Game.java</span></div><h1>Game.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.gamelogic;
+
+import at.qe.timeguess.model.Category;
+import at.qe.timeguess.model.Expression;
+import at.qe.timeguess.model.User;
+import at.qe.timeguess.services.ExpressionService;
+import at.qe.timeguess.services.LobbyService;
+import at.qe.timeguess.services.StatisticsService;
+import at.qe.timeguess.services.WebSocketService;
+
+import java.util.*;
+
+/**
+ * Class that represents am open game. Contains all the game logic.
+ */
+public class Game {
+
+    private static WebSocketService webSocketService;
+    private static ExpressionService expressionService;
+    private static LobbyService lobbyService;
+    private static StatisticsService statsService;
+    private IngameDTOFactory dtoFactory;
+
+    private int gameCode;
+    private String raspberryId;
+    private Dice dice;
+    private int maxPoints;
+    private Category category;
+    private User host;
+    private boolean active;
+    private List&lt;Team&gt; teams;
+    private Set&lt;User&gt; usersWithDevices;
+    private SetupGamePhase setupGamePhase;
+    private RunningGamePhase runningGamePhase;
+
+    /**
+     * Minimal constructor for testing purposes
+     *
+     * @param code the gamecode
+     */
+<span class="fc" id="L41">    public Game(final int code) {</span>
+<span class="fc" id="L42">        this.teams = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L43">        this.usersWithDevices = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L44">        this.active = false;</span>
+<span class="fc" id="L45">        this.gameCode = code;</span>
+<span class="fc" id="L46">        this.dice = new Dice();</span>
+<span class="fc" id="L47">        this.runningGamePhase = new RunningGamePhase(this);</span>
+<span class="fc" id="L48">        dice.setRaspberryConnected(true);</span>
+<span class="fc" id="L49">        this.dtoFactory = new IngameDTOFactory();</span>
+<span class="fc" id="L50">    }</span>
+
+	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
+			final String raspberryId) throws GameCreationException {
+<span class="fc" id="L54">        this(code);</span>
+<span class="fc" id="L55">        this.category = category;</span>
+<span class="fc" id="L56">        usersWithDevices.add(host);</span>
+<span class="fc" id="L57">        this.host = host;</span>
+<span class="fc" id="L58">        this.setupGamePhase = new SetupGamePhase(this);</span>
+<span class="fc" id="L59">        this.maxPoints = maxPoints;</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (numberOfTeams &lt; 2) {</span>
+<span class="fc" id="L61">            throw new GameCreationException(&quot;Too less teams for game construction&quot;);</span>
+        }
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        for (int i = 0; i &lt; numberOfTeams; i++) {</span>
+<span class="fc" id="L64">            final Team current = new Team();</span>
+<span class="fc" id="L65">            teams.add(current);</span>
+<span class="fc" id="L66">            current.setIndex(teams.indexOf(current));</span>
+<span class="fc" id="L67">            current.setName(&quot;Team &quot; + (current.getIndex() + 1));</span>
+        }
+<span class="fc" id="L69">        this.dice = new Dice();</span>
+<span class="fc" id="L70">        this.raspberryId = raspberryId;</span>
+<span class="fc" id="L71">        dice.setRaspberryConnected(true);</span>
+<span class="fc" id="L72">    }</span>
+
+	public Game(final int code, final int maxPoints, final int numberOfTeams, final Category category, final User host,
+			final Dice dice, final String raspberryId) throws GameCreationException {
+<span class="nc" id="L76">		this(code, maxPoints, numberOfTeams, category, host, raspberryId);</span>
+<span class="nc" id="L77">		this.dice = dice;</span>
+<span class="nc" id="L78">		dice.setRaspberryConnected(true);</span>
+<span class="nc" id="L79">	}</span>
+
+	/**
+	 * Method to assign a new user to the game.
+	 *
+	 * @param player user that wants to join the game.
+	 * @throws GameAlreadyRunningException thrown when the game is already running
+	 */
+	public void joinGame(final User player) throws GameAlreadyRunningException {
+<span class="fc bfc" id="L88" title="All 4 branches covered.">        if (!isInGame(player) &amp;&amp; !active) {</span>
+<span class="fc" id="L89">            setupGamePhase.joinNewUserToGame(player);</span>
+<span class="pc bpc" id="L90" title="1 of 4 branches missed.">        } else if (!isInGame(player) &amp;&amp; active) {</span>
+<span class="fc" id="L91">            throw new GameAlreadyRunningException();</span>
+        } else {
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">            if (!usersWithDevices.contains((player))) {</span>
+<span class="fc" id="L94">                usersWithDevices.add(player);</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">                if (!active) {</span>
+<span class="fc" id="L96">                    setupGamePhase.promoteNoDeviceUserToDeviceUSer(player);</span>
+                }
+            }
+        }
+<span class="fc" id="L100">	}</span>
+
+	/**
+	 * Method to assign a player to a team. If the player is in the unassignedUsers
+	 * list or in another team, it gets removed from there.
+	 *
+	 * @param team   Team to move the user to
+	 * @param player User to move
+	 * @throws HostAlreadyReadyException thrown when the host is already ready.
+	 */
+	public void joinTeam(final Team team, final User player) throws HostAlreadyReadyException {
+<span class="fc" id="L111">        setupGamePhase.joinTeam(team, player);</span>
+<span class="fc" id="L112">	}</span>
+
+	/**
+	 * Method to make a player leave a game if he is not assigned to a team or set
+	 * him into 'offline state' if he is assigned to a team.
+	 *
+	 * @param player player to leave
+	 *
+	 */
+	public void leaveGame(final User player) {
+<span class="pc bpc" id="L122" title="3 of 6 branches missed.">        if (player.equals(host) || (!allTeamsEnoughPlayersWithDevice() &amp;&amp; active)) {</span>
+<span class="nc" id="L123">            lobbyService.abortRunningGame(gameCode);</span>
+        }
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        if (!active) {</span>
+<span class="fc" id="L126">            setupGamePhase.leaveNotStartedGame(player);</span>
+        }
+<span class="fc" id="L128">        getWebSocketService().sendTeamUpdateToFrontend(getGameCode(), getDtoFactory().buildTeamDTOs(getTeams()));</span>
+<span class="fc" id="L129">        getWebSocketService().sendWaitingDataToFrontend(getGameCode(), getDtoFactory().buildWaitingDataDTO(this));</span>
+<span class="fc" id="L130">        getUsersWithDevices().remove(player);</span>
+<span class="fc" id="L131">    }</span>
+
+    /**
+     * Method to update the ready status of a user. Also sends messages to frontend
+     * via websocket.
+     *
+     * @param user    user to update the ready status of.
+     * @param isReady new ready status.
+     */
+    public void updateReadyStatus(final User user, final Boolean isReady) {
+<span class="fc" id="L141">        setupGamePhase.updateReadyStatus(user, isReady);</span>
+<span class="fc" id="L142">    }</span>
+
+    /**
+     * Method that starts the active game phase and initializes all parameters.
+     */
+    protected void startGame() {
+<span class="fc" id="L148">        active = true;</span>
+<span class="fc" id="L149">        runningGamePhase.startGame();</span>
+<span class="fc" id="L150">    }</span>
+
+	/**
+	 * Method that is called whenever a dice gets updated and a game is mapped. Only
+	 * accepts updates in appropriate situations, otherwise does nothing.
+	 */
+	public void diceUpdate(final int facet) {
+<span class="fc" id="L157">        runningGamePhase.diceUpdate(facet);</span>
+<span class="fc" id="L158">    }</span>
+
+    /**
+     * Method that handles when a team confirms whether the current team guessed
+     * correct, wrong or invalid. only changes game flow in appropriate situations -
+     * in other situations it does nothing.
+     *
+     * @param decision can either be CORRECT, INVALID or WRONG
+     */
+    public synchronized void confirmExpression(final String decision) {
+<span class="fc" id="L168">        runningGamePhase.confirmExpression(decision);</span>
+<span class="fc" id="L169">    }</span>
+
+    /**
+     * Can get called by an admin to force close the game.
+     */
+    public void forceClose() {
+<span class="fc" id="L175">        webSocketService.sendGameNotContinuableToFrontend(gameCode);</span>
+<span class="fc" id="L176">    }</span>
+
+    /**
+     * Method to persist a finished game
+     */
+    protected void persistFinishedGame() {
+<span class="nc" id="L182">        statsService.persistCompletedGame(new Date(getGameStartTime() * 1000L), new Date(), getCategory(), getTeams());</span>
+<span class="nc" id="L183">    }</span>
+
+    /**
+     * Method that updates the dices battery status
+     */
+    public void updateDiceBattery(final int batteryStatus) {
+<span class="fc" id="L189">        runningGamePhase.updateDiceBattery(batteryStatus);</span>
+<span class="fc" id="L190">    }</span>
+
+    /**
+     * Method that updates the dices connection status. Blocks active game flow if
+     * dice is disconnected and starts a fresh round with a fresh expression upon
+     * reconnection.
+     */
+    public void updateDiceConnection(final boolean isConnected) {
+<span class="fc" id="L198">        runningGamePhase.updateDiceConnection(isConnected);</span>
+<span class="fc" id="L199">    }</span>
+
+    /**
+     * Method that checks whether all teams have enough devices in their team.
+     *
+     * @return true if all teams have enough devices.
+     */
+    protected boolean allTeamsEnoughPlayersWithDevice() {
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (final Team current : teams) {</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">            if (!hasEnoughPlayersWithDevices(current)) {</span>
+<span class="fc" id="L209">                return false;</span>
+            }
+<span class="fc" id="L211">        }</span>
+<span class="fc" id="L212">        return true;</span>
+    }
+
+    /**
+     * Method that checks whether a team has enough devices.
+     *
+     * @param t team to check
+     * @return true if at least one device is in the team.
+     */
+    private boolean hasEnoughPlayersWithDevices(final Team t) {
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        for (final User current : t.getPlayers()) {</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">            if (usersWithDevices.contains(current)) {</span>
+<span class="fc" id="L224">                return true;</span>
+            }
+<span class="fc" id="L226">        }</span>
+<span class="fc" id="L227">        return false;</span>
+    }
+
+	/**
+	 * Method that checks whether a user is in the game.
+	 *
+	 * @param user user to check for
+	 * @return true if the user is in the game, else false
+	 */
+	public boolean isInGame(final User user) {
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        for (final Team t : teams) {</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">            if (t.getPlayers().contains(user)) {</span>
+<span class="fc" id="L239">                return true;</span>
+            }
+<span class="fc" id="L241">        }</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">        for (final User u : setupGamePhase.getUnassignedUsers()) {</span>
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">            if (u.equals(user)) {</span>
+<span class="nc" id="L244">                return true;</span>
+            }
+<span class="fc" id="L246">        }</span>
+<span class="fc" id="L247">        return false;</span>
+    }
+
+    /**
+     * Method that checks whether a user is in the currently guessing team.
+     *
+     * @param user user to check for
+     * @return true if user is in the currently guessing team, else false.
+     */
+    public boolean isUserInCurrentTeam(final User user) {
+<span class="fc" id="L257">        return runningGamePhase.isUserInCurrentTeam(user);</span>
+    }
+
+    /**
+     * Method that returns the player that is currently guessing.
+     *
+     * @return the player that is currently guessing
+     */
+    protected User getCurrentPlayer() {
+<span class="fc" id="L266">        return runningGamePhase.getCurrentPlayer();</span>
+    }
+
+
+    /**
+     * Method that returns a team by its index.
+     *
+     * @param index index of the team
+     * @return team at index
+     * @throws TeamIndexOutOfBoundsException when index is bigger then number of
+     *                                       teams
+     */
+    public Team getTeamByIndex(final Integer index) throws TeamIndexOutOfBoundsException {
+<span class="pc bpc" id="L279" title="1 of 2 branches missed.">        if (index &gt;= getNumberOfTeams()) {</span>
+<span class="nc" id="L280">            throw new TeamIndexOutOfBoundsException();</span>
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">        } else if (index == -1) {</span>
+<span class="nc" id="L282">            return null;</span>
+        } else {
+<span class="fc" id="L284">            return this.teams.get(index);</span>
+        }
+    }
+
+    /**
+     * Method that checks whether the game is startable
+     *
+     * @return True if the game is startable, false if not
+     */
+    protected boolean checkGameStartable() {
+<span class="fc" id="L294">        return setupGamePhase.checkGameStartable();</span>
+    }
+
+    // Quick fixes for missing dependency injection into POJOS.
+
+    @SuppressWarnings(&quot;static-access&quot;)
+    public void setWebSocketController(final WebSocketService websock) {
+<span class="fc" id="L301">        this.webSocketService = websock;</span>
+<span class="fc" id="L302">    }</span>
+
+    @SuppressWarnings(&quot;static-access&quot;)
+    public void setExpressionService(final ExpressionService expServ) {
+<span class="fc" id="L306">        this.expressionService = expServ;</span>
+<span class="fc" id="L307">    }</span>
+
+    @SuppressWarnings(&quot;static-access&quot;)
+    public void setLobbyService(final LobbyService lobServ) {
+<span class="fc" id="L311">        this.lobbyService = lobServ;</span>
+<span class="fc" id="L312">    }</span>
+
+    @SuppressWarnings(&quot;static-access&quot;)
+    public void setStatisticService(final StatisticsService statsServ) {
+<span class="fc" id="L316">        this.statsService = statsServ;</span>
+<span class="fc" id="L317">    }</span>
+
+<span class="fc" id="L319">    protected WebSocketService getWebSocketService() { return this.webSocketService; }</span>
+
+<span class="fc" id="L321">    protected ExpressionService getExpressionService() { return this.expressionService; }</span>
+
+<span class="nc" id="L323">    protected LobbyService getLobbyService() { return this.lobbyService; }</span>
+
+<span class="fc" id="L325">    public int getGameCode() { return this.gameCode; }</span>
+
+<span class="fc" id="L327">    public List&lt;Team&gt; getTeams() { return teams; }</span>
+
+<span class="fc" id="L329">    public User getHost() { return host; }</span>
+
+<span class="fc" id="L331">    public Category getCategory() { return category; }</span>
+
+<span class="fc" id="L333">    public String getRaspberryId() { return raspberryId; }</span>
+
+<span class="fc" id="L335">    public Dice getDice() { return dice; }</span>
+
+<span class="fc" id="L337">    public List&lt;User&gt; getUnassignedUsers() { return setupGamePhase.getUnassignedUsers(); }</span>
+
+    //use for testing purposes only!!
+<span class="fc" id="L340">    public void setActive(boolean active) { this.active = active; }</span>
+
+<span class="fc" id="L342">    public int getMaxPoints() { return this.maxPoints; }</span>
+
+<span class="fc" id="L344">    public Set&lt;User&gt; getUsersWithDevices() { return this.usersWithDevices; }</span>
+
+<span class="fc" id="L346">    public IngameDTOFactory getDtoFactory() { return this.dtoFactory; }</span>
+
+<span class="fc" id="L348">    public Map&lt;User, Boolean&gt; getReadyPlayers() { return setupGamePhase.getReadyPlayers(); }</span>
+
+<span class="fc" id="L350">    public int getCurrentTeam() { return runningGamePhase.getCurrentTeam(); }</span>
+
+<span class="fc" id="L352">    public int getRoundCounter() { return runningGamePhase.getRoundCounter(); }</span>
+
+<span class="fc" id="L354">    public int getNumberOfTeams() { return teams.size(); }</span>
+
+<span class="fc" id="L356">    public Expression getCurrentExpression() { return runningGamePhase.getCurrentExpression(); }</span>
+
+<span class="fc" id="L358">    public Integer getCurrentFacet() { return runningGamePhase.getCurrentFacet(); }</span>
+
+<span class="fc" id="L360">    public Long getRoundStartTime() { return runningGamePhase.getRoundStartTime(); }</span>
+
+<span class="fc" id="L362">    public Long getRoundEndTime() { return runningGamePhase.getRoundEndTime(); }</span>
+
+<span class="nc" id="L364">    public long getGameStartTime() { return runningGamePhase.getGameStartTime(); }</span>
+
+<span class="fc" id="L366">    public boolean isActive() { return active; }</span>
+
+<span class="fc" id="L368">    public RunningGamePhase getRunningGamePhase() { return runningGamePhase; }</span>
+
+
+    public static class UserStateException extends Exception {
+        private static final long serialVersionUID = 1L;
+        public UserStateException(final String message) {
+<span class="nc" id="L374">            super(message);</span>
+<span class="nc" id="L375">        }</span>
+    }
+
+    public static class HostAlreadyReadyException extends Exception {
+        private static final long serialVersionUID = 1L;
+        public HostAlreadyReadyException(final String message) {
+<span class="fc" id="L381">            super(message);</span>
+<span class="fc" id="L382">        }</span>
+    }
+
+<span class="nc" id="L385">    public static class TeamIndexOutOfBoundsException extends Exception {</span>
+        private static final long serialVersionUID = 1L;
+    }
+
+<span class="fc" id="L389">    public static class GameAlreadyRunningException extends Exception {</span>
+        private static final long serialVersionUID = 1L;
+    }
+
+    public static class GameCreationException extends Exception {
+        private static final long serialVersionUID = 1L;
+        public GameCreationException(final String message) {
+<span class="fc" id="L396">            super(message);</span>
+<span class="fc" id="L397">        }</span>
+    }
+
+    @Override
+	public int hashCode() {
+<span class="nc" id="L402">		final int prime = 31;</span>
+<span class="nc" id="L403">		int result = 1;</span>
+<span class="nc" id="L404">		result = prime * result + gameCode;</span>
+<span class="nc" id="L405">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+<span class="nc bnc" id="L410" title="All 2 branches missed.">        if (this == obj) {</span>
+<span class="nc" id="L411">            return true;</span>
+        }
+<span class="nc bnc" id="L413" title="All 2 branches missed.">        if (obj == null) {</span>
+<span class="nc" id="L414">            return false;</span>
+        }
+<span class="nc bnc" id="L416" title="All 2 branches missed.">        if (getClass() != obj.getClass()) {</span>
+<span class="nc" id="L417">            return false;</span>
+        }
+<span class="nc" id="L419">        final Game other = (Game) obj;</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">        if (gameCode != other.gameCode) {</span>
+<span class="nc" id="L421">            return false;</span>
+        }
+<span class="nc" id="L423">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

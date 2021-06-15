@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetupGamePhase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.gamelogic</a> &gt; <span class="el_source">SetupGamePhase.java</span></div><h1>SetupGamePhase.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.gamelogic;
+
+import at.qe.timeguess.model.User;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+public class SetupGamePhase {
+
+    private Game game;
+    private Map&lt;User, Boolean&gt; readyPlayers;
+    private List&lt;User&gt; unassignedUsers;
+
+<span class="fc" id="L16">    protected SetupGamePhase(Game game) {</span>
+<span class="fc" id="L17">        this.game = game;</span>
+<span class="fc" id="L18">        this.readyPlayers = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L19">        this.unassignedUsers = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L20">        readyPlayers.put(game.getHost(), false);</span>
+<span class="fc" id="L21">        this.unassignedUsers.add(game.getHost());</span>
+<span class="fc" id="L22">    }</span>
+
+    /**
+     * Method that handles the event of a user
+     * @param player player who joins the game
+     */
+    protected void joinNewUserToGame(User player){
+<span class="fc" id="L29">        game.getUsersWithDevices().add(player);</span>
+<span class="fc" id="L30">        unassignedUsers.add(player);</span>
+<span class="fc" id="L31">        game.getWebSocketService().sendWaitingDataToFrontend(game.getGameCode(), game.getDtoFactory().buildWaitingDataDTO(game));</span>
+<span class="fc" id="L32">        addToReadyMapIfNotAlreadyExists(player, false);</span>
+<span class="fc" id="L33">    }</span>
+
+    /**
+     * Method that handles the event of a user without device who is already in game joining the game with a device
+     * in setup phase.
+     * @param player player who joins the game.
+     */
+    protected void promoteNoDeviceUserToDeviceUSer(User player){
+<span class="fc" id="L41">        readyPlayers.put(player, false);</span>
+<span class="fc" id="L42">        new Thread(() -&gt; {</span>
+            try {
+                //dirty workaround
+<span class="fc" id="L45">                Thread.sleep(100);</span>
+<span class="fc" id="L46">                game.getWebSocketService().sendWaitingDataToFrontend(game.getGameCode(), game.getDtoFactory().buildWaitingDataDTO(game));</span>
+<span class="nc" id="L47">            } catch (InterruptedException ignored) {</span>
+<span class="fc" id="L48">            }</span>
+<span class="fc" id="L49">        }).start();</span>
+        // webSocketService.sendWaitingDataToFrontend(gameCode, buildWaitingDataDTO());
+<span class="fc" id="L51">    }</span>
+
+
+    /**
+     * Method that adds a player to the ready map if he is not already in.
+     *
+     * @param player      player to add
+     * @param readyStatus status to add the player with
+     */
+    protected void addToReadyMapIfNotAlreadyExists(final User player, final boolean readyStatus) {
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (!readyPlayers.containsKey(player)) {</span>
+<span class="fc" id="L62">            readyPlayers.put(player, readyStatus);</span>
+<span class="fc" id="L63">            game.getWebSocketService().sendWaitingDataToFrontend(game.getGameCode(), game.getDtoFactory().buildWaitingDataDTO(game));</span>
+        }
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * Method to assign a player to a team. If the player is in the unassignedUsers
+     * list or in another team, it gets removed from there.
+     *
+     * @param team   Team to move the user to
+     * @param player User to move
+     * @throws Game.HostAlreadyReadyException thrown when a player tries to join a team although the host is already ready.
+     */
+    protected void joinTeam(final Team team, final User player) throws Game.HostAlreadyReadyException {
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (!readyPlayers.get(game.getHost())) {</span>
+<span class="pc bpc" id="L77" title="1 of 4 branches missed.">            if (readyPlayers.get(player) != null &amp;&amp; readyPlayers.get(player)) {</span>
+                // if player is ready, no switch
+<span class="nc" id="L79">                return;</span>
+            }
+
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">            if (team == null) {</span>
+<span class="nc" id="L83">                leaveTeam(player);</span>
+<span class="nc" id="L84">                game.getWebSocketService().sendTeamUpdateToFrontend(game.getGameCode(), game.getDtoFactory().buildTeamDTOs(game.getTeams()));</span>
+<span class="nc" id="L85">                game.getWebSocketService().sendWaitingDataToFrontend(game.getGameCode(), game.getDtoFactory().buildWaitingDataDTO(game));</span>
+            } else {
+<span class="fc" id="L87">                leaveTeam(player);</span>
+<span class="fc" id="L88">                unassignedUsers.remove(player);</span>
+                // add to ready map if offline player
+<span class="fc" id="L90">                addToReadyMapIfNotAlreadyExists(player, true);</span>
+<span class="fc" id="L91">                team.joinTeam(player);</span>
+<span class="fc" id="L92">                game.getWebSocketService().sendTeamUpdateToFrontend(game.getGameCode(), game.getDtoFactory().buildTeamDTOs(game.getTeams()));</span>
+<span class="fc" id="L93">                game.getWebSocketService().sendWaitingDataToFrontend(game.getGameCode(), game.getDtoFactory().buildWaitingDataDTO(game));</span>
+            }
+        } else {
+<span class="fc" id="L96">            throw new Game.HostAlreadyReadyException(&quot;Host is already ready&quot;);</span>
+        }
+
+<span class="fc" id="L99">    }</span>
+
+    /**
+     * Method to make a player leave a team and add it to the unassigned list.
+     *
+     * @param player player to unassign.
+     * @throws Game.HostAlreadyReadyException Thrown when a player tries to leave a team although the host is already ready
+     */
+    protected void leaveTeam(final User player) throws Game.HostAlreadyReadyException {
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if (!readyPlayers.get(game.getHost())) {</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">            for (final Team current : game.getTeams()) {</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                if (current.isInTeam(player)) {</span>
+<span class="nc" id="L111">                    unassignedUsers.add(player);</span>
+<span class="nc" id="L112">                    current.leaveTeam(player);</span>
+<span class="nc" id="L113">                    break;</span>
+                }
+<span class="fc" id="L115">            }</span>
+        } else {
+<span class="nc" id="L117">            throw new Game.HostAlreadyReadyException(&quot;Host is already ready&quot;);</span>
+        }
+<span class="fc" id="L119">    }</span>
+
+    /**
+     * Method that is used by {@link at.qe.timeguess.gamelogic.Game#leaveGame(User user)} to handle setup phase changes when leaving a game.
+     * @param player the player who leaves the game
+     */
+    protected void leaveNotStartedGame(final User player){
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        for (Team current : game.getTeams()) {</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">            if (current.isInTeam(player)) {</span>
+<span class="fc" id="L128">                current.leaveTeam(player);</span>
+<span class="fc" id="L129">                break;</span>
+            }
+<span class="nc" id="L131">        }</span>
+<span class="fc" id="L132">        unassignedUsers.remove(player);</span>
+<span class="fc" id="L133">        readyPlayers.remove(player);</span>
+<span class="fc" id="L134">        updateReadyStatus(game.getHost(), false);</span>
+<span class="fc" id="L135">    }</span>
+
+    /**
+     * Method to update the ready status of a player. If the host gets updated to false, all other players will become unready too.
+     * @param user the player to update the ready status of
+     * @param isReady the new ready status
+     */
+    protected void updateReadyStatus(final User user, final Boolean isReady) {
+<span class="pc bpc" id="L143" title="2 of 8 branches missed.">        if (user.equals(game.getHost()) &amp;&amp; isReady.equals(false) &amp;&amp; readyPlayers.get(game.getHost()) != null &amp;&amp; readyPlayers.get(game.getHost())) {</span>
+            // hosts sets ready to false
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            for (final User current : game.getUsersWithDevices()) {</span>
+<span class="nc" id="L146">                readyPlayers.put(current, false);</span>
+<span class="nc" id="L147">                game.getWebSocketService().sendWaitingDataToFrontend(game.getGameCode(), game.getDtoFactory().buildWaitingDataDTO(game));</span>
+<span class="nc" id="L148">            }</span>
+
+<span class="fc bfc" id="L150" title="All 4 branches covered.">        } else if (user.equals(game.getHost()) &amp;&amp; !checkGameStartable()) {</span>
+            // host tries to set ready to true, but not startable - do nothing
+<span class="fc" id="L152">            game.getWebSocketService().sendWaitingDataToFrontend(game.getGameCode(), game.getDtoFactory().buildWaitingDataDTO(game));</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        } else if (unassignedUsers.contains(user)) {</span>
+            // do nothing intentionally
+        } else {
+            // set ready of player
+<span class="fc" id="L157">            readyPlayers.put(user, isReady);</span>
+<span class="fc" id="L158">            game.getWebSocketService().sendWaitingDataToFrontend(game.getGameCode(), game.getDtoFactory().buildWaitingDataDTO(game));</span>
+<span class="fc" id="L159">            checkAllPlayersReadyAndStartGame();</span>
+        }
+<span class="fc" id="L161">    }</span>
+
+    /**
+     * Checks whether all players are ready. If this is the case, game gets started.
+     */
+    private void checkAllPlayersReadyAndStartGame() {
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        if (readyPlayers.get(game.getHost())) {</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">            for (final User user : readyPlayers.keySet()) {</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">                if (!readyPlayers.get(user)) {</span>
+<span class="fc" id="L170">                    return;</span>
+                }
+<span class="fc" id="L172">            }</span>
+<span class="fc" id="L173">            game.startGame();</span>
+        }
+<span class="fc" id="L175">    }</span>
+
+    /**
+     * Method that checks whether all conditions for a game start are satisfied.
+     *
+     * @return true iff no unassigneds, enough devices and all teams &gt; 2 users.
+     */
+    protected boolean checkGameStartable() {
+<span class="fc bfc" id="L183" title="All 2 branches covered.">        final boolean unassigned = this.unassignedUsers.size() == 0;</span>
+<span class="fc" id="L184">        final boolean devices = game.allTeamsEnoughPlayersWithDevice();</span>
+<span class="fc" id="L185">        boolean teamSizes = true;</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        for (final Team t : game.getTeams()) {</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">            if (t.getPlayers().size() &lt; 2) {</span>
+<span class="fc" id="L188">                teamSizes = false;</span>
+<span class="fc" id="L189">                break;</span>
+            }
+<span class="fc" id="L191">        }</span>
+<span class="pc bpc" id="L192" title="1 of 6 branches missed.">        return unassigned &amp;&amp; devices &amp;&amp; teamSizes;</span>
+    }
+
+    protected List&lt;User&gt; getUnassignedUsers(){
+<span class="fc" id="L196">        return unassignedUsers;</span>
+    }
+
+    protected Map&lt;User, Boolean&gt; getReadyPlayers() {
+<span class="fc" id="L200">        return readyPlayers;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
