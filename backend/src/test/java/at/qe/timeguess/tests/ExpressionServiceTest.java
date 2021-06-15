@@ -55,6 +55,7 @@ public class ExpressionServiceTest {
     }
 
     @Test
+    @DirtiesContext
     public void testIsDeletable() throws CategoryService.CategoryAlreadyExistsException {
         Category notDeletableCategory = this.categoryService.getCategoryById(2L);
         Category deletableCategory = this.categoryService.saveCategory(new Category("Politics"));

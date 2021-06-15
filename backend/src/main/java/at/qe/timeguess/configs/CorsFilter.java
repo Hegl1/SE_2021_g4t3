@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * CorsFilter checks if the requests origin is in the allowed origins and then set the
+ * response header accordingly. This is needed that the browser does not give cors errors for allowed origins.
+ **/
 @Component
 public class CorsFilter implements Filter {
 

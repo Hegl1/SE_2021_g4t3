@@ -110,7 +110,7 @@ public class UserController {
      *
      * @param id            number that represents the id of a user
      * @param updateUserDTO DTO that contains the changed values of the user and its current password
-     * @ return ResponseEntity: 200 when user could be changed successfully, 400 wrong old password or empty password was given
+     * @return ResponseEntity: 200 when user could be changed successfully, 400 wrong old password or empty password was given
      * 403 when the user hadn't the permissions to change a user, 404 user with specified user id doesn't
      * exist, 409 if new username is the same as a username of an existing user or user is in game
      */
