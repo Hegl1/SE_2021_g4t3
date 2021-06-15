@@ -16,3 +16,6 @@ indent_size = 4
 [*.{ts,scss,json}]
 indent_style = space
 indent_size = 2
+
+[*.sh]
+end_of_line = lf
