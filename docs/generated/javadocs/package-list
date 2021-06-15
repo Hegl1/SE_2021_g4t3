@@ -1,0 +1,10 @@
+at.qe.timeguess
+at.qe.timeguess.configs
+at.qe.timeguess.controllers
+at.qe.timeguess.dto
+at.qe.timeguess.gamelogic
+at.qe.timeguess.model
+at.qe.timeguess.mysql
+at.qe.timeguess.repositories
+at.qe.timeguess.services
+at.qe.timeguess.websockDto

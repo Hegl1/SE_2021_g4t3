@@ -77,6 +77,11 @@ In order to re-configure the application, simply stop all running containers, de
 
 For setting up the raspberry, please refer to the [README.md](./raspberry/README.md) in the ```raspberry``` folder.
 
+## Javadocs and Jacoco-Report
+
+After the deployment the javadocs and the jacoco report can be pulled from the backend image by executing the generate.ps1 or generate.sh script.
+The files will be copied to the [docs/generated](./docs/generated) folder.
+
 ## Commiting
 
 When commiting to this repository please use the following naming schema:

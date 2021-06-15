@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomCodeService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.services</a> &gt; <span class="el_source">RandomCodeService.java</span></div><h1>RandomCodeService.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.services;
+
+import java.security.SecureRandom;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
+/**
+ * Service to generate random Strings (strongly inspired by
+ * https://mkyong.com/java/java-how-to-generate-a-random-string/)
+ */
+
+@Service
+@Scope(&quot;application&quot;)
+public class RandomCodeService {
+
+	private static final String UPPER_CHARS = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;;
+<span class="fc" id="L18">	private static final String LOWER_CHARS = UPPER_CHARS.toLowerCase();</span>
+	private static final String NUMBERS = &quot;1234567890&quot;;
+	private static final String SPECIAL_CHARS = &quot;_-&quot;;
+<span class="fc" id="L21">	private static final String ALL_CHARS = UPPER_CHARS + LOWER_CHARS + NUMBERS + SPECIAL_CHARS;</span>
+
+	private SecureRandom randNumGenerator;
+
+<span class="fc" id="L25">	public RandomCodeService() {</span>
+<span class="fc" id="L26">		randNumGenerator = new SecureRandom();</span>
+<span class="fc" id="L27">	}</span>
+
+	/**
+	 * Generates a random string from alphanumeric chars + '#*+-'. Can be used as
+	 * Raspberry identifiers.
+	 * 
+	 * @param length length of the string to be created.
+	 * @return random string.
+	 */
+	public String generateRandomRaspberryCode(final int length) {
+<span class="fc" id="L37">		return generateRandomString(length, ALL_CHARS);</span>
+	}
+
+	/**
+	 * Generates a random integer with the given length (number of digits). Can be
+	 * used to identify games.
+	 * 
+	 * @param codeLength number of digits the integer should have.
+	 * @return random integer.
+	 */
+	public int generateRandomGameCode(final int codeLength) {
+<span class="fc" id="L48">		String codeAsString = generateRandomString(codeLength, NUMBERS);</span>
+<span class="fc" id="L49">		return Integer.parseInt(codeAsString);</span>
+	}
+
+	/**
+	 * Generates a random String from a given set of available characters.
+	 * 
+	 * @param length  length of the String to be created.
+	 * @param charSet String to choose random chars from.
+	 * @return a random string.
+	 */
+	private String generateRandomString(final int length, final String charSet) {
+<span class="fc" id="L60">		StringBuilder builder = new StringBuilder();</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">		for (int i = 0; i &lt; length; i++) {</span>
+<span class="fc" id="L62">			int index = randNumGenerator.nextInt(charSet.length());</span>
+<span class="fc" id="L63">			builder.append(charSet.charAt(index));</span>
+		}
+<span class="fc" id="L65">		return builder.toString();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

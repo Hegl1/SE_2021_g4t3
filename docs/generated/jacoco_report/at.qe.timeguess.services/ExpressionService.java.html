@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExpressionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.services</a> &gt; <span class="el_source">ExpressionService.java</span></div><h1>ExpressionService.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.services;
+
+import at.qe.timeguess.dto.CategoryExpressionAsStringsDTO;
+import at.qe.timeguess.dto.CategoryExpressionDTO;
+import at.qe.timeguess.dto.ExpressionDTO;
+import at.qe.timeguess.dto.NameDTO;
+import at.qe.timeguess.model.Category;
+import at.qe.timeguess.model.Expression;
+import at.qe.timeguess.repositories.ExpressionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * This class represents the Service with which Expressions get managed.
+ * It is possible to create, import with JSON file, delete Expressions,
+ * and to find Expression by specific properties as well.
+ *
+ */
+@Service
+@Scope(&quot;application&quot;)
+<span class="fc" id="L26">public class ExpressionService {</span>
+
+    @Autowired
+    private ExpressionRepository expressionRepository;
+
+
+    @Autowired
+    private CategoryService categoryService;
+
+
+    /**
+     * Returns a Expression which is searched by an ID
+     *
+     * @param id the ID with which the expression get searched by
+     * @return the expression with the corresponding ID
+     */
+    public Expression getExpressionById(final Long id) {
+<span class="fc" id="L43">        return this.expressionRepository.findFirstById(id);</span>
+    }
+
+    /**
+     * Returns a Expression which is searched by its Category and name
+     *
+     * @param category the Category in which the Expression is in
+     * @param name the name of the Expression
+     * @return the Expression with corresponding name and Category
+     */
+    public Expression getExpressionByCategoryAndName(final Category category, final String name) {
+<span class="fc" id="L54">        return this.expressionRepository.findFirstByCategoryAndName(category, name);</span>
+    }
+
+    /**
+     * Returns all Expressions in the database
+     *
+     * @return all Expressions
+     */
+    public Collection&lt;Expression&gt; getAllExpressions() {
+<span class="fc" id="L63">        return this.expressionRepository.findAll();</span>
+    }
+
+    /**
+     * Returns all Expressions of a given Category
+     *
+     * @param category the Category of which all the Expressions are searched for
+     * @return all the Expressions of a given Category
+     */
+    public Collection&lt;Expression&gt; getAllExpressionsByCategory(final Category category) {
+<span class="fc" id="L73">        return this.expressionRepository.findByCategory(category);</span>
+    }
+
+    /**
+     * Return a random Expression of a Category
+     *
+     * @param category the Category from which an Expression gets returned
+     * @return a random Expression of a Category
+     */
+    public Expression getRandomExpressionByCategory(final Category category) {
+<span class="fc" id="L83">        Collection&lt;Expression&gt; allExpressionsByCategory = this.getAllExpressionsByCategory(category);</span>
+<span class="fc" id="L84">        int random = (int) (Math.random() * allExpressionsByCategory.size());</span>
+
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">        for(Expression current: allExpressionsByCategory) {</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">            if(--random &lt; 0) {</span>
+<span class="fc" id="L88">                return current;</span>
+            }
+<span class="fc" id="L90">        }</span>
+<span class="nc" id="L91">        throw new AssertionError();</span>
+    }
+
+    /**
+     * Saves an Expression in the database
+     *
+     * @param categoryId the ID of the Category to which the Expression gets assigned
+     * @param nameDTO contains the name of the Expression
+     * @return an ExpressionDTO with the information of the saved Expression
+     * @throws ExpressionAlreadyExistsException if the Expression already exists in the Category
+     */
+    public ExpressionDTO saveExpression(final Long categoryId, final NameDTO nameDTO)
+            throws ExpressionAlreadyExistsException {
+
+<span class="fc" id="L105">        Category category = this.categoryService.getCategoryById(categoryId);</span>
+<span class="fc" id="L106">        Collection&lt;Expression&gt; allExpressionsOfCategory = getAllExpressionsByCategory(category);</span>
+
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        if(allExpressionsOfCategory.stream().anyMatch(e -&gt; e.getName().equals(nameDTO.getName()))) {</span>
+<span class="fc" id="L109">            throw new ExpressionAlreadyExistsException(&quot;This Expression already exists in this Category!&quot;);</span>
+        }
+<span class="fc" id="L111">        Expression expression = this.expressionRepository.save(new Expression(nameDTO.getName(), category));</span>
+<span class="fc" id="L112">        return new ExpressionDTO(expression.getId(), expression.getName());</span>
+    }
+
+    /**
+     *  Imports Expressions into the database and assigns them to a given Category,
+     *  if there Expressions to import, which already exist in the database, they get ignored,
+     *  thus no duplicates are being created
+     *
+     * @param categoryId the ID of the Category to which the Expressions get assigned
+     * @param expressionNames the names of the Expressions to be imported
+     * @return the Collection of the imported Expressions
+     */
+    public List&lt;ExpressionDTO&gt; importExpressionsIntoCategory(final Long categoryId, final Collection&lt;String&gt; expressionNames) {
+
+<span class="fc" id="L126">        List&lt;ExpressionDTO&gt; expressionDTOs = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L127">        ExpressionDTO expressionDTO = null;</span>
+
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        for(String current : expressionNames) {</span>
+            try {
+<span class="fc" id="L131">                expressionDTO = this.saveExpression(categoryId, new NameDTO(current));</span>
+<span class="nc" id="L132">            } catch (ExpressionAlreadyExistsException ignored) {</span>
+
+<span class="fc" id="L134">            }</span>
+<span class="fc" id="L135">            expressionDTOs.add(expressionDTO);</span>
+<span class="fc" id="L136">        }</span>
+<span class="fc" id="L137">        return expressionDTOs;</span>
+    }
+
+    /**
+     *  Imports Expressions of multiple Categories and creates Categories if required Category does not exist already
+     *
+     * @param categoryExpressionAsStringsDTOs Pairs of (Category, Expression[]) to get imported
+     * @throws CategoryService.CategoryAlreadyExistsException if the Category to get created already exists
+     */
+    public List&lt;CategoryExpressionDTO&gt; importExpressions(final Collection&lt;CategoryExpressionAsStringsDTO&gt; categoryExpressionAsStringsDTOs) {
+
+        Category category;
+<span class="fc" id="L149">        List&lt;String&gt; expressionNames = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L150">        List&lt;ExpressionDTO&gt; expressionDTOs = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L151">        List&lt;CategoryExpressionDTO&gt; categoryExpressionDTOs = new LinkedList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        for (CategoryExpressionAsStringsDTO current : categoryExpressionAsStringsDTOs) {</span>
+            try {
+<span class="fc" id="L155">                category = this.categoryService.saveCategory(new Category(current.getCategory()));</span>
+<span class="fc" id="L156">            } catch (CategoryService.CategoryAlreadyExistsException e) {</span>
+<span class="fc" id="L157">                category = this.categoryService.getCategoryByName(current.getCategory());</span>
+<span class="fc" id="L158">            }</span>
+
+<span class="fc" id="L160">            expressionNames.addAll(current.getExpressions());</span>
+<span class="fc" id="L161">            expressionDTOs = this.importExpressionsIntoCategory(category.getId(), expressionNames);</span>
+<span class="fc" id="L162">            categoryExpressionDTOs.add(new CategoryExpressionDTO(category, expressionDTOs));</span>
+<span class="fc" id="L163">            expressionNames.clear();</span>
+<span class="fc" id="L164">        }</span>
+<span class="fc" id="L165">        return categoryExpressionDTOs;</span>
+    }
+
+    /**
+     * Deletes an Expression
+     *
+     * @param expression the Expression to be deleted
+     * @throws ExpressionDoesNotExistAnymoreException if the Expression to get deleted does not exist anymore
+     */
+    public void deleteExpression(final Expression expression) throws ExpressionDoesNotExistAnymoreException {
+
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if(expression == null) {</span>
+<span class="fc" id="L177">            throw new ExpressionDoesNotExistAnymoreException(&quot;This Expression does not exist anymore!&quot;);</span>
+        } else {
+<span class="fc" id="L179">            this.expressionRepository.delete(expression);</span>
+        }
+<span class="fc" id="L181">    }</span>
+
+    /**
+     * Gets thrown when an Expression is tried to be created, which already exists
+     */
+    public class ExpressionAlreadyExistsException extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L190">        public ExpressionAlreadyExistsException(final String message) {</span>
+<span class="fc" id="L191">            super(message);</span>
+<span class="fc" id="L192">        }</span>
+    }
+
+    /**
+     * Gets thrown when an Expression is tried to be deleted, which does not exist anymore
+     */
+    public class ExpressionDoesNotExistAnymoreException extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L202">        public ExpressionDoesNotExistAnymoreException(final String message) {</span>
+<span class="fc" id="L203">            super(message);</span>
+<span class="fc" id="L204">        }</span>
+    }
+
+    /**
+     * Gets thrown when an Expression is tried to be deleted, which referenced in a completed game
+     */
+    public class ExpressionReferencedInGameException extends Exception {
+        private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L213">        public ExpressionReferencedInGameException(final String message) {</span>
+<span class="nc" id="L214">            super(message);</span>
+<span class="nc" id="L215">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

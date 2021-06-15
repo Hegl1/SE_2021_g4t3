@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StatisticsService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.services</a> &gt; <span class="el_source">StatisticsService.java</span></div><h1>StatisticsService.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.services;
+
+import at.qe.timeguess.dto.*;
+import at.qe.timeguess.gamelogic.Team;
+import at.qe.timeguess.model.Category;
+import at.qe.timeguess.model.CompletedGame;
+import at.qe.timeguess.model.CompletedGameTeam;
+import at.qe.timeguess.model.User;
+import at.qe.timeguess.repositories.CompletedGameRepository;
+import at.qe.timeguess.repositories.CompletedGameTeamRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+/**
+ * Class that manges the persisting of completed Games
+ * and retrieving Statistics of Games, Players, Categories and more
+ * for homepage view
+ *
+ */
+@Service
+@Scope(&quot;application&quot;)
+<span class="fc" id="L25">public class StatisticsService {</span>
+
+    @Autowired
+    private CompletedGameRepository completedGameRepository;
+
+    @Autowired
+    private CompletedGameTeamRepository completedGameTeamRepository;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private CategoryService categoryService;
+
+    /**
+     * Method that builds a new CompletedGame
+     *
+     * @param startTime the timestamp when the Game started
+     * @param endTime the timestamp when the Game ended
+     * @param category the Category which was played in the Game
+     * @param teams the Teams which played in the Game
+     * @return the CompletedGame
+     */
+    public CompletedGame buildCompletedGame(final Date startTime, final Date endTime, final Category category,
+                                            final List&lt;Team&gt; teams) {
+
+<span class="fc" id="L51">        List&lt;CompletedGameTeam&gt; completedGameTeams = buildCompletedGameTeams(teams);</span>
+<span class="fc" id="L52">        return new CompletedGame(startTime, endTime, category, completedGameTeams);</span>
+    }
+
+    /**
+     * Accepts a List of Teams and returns a List of CompletedGameTeams
+     * private method, only used in buildCompletedGame and persistCompletedGame methods
+     *
+     * @param teams the List of Team out of which the List of CompletedGameTeams gets built
+     * @return a List of CompletedGameTeams
+     */
+    private List&lt;CompletedGameTeam&gt; buildCompletedGameTeams(List&lt;Team&gt; teams) {
+<span class="fc" id="L63">        List&lt;CompletedGameTeam&gt; completedGameTeams = new LinkedList&lt;&gt;();</span>
+
+<span class="fc" id="L65">        completedGameTeams.add(new CompletedGameTeam(teams.get(0).getNumberOfCorrectExpressions(),</span>
+<span class="fc" id="L66">            teams.get(0).getNumberOfWrongExpressions(), teams.get(0).getScore(),</span>
+<span class="fc" id="L67">            teams.get(0).getPlayers(), true));</span>
+
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        for(int i = 1; i &lt; teams.size(); i++) {</span>
+<span class="fc" id="L70">            completedGameTeams.add(new CompletedGameTeam(teams.get(i).getNumberOfCorrectExpressions(),</span>
+<span class="fc" id="L71">                teams.get(i).getNumberOfWrongExpressions(), teams.get(i).getScore(),</span>
+<span class="fc" id="L72">                teams.get(i).getPlayers(), false));</span>
+        }
+
+<span class="fc" id="L75">        return completedGameTeams;</span>
+    }
+
+    /**
+     * Method that persists a CompletedGame
+     *
+     * @param startTime the timestamp when the Game started
+     * @param endTime the timestamp when the Game ended
+     * @param category the Category which was played in the Game
+     * @param teams the Teams which played in the Game
+     * @return the CompletedGame
+     */
+    public CompletedGame persistCompletedGame(final Date startTime, final Date endTime, final Category category,
+                                              final List&lt;Team&gt; teams) {
+
+<span class="fc" id="L90">        CompletedGame completedGame = buildCompletedGame(startTime, endTime, category, teams);</span>
+<span class="fc" id="L91">        this.completedGameRepository.save(completedGame);</span>
+
+<span class="fc" id="L93">        return completedGame;</span>
+    }
+
+    /**
+     * Method that retrieves Statistics of a User
+     *
+     * @param userId ID of the User
+     * @return UserStatisticsDTO with Statistics of the User
+     */
+    public UserStatisticsDTO getUserStatistics(final Long userId) throws UserNotFoundException {
+<span class="fc" id="L103">        User user = this.userService.getUserById(userId);</span>
+
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        if(user == null) {</span>
+<span class="fc" id="L106">            throw new UserNotFoundException(&quot;User not found!&quot;);</span>
+        }
+
+<span class="fc" id="L109">        Collection&lt;Category&gt; allCategories = this.categoryService.getAllCategories();</span>
+<span class="fc" id="L110">        PriorityQueue&lt;GameStatisticsDTO&gt; wonGames = new PriorityQueue&lt;&gt;();</span>
+<span class="fc" id="L111">        PriorityQueue&lt;GameStatisticsDTO&gt; lostGames = new PriorityQueue&lt;&gt;();</span>
+<span class="fc" id="L112">        int maxAmountOfGamesPerCategory = 0;</span>
+<span class="fc" id="L113">        Category mostPlayedCategory = null;</span>
+
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        for(Category category : allCategories) {</span>
+<span class="fc" id="L116">            int won_games_per_category = this.completedGameRepository.getAmountWonByUserIdForCategoryId(userId, true, category.getId());</span>
+<span class="fc" id="L117">            int lost_games_per_category = this.completedGameRepository.getAmountWonByUserIdForCategoryId(userId, false, category.getId());</span>
+
+<span class="fc bfc" id="L119" title="All 2 branches covered.">            if(won_games_per_category &gt; 0) {</span>
+<span class="fc" id="L120">                wonGames.add(new GameStatisticsDTO(category, won_games_per_category));</span>
+            }
+
+<span class="fc bfc" id="L123" title="All 2 branches covered.">            if(lost_games_per_category &gt; 0) {</span>
+<span class="fc" id="L124">                lostGames.add(new GameStatisticsDTO(category, lost_games_per_category));</span>
+            }
+
+<span class="fc" id="L127">            int amountOfGamesPerCategory = won_games_per_category + lost_games_per_category;</span>
+
+<span class="fc bfc" id="L129" title="All 2 branches covered.">            if(maxAmountOfGamesPerCategory &lt; amountOfGamesPerCategory) {</span>
+<span class="fc" id="L130">                maxAmountOfGamesPerCategory = amountOfGamesPerCategory;</span>
+<span class="fc" id="L131">                mostPlayedCategory = category;</span>
+<span class="pc bpc" id="L132" title="1 of 4 branches missed.">            } else if((maxAmountOfGamesPerCategory &gt; 0) &amp;&amp; (maxAmountOfGamesPerCategory == (won_games_per_category + lost_games_per_category))) {</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                if(mostPlayedCategory.getName().compareTo(category.getName()) &gt; 0) {</span>
+<span class="nc" id="L134">                    mostPlayedCategory = category;</span>
+                }
+            }
+<span class="fc" id="L137">        }</span>
+
+<span class="fc" id="L139">        int playedGames = this.getPlayedGames(user);</span>
+<span class="fc" id="L140">        List &lt;UserDTO&gt; playedWith = this.getPlayedWith(userId);</span>
+
+<span class="fc" id="L142">        return new UserStatisticsDTO(wonGames, lostGames, mostPlayedCategory, playedGames, playedWith);</span>
+    }
+
+    /**
+     * Method to get the amount of played Games of a player
+     * private method, only used in getUserStatistics method
+     *
+     * @param user the player of which the amount of played Games is getting retrieved
+     * @return the amount of played Games
+     */
+    private int getPlayedGames(User user) {
+<span class="fc" id="L153">        List&lt;CompletedGame&gt; allCompletedGames = this.completedGameRepository.findAll();</span>
+<span class="fc" id="L154">        List&lt;CompletedGame&gt; allCompletedGamesOfUser = new LinkedList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        for(CompletedGame completedGame : allCompletedGames) {</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">            for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {</span>
+
+<span class="fc bfc" id="L159" title="All 2 branches covered.">                if(completedGameTeam.getPlayers().contains(user)) {</span>
+<span class="fc" id="L160">                    allCompletedGamesOfUser.add(completedGame);</span>
+                }
+<span class="fc" id="L162">            }</span>
+<span class="fc" id="L163">        }</span>
+
+<span class="fc" id="L165">        return allCompletedGamesOfUser.size();</span>
+    }
+
+    /**
+     * Method that retrieves all players with which a player as played games
+     * private method, only used in getUserStatistics method
+     *
+     * @param userId of which the players are getting retrieved
+     * @return the list of players
+     */
+    private List&lt;UserDTO&gt; getPlayedWith(final Long userId) {
+
+<span class="fc" id="L177">        List&lt;CompletedGame&gt; allWonCompletedGames = this.completedGameRepository.findWonByUserId(userId, true);</span>
+<span class="fc" id="L178">        allWonCompletedGames.addAll(this.completedGameRepository.findWonByUserId(userId, false));</span>
+<span class="fc" id="L179">        List&lt;UserDTO&gt; played_with = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L180">        Set&lt;User&gt; distinct_played_with = new HashSet&lt;&gt;();</span>
+
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        for(CompletedGame completedGame : allWonCompletedGames) {</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">            for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {</span>
+<span class="fc" id="L184">                distinct_played_with.addAll(completedGameTeam.getPlayers());</span>
+<span class="fc" id="L185">            }</span>
+<span class="fc" id="L186">        }</span>
+<span class="fc" id="L187">        distinct_played_with.remove(this.userService.getUserById(userId));</span>
+
+<span class="fc bfc" id="L189" title="All 2 branches covered.">        for(User current : distinct_played_with) {</span>
+<span class="fc" id="L190">            played_with.add(new UserDTO(current.getId(), current.getUsername(), current.getRole().toString()));</span>
+<span class="fc" id="L191">        }</span>
+
+<span class="fc" id="L193">        return played_with;</span>
+    }
+
+    /**
+     * Method that retrieves global Statistics
+     *
+     * @return a DTO which contains the global Statistics
+     */
+    public GlobalStatisticsDTO getGlobalStatistics() {
+<span class="fc" id="L202">        List&lt;CompletedGame&gt; allCompletedGames = this.completedGameRepository.findAll();</span>
+
+<span class="fc" id="L204">        int totalGames = allCompletedGames.size();</span>
+<span class="fc" id="L205">        int number_correct = 0;</span>
+<span class="fc" id="L206">        int number_incorrect = 0;</span>
+<span class="fc" id="L207">        Category mostPlayedCategory = this.getMostPlayedCategory();</span>
+<span class="fc" id="L208">        List&lt;User&gt; mostGamesWon = getMostWinningPlayers();</span>
+
+<span class="fc bfc" id="L210" title="All 2 branches covered.">        for(CompletedGame completedGame : allCompletedGames) {</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {</span>
+<span class="fc" id="L212">                number_correct += completedGameTeam.getNumberOfGuessedExpressions();</span>
+<span class="fc" id="L213">                number_incorrect += completedGameTeam.getNumberOfWrongExpressions();</span>
+<span class="fc" id="L214">            }</span>
+<span class="fc" id="L215">        }</span>
+
+<span class="fc" id="L217">        return new GlobalStatisticsDTO(totalGames, number_correct, number_incorrect, mostPlayedCategory, mostGamesWon);</span>
+    }
+
+    /**
+     * Method that retrieves the most played Category
+     *
+     * @return the most played Category
+     */
+    private Category getMostPlayedCategory() {
+<span class="fc" id="L226">        List&lt;Category&gt; allCategories = new LinkedList&lt;&gt;(this.categoryService.getAllCategories());</span>
+<span class="fc" id="L227">        int numberOfGamesOfMostPlayedCategory = 0;</span>
+        List&lt;CompletedGame&gt; completedGamesOfCategory;
+<span class="fc" id="L229">        Category mostPlayedCategory = null;</span>
+
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        for(Category category : allCategories) {</span>
+
+<span class="fc" id="L233">            completedGamesOfCategory = this.completedGameRepository.findByCategory(category);</span>
+<span class="fc" id="L234">            int numberOfCompletedGamesOfCategory = completedGamesOfCategory.size();</span>
+
+<span class="fc bfc" id="L236" title="All 2 branches covered.">            if(numberOfCompletedGamesOfCategory &gt; numberOfGamesOfMostPlayedCategory) {</span>
+<span class="fc" id="L237">                mostPlayedCategory = category;</span>
+<span class="fc" id="L238">                numberOfGamesOfMostPlayedCategory = numberOfCompletedGamesOfCategory;</span>
+            }
+<span class="fc" id="L240">        }</span>
+
+<span class="fc" id="L242">        return mostPlayedCategory;</span>
+    }
+
+    /**
+     * Method that retrieves players who have won the most games
+     * private method, only used in getGlobalStatistics method
+     *
+     * @return List of Users which have won the most games
+     */
+    private List&lt;User&gt; getMostWinningPlayers() {
+<span class="fc" id="L252">        List&lt;User&gt; mostGamesWonPlayers = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L253">        List&lt;User&gt; allUsers = this.userService.getAllUsers();</span>
+<span class="fc" id="L254">        long maxNumberOfWonGames = 0;</span>
+
+<span class="fc bfc" id="L256" title="All 2 branches covered.">        for(User user : allUsers) {</span>
+<span class="fc" id="L257">            List&lt;CompletedGameTeam&gt; completedGameTeams = this.completedGameTeamRepository.findByUser(user);</span>
+<span class="fc" id="L258">            long numberOfWonGames = completedGameTeams.stream().filter(CompletedGameTeam::getHasWon).count();</span>
+
+<span class="fc bfc" id="L260" title="All 2 branches covered.">            if(numberOfWonGames &gt; maxNumberOfWonGames) {</span>
+<span class="fc" id="L261">                maxNumberOfWonGames = numberOfWonGames;</span>
+<span class="fc" id="L262">                mostGamesWonPlayers.clear();</span>
+<span class="fc" id="L263">                mostGamesWonPlayers.add(user);</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">            } else if(numberOfWonGames == maxNumberOfWonGames) {</span>
+<span class="nc" id="L265">                mostGamesWonPlayers.add(user);</span>
+            }
+<span class="fc" id="L267">        }</span>
+
+<span class="fc" id="L269">        return mostGamesWonPlayers;</span>
+    }
+
+    /**
+     * Method that retrieves the Statistics of all Categories
+     *
+     * @return DTO which contains Statistics of all Categories
+     */
+    public List&lt;CategoryStatisticsDTO&gt; getCategoryStatistics() {
+<span class="fc" id="L278">        List&lt;Category&gt; allCategories = new LinkedList&lt;&gt;(this.categoryService.getAllCategories());</span>
+<span class="fc" id="L279">        List&lt;CategoryStatisticsDTO&gt; categoryStatisticsDTOs = new LinkedList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L281" title="All 2 branches covered.">        for(Category category : allCategories) {</span>
+<span class="fc" id="L282">            categoryStatisticsDTOs.add(this.buildCategoryStatisticsDTO(category));</span>
+<span class="fc" id="L283">        }</span>
+
+<span class="fc" id="L285">        return categoryStatisticsDTOs;</span>
+    }
+
+    /**
+     * Method that retrieves Statistics of one Category
+     * private method, only used in getCategoryStatistics method
+     *
+     * @param category Category of which the Statistics are getting retrieved
+     * @return DTO which contains the Statistics of fore mentioned Category
+     */
+    private CategoryStatisticsDTO buildCategoryStatisticsDTO(Category category) {
+<span class="fc" id="L296">        List&lt;CompletedGame&gt; allCompletedGamesOfCategory = this.completedGameRepository.findByCategory(category);</span>
+<span class="fc" id="L297">        int number_correct = 0;</span>
+<span class="fc" id="L298">        int number_incorrect = 0;</span>
+
+<span class="fc bfc" id="L300" title="All 2 branches covered.">        for(CompletedGame completedGame : allCompletedGamesOfCategory) {</span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">            for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {</span>
+<span class="fc" id="L302">                number_correct += completedGameTeam.getNumberOfGuessedExpressions();</span>
+<span class="fc" id="L303">                number_incorrect += completedGameTeam.getNumberOfWrongExpressions();</span>
+<span class="fc" id="L304">            }</span>
+<span class="fc" id="L305">        }</span>
+<span class="fc" id="L306">        return new CategoryStatisticsDTO(category, number_correct, number_incorrect);</span>
+    }
+
+    /**
+     * Method that retrieves the top Games, sorted by score per time
+     *
+     * @return a List of DTOs which contain Statistics of the top Games
+     */
+    public List&lt;TopGamesStatisticsDTO&gt; getTopGamesStatistics() {
+<span class="fc" id="L315">        List&lt;CompletedGame&gt; allCompletedGames = this.completedGameRepository.findAll();</span>
+<span class="fc" id="L316">        PriorityQueue&lt;TopGamesStatisticsDTO&gt; sortedTopGamesStatisticsDTOs = new PriorityQueue&lt;&gt;();</span>
+
+<span class="fc bfc" id="L318" title="All 2 branches covered.">        for(CompletedGame completedGame : allCompletedGames) {</span>
+<span class="fc" id="L319">            sortedTopGamesStatisticsDTOs.add(this.buildTopGamesStatisticsDTO(completedGame));</span>
+<span class="fc" id="L320">        }</span>
+
+<span class="fc" id="L322">        List&lt;TopGamesStatisticsDTO&gt; topGames = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L323">        int numberOfTopGames = Integer.min(5, sortedTopGamesStatisticsDTOs.size());</span>
+
+<span class="fc bfc" id="L325" title="All 2 branches covered.">        for(int i = 0; i &lt; numberOfTopGames; i++) {</span>
+<span class="fc" id="L326">            topGames.add(sortedTopGamesStatisticsDTOs.poll());</span>
+        }
+
+<span class="fc" id="L329">        return topGames;</span>
+    }
+
+    /**
+     * Method that retrieves Statistics of one Game
+     * private method, only used in getTopGamesStatistics method
+     *
+     * @param completedGame the Game of which the Statistics
+     * @return DTO which contains the Statistics of a Game
+     */
+    private TopGamesStatisticsDTO buildTopGamesStatisticsDTO(CompletedGame completedGame) {
+<span class="fc" id="L340">        List&lt;TeamStatisticsDTO&gt; teams = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L341">        Category category = null;</span>
+<span class="fc" id="L342">        double score_per_time = 0;</span>
+<span class="fc" id="L343">        int duration = (int) (completedGame.getEndTime().getTime() - completedGame.getStartTime().getTime()) / 1000;</span>
+<span class="fc" id="L344">        int score = 0;</span>
+<span class="fc" id="L345">        int number_correct = 0;</span>
+<span class="fc" id="L346">        int number_incorrect = 0;</span>
+
+<span class="fc bfc" id="L348" title="All 2 branches covered.">        for(CompletedGameTeam completedGameTeam : completedGame.getAttendedTeams()) {</span>
+<span class="fc" id="L349">            score = completedGameTeam.getScore();</span>
+<span class="fc" id="L350">            score_per_time = Math.round(((double) score / duration) * 100.0) / 100.0;</span>
+<span class="fc" id="L351">            number_correct = completedGameTeam.getNumberOfGuessedExpressions();</span>
+<span class="fc" id="L352">            number_incorrect = completedGameTeam.getNumberOfWrongExpressions();</span>
+<span class="fc" id="L353">            category = completedGame.getCategory();</span>
+
+<span class="fc" id="L355">            teams.add(new TeamStatisticsDTO(score, number_correct, number_incorrect));</span>
+<span class="fc" id="L356">        }</span>
+
+<span class="fc" id="L358">        return new TopGamesStatisticsDTO(teams, category, score_per_time, duration);</span>
+    }
+
+    /**
+     * Gets thrown when a User is not found in the database
+     */
+    public static class UserNotFoundException extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+        public UserNotFoundException(final String message) {
+<span class="fc" id="L369">            super(message);</span>
+<span class="fc" id="L370">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

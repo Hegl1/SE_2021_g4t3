@@ -14,6 +14,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class that manages creation, deletion and updating of users.
+ */
 @Service
 public class UserService {
 

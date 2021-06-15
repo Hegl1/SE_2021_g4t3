@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebSocketConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.configs</a> &gt; <span class="el_source">WebSocketConfig.java</span></div><h1>WebSocketConfig.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.configs;
+
+import at.qe.timeguess.services.WebSocketService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
+import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
+import org.springframework.web.socket.handler.WebSocketHandlerDecoratorFactory;
+
+@Configuration
+@EnableWebSocketMessageBroker
+<span class="fc" id="L19">public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {</span>
+
+    @Autowired
+    private WebSocketService webSocketService;
+
+    @Override
+    public void registerStompEndpoints(final StompEndpointRegistry registry) {
+        // URL that websockets need to register to
+<span class="fc" id="L27">        registry.addEndpoint(&quot;/websocket&quot;).setAllowedOriginPatterns(&quot;*&quot;).withSockJS();</span>
+<span class="fc" id="L28">    }</span>
+
+    @Override
+    public void configureMessageBroker(final MessageBrokerRegistry config) {
+        // messages from server will be placed at message queues
+        // with the path /messagequeue/ingame/...
+<span class="fc" id="L34">        config.enableSimpleBroker(&quot;/messagequeue/ingame&quot;);</span>
+        // path for handling incoming messages in corresponding controller
+<span class="fc" id="L36">        config.setApplicationDestinationPrefixes(&quot;/ingame&quot;);</span>
+<span class="fc" id="L37">    }</span>
+
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+<span class="fc" id="L41">        registration.addDecoratorFactory(new WebSocketHandlerDecoratorFactory() {</span>
+            @Override
+            public WebSocketHandler decorate(final WebSocketHandler handler) {
+<span class="fc" id="L44">                return new WebSocketHandlerDecorator(handler) {</span>
+                    @Override
+                    public void afterConnectionEstablished(final WebSocketSession session) throws Exception {
+<span class="nc" id="L47">                        webSocketService.addSession(session);</span>
+<span class="nc" id="L48">                        super.afterConnectionEstablished(session);</span>
+<span class="nc" id="L49">                    }</span>
+
+                    @Override
+                    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+<span class="nc" id="L53">                        webSocketService.removeSession(session.getId());</span>
+<span class="nc" id="L54">                        super.afterConnectionClosed(session, closeStatus);</span>
+<span class="nc" id="L55">                    }</span>
+                };
+            }
+        });
+<span class="fc" id="L59">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebSecurityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.configs</a> &gt; <span class="el_source">WebSecurityConfig.java</span></div><h1>WebSecurityConfig.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.configs;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Arrays;
+
+/**
+ * Configures the security settings of the api.
+ * This includes the encryption of passwords, the authorization for the endpoints with JWT tokens
+ * and the configuration of CORS.
+ */
+@Configuration
+@EnableWebSecurity()
+<span class="fc" id="L26">public class WebSecurityConfig extends WebSecurityConfigurerAdapter {</span>
+
+    @Autowired
+    private JwtRequestFilter jwtRequestFilter;
+
+
+    @Autowired
+    private JwtAuthenticationHandler authenticationHandler;
+
+    @Bean
+    public PasswordEncoder encoder() {
+<span class="fc" id="L37">        return new BCryptPasswordEncoder();</span>
+    }
+
+    @Autowired
+    private CorsFilter corsFilter;
+
+    @Override
+    protected void configure(final HttpSecurity httpSecurity) throws Exception {
+<span class="fc" id="L45">        httpSecurity.cors().configurationSource(request -&gt;</span>
+        {
+<span class="nc" id="L47">            CorsConfiguration cors = new CorsConfiguration(); //configuration that fixes cors problems</span>
+<span class="nc" id="L48">            cors.setAllowedMethods(</span>
+<span class="nc" id="L49">                Arrays.asList(HttpMethod.DELETE.name(), HttpMethod.GET.name(), HttpMethod.POST.name(),HttpMethod.PUT.name()));</span>
+<span class="nc" id="L50">            cors.applyPermitDefaultValues();</span>
+
+<span class="nc" id="L52">            return cors;</span>
+
+<span class="fc" id="L54">        }).and().csrf().disable().authorizeRequests()</span>
+<span class="fc" id="L55">            .antMatchers(&quot;/h2-console/**&quot;)</span>
+<span class="fc" id="L56">            .permitAll()</span>
+<span class="fc" id="L57">            .antMatchers(HttpMethod.POST, &quot;/users/login&quot;)</span>
+<span class="fc" id="L58">            .permitAll()</span>
+<span class="fc" id="L59">            .antMatchers(HttpMethod.POST, &quot;/users/register&quot;)</span>
+<span class="fc" id="L60">            .permitAll()</span>
+<span class="fc" id="L61">            .antMatchers(&quot;/websocket/**&quot;)</span>
+<span class="fc" id="L62">            .permitAll()</span>
+<span class="fc" id="L63">            .antMatchers(&quot;/dice/**&quot;)</span>
+<span class="fc" id="L64">            .permitAll()</span>
+<span class="fc" id="L65">            .and().authorizeRequests().anyRequest().authenticated().and()</span>
+<span class="fc" id="L66">            .exceptionHandling().authenticationEntryPoint(authenticationHandler).and()</span>
+            // this disables session creation on Spring Security
+<span class="fc" id="L68">            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);</span>
+
+<span class="fc" id="L70">        httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);</span>
+<span class="fc" id="L71">        httpSecurity.addFilterBefore(corsFilter, SessionManagementFilter.class);</span>
+
+        //for h2console to work
+<span class="fc" id="L74">        httpSecurity.headers().frameOptions().disable();</span>
+<span class="fc" id="L75">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthenticationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.services</a> &gt; <span class="el_source">AuthenticationService.java</span></div><h1>AuthenticationService.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.services;
+
+import at.qe.timeguess.model.User;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.JWTVerifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
+
+/**
+ * Class that provides all methods needed for
+ * creating and validating JWT tokens.
+ */
+@Component
+<span class="fc" id="L28">public class AuthenticationService {</span>
+
+    public static final String TOKEN_PREFIX = &quot;Bearer&quot;;
+
+    @Value(&quot;${jwt.secret}&quot;)
+    private String secret;
+
+    @Value(&quot;${jwt.expiration}&quot;)
+    private Long tokenExpiration;
+
+    private DecodedJWT decodeToken(String token) {
+        try {
+<span class="fc" id="L40">            return JWT.decode(token);</span>
+<span class="nc" id="L41">        } catch (JWTDecodeException exception) {</span>
+            //Invalid token
+        }
+<span class="nc" id="L44">        return null;</span>
+    }
+
+    public String getSubject(String token) {
+<span class="nc" id="L48">        DecodedJWT decodedToken = decodeToken(token);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (decodedToken != null) {</span>
+<span class="nc" id="L50">            return decodedToken.getSubject();</span>
+        } else {
+<span class="nc" id="L52">            return null;</span>
+        }
+    }
+
+    public Date getExpirationDateFromToken(String token) {
+<span class="fc" id="L57">        DecodedJWT decodedToken = decodeToken(token);</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (decodedToken != null) {</span>
+<span class="fc" id="L59">            return decodedToken.getExpiresAt();</span>
+        } else {
+<span class="nc" id="L61">            return null;</span>
+        }
+    }
+
+    public Claim getClaimFromToken(String token, String claim) {
+<span class="fc" id="L66">        DecodedJWT decodedToken = decodeToken(token);</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (decodedToken != null) {</span>
+<span class="fc" id="L68">            return decodedToken.getClaim(claim);</span>
+        } else {
+<span class="nc" id="L70">            return null;</span>
+        }
+    }
+
+
+    private Boolean isTokenExpired(String token) {
+<span class="fc" id="L76">        final Date expiration = getExpirationDateFromToken(token);</span>
+<span class="fc" id="L77">        return expiration.before(new Date());</span>
+    }
+
+    /**
+     * Generated the jwt token for the specified user with the specified expiration time
+     * puts the role of the user into the token and it's username as subject.
+     * This is done so that it can be checked with the token if a user is allowed to perform
+     * a specific action depending on his role and username.
+     *
+     * @param user             user that generates token
+     * @param expiration date when token expires
+     * @return JWT Token String
+     */
+    public String generateToken(User user,Long expiration) {
+<span class="pc bpc" id="L91" title="2 of 4 branches missed.">        if (user == null || expiration == null) {</span>
+<span class="nc" id="L92">            return null;</span>
+        }
+
+<span class="fc" id="L95">        Long updateDate = null;</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (user.getUpdateDate() != null) {</span>
+<span class="fc" id="L97">            updateDate = user.getUpdateDate().getTime();</span>
+        }
+
+        try {
+<span class="fc" id="L101">            return TOKEN_PREFIX + &quot; &quot; + JWT.create()</span>
+<span class="fc" id="L102">                .withClaim(&quot;last_updated&quot;, updateDate)</span>
+<span class="fc" id="L103">                .withClaim(&quot;user_id&quot;, user.getId())</span>
+<span class="fc" id="L104">                .withClaim(&quot;user_username&quot;, user.getUsername())</span>
+<span class="fc" id="L105">                .withClaim(&quot;user_role&quot;, user.getRole().toString())</span>
+<span class="fc" id="L106">                .withExpiresAt(new Date(System.currentTimeMillis() + expiration))</span>
+<span class="fc" id="L107">                .withIssuedAt(new Date(System.currentTimeMillis()))</span>
+<span class="fc" id="L108">                .sign(HMAC512(this.secret.getBytes()));</span>
+<span class="nc" id="L109">        } catch (JWTCreationException exception) {</span>
+<span class="nc" id="L110">            return null;</span>
+        }
+
+    }
+
+    public String generateTokenWithFixedExpiration(User user) {
+<span class="fc" id="L116">        return generateToken(user,tokenExpiration);</span>
+    }
+
+
+
+    /**
+     * Validates a JWT token.
+     * It checks if the token subject matches with the given user and checks if the token
+     * is still valid and not expired.
+     *
+     * @param token to validate
+     * @param user  to check token for
+     * @return if token is valid
+     */
+    public boolean validateToken(String token, User user) {
+<span class="pc bpc" id="L131" title="2 of 4 branches missed.">        if (token == null || user == null) {</span>
+<span class="nc" id="L132">            return false;</span>
+        }
+        try {
+<span class="fc" id="L135">            JWTVerifier verifier = JWT.require(HMAC512(this.secret.getBytes()))</span>
+<span class="fc" id="L136">                .build(); //Reusable verifier instance</span>
+<span class="fc" id="L137">            DecodedJWT jwt = verifier.verify(token);</span>
+
+<span class="fc" id="L139">            Long id = jwt.getClaim(&quot;user_id&quot;).asLong();</span>
+<span class="fc" id="L140">            Long lastUpdated = jwt.getClaim(&quot;last_updated&quot;).asLong();</span>
+<span class="fc" id="L141">            Long updateDate = 0L;</span>
+
+<span class="fc bfc" id="L143" title="All 2 branches covered.">            if (user.getUpdateDate() != null) {</span>
+<span class="fc" id="L144">                updateDate = user.getUpdateDate().getTime();</span>
+            }
+
+
+            //check if it's token of right user and not expired
+<span class="pc bpc" id="L149" title="1 of 4 branches missed.">            return id != null &amp;&amp; id.equals(user.getId())</span>
+<span class="pc bpc" id="L150" title="1 of 4 branches missed.">                &amp;&amp; (user.getUpdateDate() == null || lastUpdated.equals(updateDate))</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">                &amp;&amp; !this.isTokenExpired(token);</span>
+<span class="nc" id="L152">        } catch (JWTVerificationException exception) {</span>
+            //Invalid signature/claims
+<span class="nc" id="L154">            return false;</span>
+        }
+    }
+
+    public void setUserAuthentication(User user) {
+<span class="fc" id="L159">        List&lt;SimpleGrantedAuthority&gt; authorities = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L160">        authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));</span>
+
+        //creating user authentication object
+<span class="fc" id="L163">        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =</span>
+<span class="fc" id="L164">            new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);</span>
+
+        // Setting Authentication in the context, and specifying that the current user is authenticated.
+        // So that Spring Security Configurations works.
+<span class="fc" id="L168">        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);</span>
+<span class="fc" id="L169">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

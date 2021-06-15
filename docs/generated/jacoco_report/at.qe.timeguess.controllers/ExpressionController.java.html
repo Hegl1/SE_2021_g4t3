@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExpressionController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.controllers</a> &gt; <span class="el_source">ExpressionController.java</span></div><h1>ExpressionController.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.controllers;
+
+import at.qe.timeguess.dto.CategoryExpressionAsStringsDTO;
+import at.qe.timeguess.dto.CategoryExpressionDTO;
+import at.qe.timeguess.dto.ExpressionDTO;
+import at.qe.timeguess.dto.NameDTO;
+import at.qe.timeguess.model.Category;
+import at.qe.timeguess.model.Expression;
+import at.qe.timeguess.services.CategoryService;
+import at.qe.timeguess.services.ExpressionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Class that controls the managing of the Expressions
+ *
+ */
+@RequestMapping(&quot;&quot;)
+@RestController
+<span class="fc" id="L26">public class ExpressionController {</span>
+
+    @Autowired
+    private ExpressionService expressionService;
+
+    @Autowired
+    private CategoryService categoryService;
+
+    /**
+     * Returns a List of all Expressions in a Category
+     *
+     * @param categoryId the ID of the Category of which the Expressions are asked for
+     * @return ResponseEntity for REST communication:
+     *      code OK         if the Expressions got found
+     *      code NOT_FOUND  if there are no Expressions
+     */
+    @GetMapping(&quot;/categories/{categoryId}/expressions&quot;)
+    public ResponseEntity&lt;List&lt;ExpressionDTO&gt;&gt; getAllExpressionsOfCategory(@PathVariable final Long categoryId) {
+<span class="fc" id="L44">        Category category = this.categoryService.getCategoryById(categoryId);</span>
+
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if(category != null) {</span>
+
+<span class="fc" id="L48">            List&lt;Expression&gt; allExpressions = new LinkedList&lt;&gt;(this.expressionService.getAllExpressionsByCategory(category));</span>
+<span class="fc" id="L49">            List&lt;ExpressionDTO&gt; allExpressionDTOs = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">            for(Expression current : allExpressions) {</span>
+<span class="fc" id="L51">                allExpressionDTOs.add(new ExpressionDTO(current.getId(), current.getName()));</span>
+<span class="fc" id="L52">            }</span>
+<span class="fc" id="L53">            return new ResponseEntity&lt;&gt;(allExpressionDTOs, HttpStatus.OK);</span>
+        } else {
+<span class="fc" id="L55">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+
+    /**
+     * Creates and saves a new Expression into the database
+     *
+     * @param categoryId the ID of the Category to which the Expression is assigned
+     * @param nameDTO contains name of the Expression to be created
+     * @return ResponseEntity for REST communication:
+     *      code OK         if Expression got created successfully
+     *      code NOT_FOUND  if Category to assign is not found
+     *      code CONFLICT   if Expression already exists
+     */
+    @PreAuthorize(&quot;hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')&quot;)
+    @PostMapping(&quot;/categories/{categoryId}/expressions&quot;)
+    public ResponseEntity&lt;ExpressionDTO&gt; createExpression(@PathVariable final Long categoryId, @RequestBody final NameDTO nameDTO) {
+<span class="fc" id="L72">        Category category = this.categoryService.getCategoryById(categoryId);</span>
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if(category != null) {</span>
+            try {
+<span class="fc" id="L76">                ExpressionDTO expressionDTO = this.expressionService.saveExpression(categoryId, nameDTO);</span>
+<span class="fc" id="L77">                return new ResponseEntity&lt;&gt;(expressionDTO, HttpStatus.OK);</span>
+<span class="fc" id="L78">            } catch (ExpressionService.ExpressionAlreadyExistsException e) {</span>
+<span class="fc" id="L79">                return new ResponseEntity&lt;&gt;(HttpStatus.CONFLICT);</span>
+            }
+        } else {
+<span class="fc" id="L82">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+
+    /**
+     * Deletes an existing Expression
+     *
+     * @param id the ID of the Category
+     * @return ResponseEntity for REST communication:
+     *      code OK         if Expression got deleted successfully
+     *      code NOT_FOUND  if Expression to delete was not found
+     *      code CONFLICT   if Expression to delete is referenced in a Game
+     */
+    @PreAuthorize(&quot;hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')&quot;)
+    @DeleteMapping(&quot;/expressions/{id}&quot;)
+    public ResponseEntity&lt;Expression&gt; deleteExpression(@PathVariable final Long id) {
+<span class="fc" id="L98">        Expression expression = this.expressionService.getExpressionById(id);</span>
+
+        try {
+<span class="fc" id="L101">            this.expressionService.deleteExpression(expression);</span>
+<span class="fc" id="L102">            return new ResponseEntity&lt;&gt;(HttpStatus.OK);</span>
+<span class="fc" id="L103">        } catch (ExpressionService.ExpressionDoesNotExistAnymoreException e) {</span>
+<span class="fc" id="L104">            return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+        }
+    }
+
+    /**
+     * Imports several Expressions and assigns them to one specific Category
+     *
+     * @param categoryId the ID of the Category to which the Expressions are assigned to
+     * @param expressionNames the List of names of the Expressions
+     * @return ResponseEntity for REST communication:
+     *      code CREATED if Expressions got imported successfully
+     */
+    @PreAuthorize(&quot;hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')&quot;)
+    @PostMapping(&quot;/categories/{categoryId}/expressions/import&quot;)
+    public ResponseEntity&lt;List&lt;ExpressionDTO&gt;&gt; importExpressionsIntoCategory(@PathVariable final Long categoryId, @RequestBody final List&lt;String&gt; expressionNames) {
+<span class="fc" id="L119">        List&lt;ExpressionDTO&gt; expressionDTOs = null;</span>
+<span class="fc" id="L120">        expressionDTOs = this.expressionService.importExpressionsIntoCategory(categoryId, expressionNames);</span>
+
+<span class="fc" id="L122">        return new ResponseEntity&lt;&gt;(expressionDTOs, HttpStatus.CREATED);</span>
+    }
+
+    /**
+     * Imports several Expressions and assigns them to different Categories
+     *
+     * @param categoryExpressionAsStringsDTOS contains the Categories and Expressions to import
+     * @return ResponseEntity for REST communication:
+     *      code CREATED if Categories and Expressions got imported successfully
+     */
+    @PreAuthorize(&quot;hasAuthority('ADMIN') || hasAuthority('GAMEMANAGER')&quot;)
+    @PostMapping(&quot;/expressions/import&quot;)
+    public ResponseEntity&lt;List&lt;CategoryExpressionDTO&gt;&gt; importExpressions(@RequestBody final List&lt;CategoryExpressionAsStringsDTO&gt; categoryExpressionAsStringsDTOS) {
+<span class="fc" id="L135">        List&lt;CategoryExpressionDTO&gt; importedCategoriesAndExpressions = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L136">        importedCategoriesAndExpressions.addAll(this.expressionService.importExpressions(categoryExpressionAsStringsDTOS));</span>
+
+<span class="fc" id="L138">        return new ResponseEntity&lt;&gt;(importedCategoriesAndExpressions, HttpStatus.CREATED);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

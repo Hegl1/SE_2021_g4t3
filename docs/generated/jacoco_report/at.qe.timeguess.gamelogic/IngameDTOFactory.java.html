@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IngameDTOFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.gamelogic</a> &gt; <span class="el_source">IngameDTOFactory.java</span></div><h1>IngameDTOFactory.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.gamelogic;
+
+import at.qe.timeguess.dto.TeamDTO;
+import at.qe.timeguess.dto.UserDTO;
+import at.qe.timeguess.model.User;
+import at.qe.timeguess.websockDto.DiceInfoDTO;
+import at.qe.timeguess.websockDto.RunningDataDTO;
+import at.qe.timeguess.websockDto.StateUpdateDTO;
+import at.qe.timeguess.websockDto.WaitingDataDTO;
+
+import java.util.LinkedList;
+import java.util.List;
+
+<span class="fc" id="L14">public class IngameDTOFactory {</span>
+
+    /**
+     * Method that builds a List of UserDTOs from a List of Users
+     *
+     * @param users users to build DTOs from
+     * @return a List of UserDTOs
+     */
+    protected List&lt;UserDTO&gt; buildUserDTOs(final List&lt;User&gt; users) {
+<span class="fc" id="L23">        final List&lt;UserDTO&gt; result = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        for (final User u : users) {</span>
+<span class="fc" id="L25">            result.add(new UserDTO(u.getId(), u.getUsername(), u.getRole().toString()));</span>
+<span class="fc" id="L26">        }</span>
+<span class="fc" id="L27">        return result;</span>
+    }
+
+    /**
+     * Builds a List of all ready players
+     *
+     * @return List of ready players.
+     */
+    protected List&lt;User&gt; buildReadyPlayerList(Game game) {
+<span class="fc" id="L36">        final List&lt;User&gt; result = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        for (final User current : game.getReadyPlayers().keySet()) {</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            if (game.getReadyPlayers().get(current)) {</span>
+<span class="fc" id="L39">                result.add(current);</span>
+            }
+<span class="fc" id="L41">        }</span>
+<span class="fc" id="L42">        return result;</span>
+    }
+
+    /**
+     * Builds a WaitingDataDTO from current game information.
+     *
+     * @return a correct WaitingDataDTO.
+     */
+    protected WaitingDataDTO buildWaitingDataDTO(Game game) {
+<span class="fc" id="L51">        return new WaitingDataDTO(game.getUnassignedUsers(), buildReadyPlayerList(game), game.checkGameStartable());</span>
+    }
+
+    /**
+     * Builds a RunningDataDTO from current game information. If isCurrentTeam is
+     * true, category is omitted.
+     *
+     * @param isCurrentTeam true when building for currently guessing team, else
+     *                      false.
+     * @return a correct RunningDataDTO
+     */
+    protected RunningDataDTO buildRunningDataDTO(Game game, final boolean isCurrentTeam) {
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (isCurrentTeam) {</span>
+<span class="fc" id="L64">            return new RunningDataDTO(game.getRoundCounter() / game.getNumberOfTeams(), game.getRoundEndTime(), game.getRoundStartTime(), game.getCurrentTeam(), game.getCurrentPlayer(), null,</span>
+<span class="fc" id="L65">                game.getDice().getPoints(game.getCurrentFacet()), game.getDice().getDurationInSeconds(game.getCurrentFacet()),</span>
+<span class="fc" id="L66">                game.getDice().getActivity(game.getCurrentFacet()));</span>
+        } else {
+<span class="fc" id="L68">            return new RunningDataDTO(game.getRoundCounter() / game.getNumberOfTeams(), game.getRoundEndTime(), game.getRoundStartTime(), game.getCurrentTeam(), game.getCurrentPlayer(),</span>
+<span class="fc" id="L69">                game.getCurrentExpression().getName(), game.getDice().getPoints(game.getCurrentFacet()), game.getDice().getDurationInSeconds(game.getCurrentFacet()),</span>
+<span class="fc" id="L70">                game.getDice().getActivity(game.getCurrentFacet()));</span>
+        }
+    }
+
+    /**
+     * Method that builds a StateUpdateDTO from current game information. If game
+     * is active, waiting information gets omitted and vice versa.
+     *
+     * @return a correct StateUpdateDTO
+     */
+    public StateUpdateDTO buildStateUpdate(Game game) {
+
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (game.isActive()) {</span>
+<span class="fc" id="L83">            final RunningDataDTO runningData = buildRunningDataDTO(game, false);</span>
+<span class="fc" id="L84">            return new StateUpdateDTO(&quot;RUNNING&quot;, null, runningData, new DiceInfoDTO(game.getDice().isRaspberryConnected(),</span>
+<span class="fc" id="L85">                game.getDice().getBatteryPower()), game.getGameCode(), buildTeamDTOs(game.getTeams()), game.getHost(), game.getCategory(),</span>
+<span class="fc" id="L86">                game.getMaxPoints());</span>
+        } else {
+<span class="nc" id="L88">            final WaitingDataDTO waitingData = buildWaitingDataDTO(game);</span>
+<span class="nc" id="L89">            return new StateUpdateDTO(&quot;WAITING&quot;, waitingData, null, new DiceInfoDTO(game.getDice().isRaspberryConnected(),</span>
+<span class="nc" id="L90">                game.getDice().getBatteryPower()), game.getGameCode(), buildTeamDTOs(game.getTeams()), game.getHost(), game.getCategory(),</span>
+<span class="nc" id="L91">                game.getMaxPoints());</span>
+        }
+
+    }
+
+    /**
+     * Method that builds a List of TeamDTOs from a List of teams.
+     *
+     * @param teams teams to build DTOs from
+     * @return a List of TeamDTOs
+     */
+    protected List&lt;TeamDTO&gt; buildTeamDTOs(final List&lt;Team&gt; teams) {
+<span class="fc" id="L103">        final List&lt;TeamDTO&gt; result = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        for (final Team t : teams) {</span>
+<span class="fc" id="L105">            result.add(new TeamDTO(t.getName(), t.getScore(), buildUserDTOs(t.getPlayers()), t.getIndex()));</span>
+<span class="fc" id="L106">        }</span>
+<span class="fc" id="L107">        return result;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

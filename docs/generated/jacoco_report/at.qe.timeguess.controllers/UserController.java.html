@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TimeGuess</a> &gt; <a href="index.source.html" class="el_package">at.qe.timeguess.controllers</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package at.qe.timeguess.controllers;
+
+import at.qe.timeguess.dto.CreateUserDTO;
+import at.qe.timeguess.dto.Login;
+import at.qe.timeguess.dto.LoginResult;
+import at.qe.timeguess.dto.UpdateUserDTO;
+import at.qe.timeguess.model.User;
+import at.qe.timeguess.model.UserRole;
+import at.qe.timeguess.services.AuthenticationService;
+import at.qe.timeguess.services.LobbyService;
+import at.qe.timeguess.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * Class that handles the user endpoint of the API. It takes care of the authentication and registration of users and
+ * handles creating, modifying, searching and deleting users.
+ */
+@RequestMapping(&quot;/users&quot;)
+@RestController
+<span class="fc" id="L27">public class UserController {</span>
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationService authenticationService;
+
+    @Autowired
+    private LobbyService lobbyService;
+
+    /**
+     * Method that returns a JWT Token needed for authorization upon successful login.
+     *
+     * @param login DTO that contains username and password
+     * @return ResponseEntity: Status 401 when wrong credentials are entered, Status 200 with LoginResult DTO when
+     * login was successful
+     */
+    @PostMapping(&quot;/login&quot;)
+    public ResponseEntity&lt;?&gt; login(@RequestBody Login login) {
+
+<span class="fc" id="L51">        User retrievedUser = userService.getUserByUsername(login.getUsername());</span>
+
+<span class="fc" id="L53">        String receivedPassword = login.getPassword();</span>
+
+<span class="pc bpc" id="L55" title="1 of 4 branches missed.">        if (retrievedUser != null &amp;&amp; receivedPassword != null) {</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">            if (passwordEncoder.matches(receivedPassword, retrievedUser.getPassword())) {</span>
+<span class="fc" id="L57">                String token = authenticationService.generateTokenWithFixedExpiration(retrievedUser);</span>
+<span class="fc" id="L58">                return new ResponseEntity&lt;&gt;(new LoginResult(retrievedUser, token), HttpStatus.OK);</span>
+            }
+        }
+
+<span class="fc" id="L62">        return new ResponseEntity&lt;&gt;(&quot;Username or password are wrong&quot;, HttpStatus.UNAUTHORIZED);</span>
+    }
+
+    /**
+     * Method that registers a new user and assigns the role player to it
+     *
+     * @param login DTO that contains username and password
+     * @return ResponseEntity: 201 if user could be created, 409 if a user with the same username already exists
+     */
+    @PostMapping(&quot;/register&quot;)
+    public ResponseEntity&lt;?&gt; register(@RequestBody Login login) {
+<span class="fc" id="L73">        String username = login.getUsername();</span>
+<span class="fc" id="L74">        String password = login.getPassword();</span>
+<span class="pc bpc" id="L75" title="1 of 4 branches missed.">        if (username != null &amp;&amp; password != null) {</span>
+
+            try {
+<span class="fc" id="L78">                User createdUser = userService.saveUser(new User(username, password, UserRole.PLAYER));</span>
+<span class="fc" id="L79">                String token = authenticationService.generateTokenWithFixedExpiration(createdUser);</span>
+<span class="fc" id="L80">                return new ResponseEntity&lt;&gt;(new LoginResult(createdUser, token), HttpStatus.CREATED);</span>
+<span class="fc" id="L81">            } catch (UserService.UsernameNotAvailableException e) {</span>
+<span class="fc" id="L82">                return new ResponseEntity&lt;&gt;(&quot;The username was already taken&quot;, HttpStatus.CONFLICT);</span>
+<span class="fc" id="L83">            } catch (UserService.EmptyPasswordException e2) {</span>
+<span class="fc" id="L84">                return new ResponseEntity&lt;&gt;(&quot;Sent password is empty&quot;, HttpStatus.BAD_REQUEST);</span>
+            }
+        }
+<span class="fc" id="L87">        return new ResponseEntity&lt;&gt;(&quot;Username and Password required&quot;, HttpStatus.BAD_REQUEST);</span>
+    }
+
+    /**
+     * Returns the user with the given id.
+     *
+     * @param id number that represents the id of a user
+     * @return 200 and User entity without password and timestamp on success, 404 when user couldn't be found
+     */
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;?&gt; getUser(@PathVariable Long id) {
+<span class="fc" id="L98">        User user = this.userService.getUserById(id);</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (user != null) {</span>
+<span class="fc" id="L100">            return new ResponseEntity&lt;&gt;(user, HttpStatus.OK);</span>
+        } else {
+<span class="fc" id="L102">            return new ResponseEntity&lt;&gt;(&quot;Not Found&quot;, HttpStatus.NOT_FOUND);</span>
+        }
+    }
+
+    /**
+     * Method that changes a user if the authenticated user has the right permissions to modify a user and
+     * modify it's role. Only admins can change other users than themselves and are to only ones allowed to change the role of a user.
+     * A non admin user can only change his password and username and needs to verify himself with his current password.
+     *
+     * @param id            number that represents the id of a user
+     * @param updateUserDTO DTO that contains the changed values of the user and its current password
+     * @return ResponseEntity: 200 when user could be changed successfully, 400 wrong old password or empty password was given
+     * 403 when the user hadn't the permissions to change a user, 404 user with specified user id doesn't
+     * exist, 409 if new username is the same as a username of an existing user or user is in game
+     */
+    @PutMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;?&gt; putUser(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
+<span class="fc" id="L119">        User user = this.userService.getUserById(id);</span>
+<span class="fc" id="L120">        String username = updateUserDTO.getUsername();</span>
+<span class="fc" id="L121">        String password = updateUserDTO.getPassword();</span>
+<span class="fc" id="L122">        String oldPassword = updateUserDTO.getOld_password();</span>
+<span class="fc" id="L123">        UserRole role = updateUserDTO.getRole();</span>
+
+<span class="fc" id="L125">        User authorizedUser = this.userService.getAuthenticatedUser();</span>
+
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        if (authorizedUser == null) {</span>
+<span class="fc" id="L128">            return new ResponseEntity(&quot;There was no authentication provided or it was invalid&quot;, HttpStatus.UNAUTHORIZED);</span>
+        }
+
+<span class="fc" id="L131">        boolean isAdmin = authorizedUser.getRole().equals(UserRole.ADMIN);</span>
+
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (user == null) {</span>
+<span class="fc" id="L134">            return new ResponseEntity(&quot;Not Found&quot;, HttpStatus.NOT_FOUND);</span>
+        }
+
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        if (lobbyService.isUserInGame(user)) {</span>
+<span class="nc" id="L138">            return new ResponseEntity(&quot;User cannot be changed because he is currently in a game.&quot;, HttpStatus.CONFLICT);</span>
+        }
+
+        //if no changes in user do not update
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        if (!updateUserDTO.hasChanges(user)) {</span>
+<span class="nc" id="L143">            return new ResponseEntity(HttpStatus.OK);</span>
+        }
+
+        //admin does not need to specify oldPassword except when he changes his own data
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        if (!isAdmin) {</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">            if (authorizedUser.getId() != user.getId()) {</span>
+<span class="fc" id="L149">                return new ResponseEntity(&quot;The user has not the rights to perform this action&quot;, HttpStatus.FORBIDDEN);</span>
+<span class="pc bpc" id="L150" title="1 of 4 branches missed.">            } else if (oldPassword == null || !passwordEncoder.matches(oldPassword, user.getPassword())) {</span>
+<span class="fc" id="L151">                return new ResponseEntity(&quot;The supplied current password is not correct&quot;, HttpStatus.BAD_REQUEST);</span>
+            }
+<span class="pc bpc" id="L153" title="5 of 6 branches missed.">        } else if (authorizedUser.getId() == user.getId() &amp;&amp; (oldPassword == null || !passwordEncoder.matches(oldPassword, user.getPassword()))) {</span>
+<span class="nc" id="L154">            return new ResponseEntity(&quot;The supplied current password is not correct&quot;, HttpStatus.BAD_REQUEST);</span>
+        }
+
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (username != null) {</span>
+<span class="fc" id="L158">            user.setUsername(username);</span>
+        }
+
+<span class="pc bpc" id="L161" title="1 of 4 branches missed.">        if (role != null &amp;&amp; !user.getRole().equals(role)) {</span>
+            //user can not change it's own role only admins can changes roles
+<span class="fc bfc" id="L163" title="All 2 branches covered.">            if (isAdmin) {</span>
+<span class="fc" id="L164">                user.setRole(role);</span>
+            } else {
+<span class="fc" id="L166">                return new ResponseEntity(&quot;The user has not the rights to perform this action&quot;, HttpStatus.FORBIDDEN);</span>
+            }
+        }
+
+<span class="pc bpc" id="L170" title="3 of 4 branches missed.">        if (password != null &amp;&amp; !passwordEncoder.matches(password, user.getPassword())) {</span>
+<span class="nc" id="L171">            user.setPassword(password);</span>
+        }
+
+        try {
+<span class="fc" id="L175">            userService.saveUser(user);</span>
+<span class="fc" id="L176">        } catch (UserService.UsernameNotAvailableException e) {</span>
+<span class="fc" id="L177">            return new ResponseEntity(&quot;The username was already taken&quot;, HttpStatus.CONFLICT);</span>
+<span class="nc" id="L178">        } catch (UserService.EmptyPasswordException e2) {</span>
+<span class="nc" id="L179">            return new ResponseEntity(&quot;Sent password is empty&quot;, HttpStatus.BAD_REQUEST);</span>
+<span class="fc" id="L180">        }</span>
+
+<span class="fc" id="L182">        return new ResponseEntity(HttpStatus.OK);</span>
+    }
+
+    /**
+     * Method that deletes a user with the specified id. Only admins are allowed to delete users.
+     *
+     * @param id number that represent the id of the to be deleted user
+     * @return ResponseEntity: 200 if user could be deleted, 404 if user couldn't be found, 409 if user is ingame
+     */
+    @PreAuthorize(&quot;hasAuthority('ADMIN')&quot;)
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity deleteUser(@PathVariable Long id) {
+<span class="fc" id="L194">        User userToDelete = this.userService.getUserById(id);</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        if (userToDelete != null) {</span>
+
+<span class="pc bpc" id="L197" title="1 of 2 branches missed.">            if (lobbyService.isUserInGame(userToDelete)) {</span>
+<span class="nc" id="L198">                return new ResponseEntity(&quot;User cannot be deleted because he is currently in a game.&quot;, HttpStatus.CONFLICT);</span>
+            }
+
+<span class="fc" id="L201">            this.userService.deleteUser(userToDelete);</span>
+<span class="fc" id="L202">            return new ResponseEntity(HttpStatus.OK);</span>
+        } else {
+<span class="fc" id="L204">            return new ResponseEntity(HttpStatus.NOT_FOUND);</span>
+        }
+
+    }
+
+    /**
+     * Returns a list of all users. Only admins are allowed to call this method.
+     *
+     * @return list of users
+     */
+    @PreAuthorize(&quot;hasAuthority('ADMIN')&quot;)
+    @GetMapping
+    public List&lt;User&gt; getUsers() {
+<span class="fc" id="L217">        return this.userService.getAllUsers();</span>
+    }
+
+    /**
+     * Creates a user with the specified username, password and role. Only admins are allowed to create users.
+     *
+     * @param createUserDTO DTO that contains username, password and role
+     * @return ResponseEntity: 201 if user could be created, 400 if missing parameters or empty password, 409 if there
+     * already exists a user with the same password
+     */
+    @PreAuthorize(&quot;hasAuthority('ADMIN')&quot;)
+    @PostMapping
+    public ResponseEntity&lt;?&gt; createUser(@RequestBody CreateUserDTO createUserDTO) {
+<span class="fc" id="L230">        String username = createUserDTO.getUsername();</span>
+<span class="fc" id="L231">        String password = createUserDTO.getPassword();</span>
+<span class="fc" id="L232">        UserRole role = createUserDTO.getRole();</span>
+<span class="pc bpc" id="L233" title="3 of 6 branches missed.">        if (username != null &amp;&amp; password != null &amp;&amp; role != null) {</span>
+
+            try {
+<span class="fc" id="L236">                User createdUser = userService.saveUser(new User(username, password, role));</span>
+<span class="fc" id="L237">                return new ResponseEntity&lt;&gt;(createdUser, HttpStatus.CREATED);</span>
+<span class="fc" id="L238">            } catch (UserService.UsernameNotAvailableException e) {</span>
+<span class="fc" id="L239">                return new ResponseEntity&lt;&gt;(&quot;The username was already taken&quot;, HttpStatus.CONFLICT);</span>
+<span class="nc" id="L240">            } catch (UserService.EmptyPasswordException e2) {</span>
+<span class="nc" id="L241">                return new ResponseEntity&lt;&gt;(&quot;Sent password is empty&quot;, HttpStatus.BAD_REQUEST);</span>
+            }
+        }
+<span class="nc" id="L244">        return new ResponseEntity&lt;&gt;(&quot;User needs username, password and role&quot;, HttpStatus.BAD_REQUEST);</span>
+    }
+
+    /**
+     * Method searches users by username  based on the given search parameter.
+     *
+     * @param username string that is used to search usernames
+     * @return a list of usernames that match search pattern
+     */
+    @GetMapping(&quot;search/{username}&quot;)
+    public List&lt;String&gt; searchUsers(@PathVariable String username) {
+<span class="fc" id="L255">        return this.userService.searchUsers(username);</span>
+    }
+
+    @PreAuthorize(&quot;hasAuthority('ADMIN')&quot;)
+    @GetMapping(&quot;/{id}/ingame&quot;)
+    public ResponseEntity&lt;?&gt; isUserInGame(@PathVariable Long id) {
+<span class="nc" id="L261">        User user = this.userService.getUserById(id);</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">        if(user != null) {</span>
+<span class="nc" id="L263">            return new ResponseEntity&lt;&gt;(lobbyService.isUserInGame(user),HttpStatus.OK);</span>
+        } else {
+<span class="nc" id="L265">            return new ResponseEntity(HttpStatus.NOT_FOUND);</span>
+        }
+
+    }
+
+    /**
+     * Returns an ok response code if user is authenticated.
+     * @return 401 if user not authenticated, 200 if user authenticated
+     */
+    @GetMapping(&quot;/auth&quot;)
+    public ResponseEntity&lt;?&gt; isAuthenticated() {
+<span class="nc" id="L276">        return new ResponseEntity(HttpStatus.OK);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
