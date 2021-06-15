@@ -1,17 +1,18 @@
 FROM maven:3.8.1-jdk-8 AS build  
 
+RUN mkdir -p /build/
 COPY pom.xml /build/
 COPY src /build/src/
 
-WORKDIR /build/
-
-RUN mvn clean package
+RUN mvn -f /build/pom.xml clean package
 
 FROM openjdk:8-jdk-alpine
 
 WORKDIR /app
 
 COPY --from=build /build/target/TimeGuess-1.0.5.jar /app
+COPY --from=build /build/target/site/jacoco /app/jacoco_report
+COPY --from=build /build/target/apidocs /app/javadocs
 
 RUN apk add --no-cache openssl
 
