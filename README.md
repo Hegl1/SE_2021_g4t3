@@ -79,7 +79,7 @@ For setting up the raspberry, please refer to the [README.md](./raspberry/README
 
 ## Javadocs and Jacoco-Report
 
-After the deployment the javadocs and the jacoco report can be pulled from the backend image by executing the generate.ps1 or generate.sh script.
+After the deployment the javadocs and the jacoco report can be pulled from the backend image by executing the retrieve.ps1 or retrieve.sh script.
 The files will be copied to the [docs/generated](./docs/generated) folder.
 
 ## Commiting
